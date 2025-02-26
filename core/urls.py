@@ -22,5 +22,4 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('news/', include('apps.news.urls', namespace="news")),
     path('users/', include('apps.users.urls', namespace="users")),
-    path('community/', include('apps.community.urls', namespace="community")),
 ]
