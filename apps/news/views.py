@@ -10,6 +10,10 @@ def homepage(request):
     return render(request, 'news/homepage.html', {'articles': articles})
 
 
+def article_list(request):
+    return render(request, "news/article_list.html")
+
+
 def article_detail(request, article_id):
     article = Article.objects.get(id=article_id)
     return render(request, 'news/article_detail.html', {'article': article})
