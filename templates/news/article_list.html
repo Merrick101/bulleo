@@ -1,0 +1,10 @@
+{% for article in articles %}
+    <div class="article">
+        <h2>{{ article.title }}</h2>
+        {% if article.image_url %}
+            <img src="{{ article.image_url }}" alt="News Image">
+        {% else %}
+            <p>No image available</p>
+        {% endif %}
+    </div>
+{% endfor %}
