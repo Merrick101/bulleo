@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import Profile
+from .forms import ProfileForm
 
 # Create your views here.
 
@@ -11,7 +12,7 @@ def login_view(request):
 
 @login_required
 def profile_view(request):
-    profile = Profile.objects.get(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=profile)
