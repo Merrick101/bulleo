@@ -5,5 +5,5 @@
 {% block content %}
     <h1>Welcome, {{ user.username }}</h1>
     <p>Email: {{ user.email }}</p>
-    <a href="{% url 'users:edit_profile' %}" class="btn btn-secondary">Edit Profile</a>
+    <a href="{% url 'edit_profile' %}" class="btn btn-secondary">Edit Profile</a>
 {% endblock %}
