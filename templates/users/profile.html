@@ -1,16 +1,59 @@
 {% extends "base.html" %}
 
-{% block title %}My Profile{% endblock %}
-
 {% block content %}
-<h2>Welcome, {{ profile.user.username }}</h2>
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Profile</h2>
 
-<img src="{{ profile.profile_picture.url }}" alt="Profile Picture" width="100px">
-<p>{{ profile.bio }}</p>
+    <!-- Display user profile details -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ profile.user.username }}</h5>
+            <p class="card-text">{{ profile.bio }}</p>
+            {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail" width="150">
+            {% else %}
+                <p>No profile picture uploaded.</p>
+            {% endif %}
+        </div>
+    </div>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-</form>
+    <!-- Profile Edit Form -->
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Display form fields with styling -->
+                <div class="mb-3">
+                    <label class="form-label">Bio</label>
+                    {{ form.bio }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Profile Picture</label>
+                    {{ form.profile_picture }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">News Preferences</label>
+                    {{ form.news_preferences }}
+                </div>
+
+                <!-- Display form errors -->
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <strong>There were some errors with your submission:</strong>
+                        <ul>
+                            {% for field, errors in form.errors.items %}
+                                <li>{{ field }}: {{ errors.0 }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
