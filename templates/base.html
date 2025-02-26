@@ -46,7 +46,9 @@
                             <a class="nav-link" href="{% url 'users:profile' %}"><i class="fas fa-user"></i> Profile</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-danger" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                            <a class="nav-link text-danger" href="{% url 'account_logout' %}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>                            
                         </li>
                     {% else %}
                         <li class="nav-item">
