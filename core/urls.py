@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', homepage, name='homepage'),
     path('news/', include('apps.news.urls')),
+    path('users/', include('apps.users.urls', namespace="users")),
+    path('community/', include('apps.community.urls', namespace="community")),
 ]
