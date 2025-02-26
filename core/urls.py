@@ -20,6 +20,7 @@ from apps.news.views import homepage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('', homepage, name='homepage'),
     path('news/', include('apps.news.urls')),
     path('users/', include('apps.users.urls', namespace="users")),
