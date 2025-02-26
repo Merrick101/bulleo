@@ -16,13 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from apps.news.views import homepage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('', homepage, name='homepage'),
-    path('news/', include('apps.news.urls')),
+    path('news/', include('apps.news.urls', namespace="news")),
     path('users/', include('apps.users.urls', namespace="users")),
     path('community/', include('apps.community.urls', namespace="community")),
 ]
