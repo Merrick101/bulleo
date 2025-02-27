@@ -1,13 +1,27 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load socialaccount %}  <!-- ✅ Load the socialaccount template tags -->
+
+{% block title %}Sign Up{% endblock %}
+
 {% block content %}
-    <div class="container mt-5">
-        <h2>Sign Up</h2>
-        <p>Password must be at least 10 characters long and not commonly used.</p>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Sign Up</button>
-        </form>
-        <p>Already have an account? <a href="{% url 'users:login' %}">Log in</a></p>
+<div class="container mt-4">
+    <h2 class="text-center">Sign Up</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+    </form>
+
+    <!-- Google Sign-Up Button -->
+    <div class="text-center mt-3">
+        <a href="{% provider_login_url 'google' %}" class="btn btn-danger">
+            <i class="fab fa-google"></i> Sign Up with Google
+        </a>
     </div>
+
+    <p class="mt-3 text-center">
+        Already have an account? <a href="{% url 'users:login' %}">Log in</a>
+    </p>
+</div>
 {% endblock %}
