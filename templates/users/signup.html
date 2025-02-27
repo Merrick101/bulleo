@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
-{% load socialaccount %}  <!-- ✅ Load the socialaccount template tags -->
+{% load socialaccount %}
+{% load static %}
 
 {% block title %}Sign Up{% endblock %}
 
@@ -15,13 +16,33 @@
 
     <!-- Google Sign-Up Button -->
     <div class="text-center mt-3">
-        <a href="{% provider_login_url 'google' %}" class="btn btn-danger">
+        <button id="google-signup-btn" class="btn btn-danger">
             <i class="fab fa-google"></i> Sign Up with Google
-        </a>
+        </button>
+    </div>
+
+    <!-- Modal structure for sign-up -->
+    <div id="google-signup-modal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sign Up with Google</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to sign up using your Google account.</p>
+                    <button id="google-signup-btn" class="btn btn-danger">Continue with Google</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <p class="mt-3 text-center">
         Already have an account? <a href="{% url 'users:login' %}">Log in</a>
     </p>
 </div>
+
+<script src="{% static 'js/login-signup.js' %}"></script>
 {% endblock %}
