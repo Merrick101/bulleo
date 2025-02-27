@@ -23,7 +23,16 @@ def signup_view(request):
 
 
 def login_view(request):
-    return render(request, 'users/login.html')
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect("home")  # Redirect to homepage after login
+    else:
+        form = AuthenticationForm()
+
+    return render(request, "users/login.html", {"form": form})
 
 
 @login_required
