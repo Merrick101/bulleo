@@ -19,7 +19,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(
-        upload_to="profile_pics/",
+        upload_to="static/images/profile_pics/",
         default="profile_pics/default.jpg",
         blank=True,
         null=True
