@@ -18,43 +18,38 @@
 
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/e293581b17.js" crossorigin="anonymous"></script>
+
 </head>
 <body>
 
     <!-- ✅ Updated Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light custom-navbar">
-        <div class="container-fluid">
-            
-            <!-- Left Side: Menu + Search -->
-            <div class="d-flex align-items-center">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="search-container ms-3">
-                    <i class="fas fa-search search-icon" onclick="toggleSearch()"></i>
-                    <input type="text" class="search-input" placeholder="Search..." id="searchInput">
-                    <i class="fas fa-times close-search" onclick="toggleSearch()"></i>
-                </div>
+    <nav class="navbar custom-navbar">
+        
+        <!-- Left Side: Menu + Search -->
+        <div class="navbar-left">
+            <div class="menu-icon">
+                <i class="fas fa-bars"></i> Menu
             </div>
+            <i class="fas fa-search search-icon" onclick="toggleSearch()"></i>
+        </div>
 
-            <!-- Center: Logo + Tagline -->
-            <div class="navbar-brand text-center mx-auto">
-                <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
-                <h5 class="navbar-tagline">- Your Personalized Newsroom -</h5>
-            </div>
+        <!-- Center: Logo + Tagline -->
+        <div class="navbar-center">
+            <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
+            <h5 class="navbar-tagline">- Your Personalized Newsroom -</h5>
+        </div>
 
-            <!-- Right Side: Authentication -->
-            <div class="auth-buttons d-flex align-items-center">
-                {% if user.is_authenticated %}
-                    <i class="fas fa-bell notification-icon"></i>
-                    <a href="{% url 'users:profile' %}" class="profile-link">
-                        <i class="fas fa-user"></i> {{ user.username }}
-                    </a>
-                {% else %}
-                    <a href="{% url 'users:login' %}" class="btn btn-outline-dark btn-sm me-2">Log In</a>
-                    <a href="{% url 'users:signup' %}" class="btn btn-primary btn-sm">Sign Up</a>
-                {% endif %}
-            </div>
+        <!-- Right Side: Authentication -->
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+                <i class="fas fa-bell notification-icon"></i>
+                <a href="{% url 'users:profile' %}" class="profile-link">
+                    <i class="fas fa-user"></i> {{ user.username }}
+                </a>
+            {% else %}
+                <a href="{% url 'users:login' %}" class="btn btn-outline-dark btn-sm me-2">Log In</a>
+                <a href="{% url 'users:signup' %}" class="btn btn-primary btn-sm">Sign Up</a>
+            {% endif %}
         </div>
     </nav>
 
@@ -74,16 +69,5 @@
             </p>
         </div>
     </footer>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        function toggleSearch() {
-            let input = document.getElementById("searchInput");
-            input.classList.toggle("active");
-        }
-    </script>
-
 </body>
 </html>
