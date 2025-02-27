@@ -105,6 +105,11 @@ else:
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
+LOGIN_URL = "/users/login/"
+LOGIN_REDIRECT_URL = "/"  # Redirect after successful login
+LOGOUT_REDIRECT_URL = "/"
+
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
