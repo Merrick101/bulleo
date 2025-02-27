@@ -22,43 +22,52 @@
 </head>
 <body>
 
-    <!-- ✅ Updated Navbar -->
-    <nav class="navbar custom-navbar">
-        
-        <!-- Left Side: Menu + Search -->
-        <div class="navbar-left">
-            <div class="menu-icon">
-                <i class="fas fa-bars"></i> Menu
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg custom-navbar">
+        <div class="container-fluid">
+    
+            <!-- Left: Menu & Search -->
+            <div class="navbar-left">
+                <div class="menu-icon">
+                    <i class="fas fa-bars"></i> Menu
+                </div>
+                <i class="fas fa-search search-icon" onclick="toggleSearch()"></i>
             </div>
-            <i class="fas fa-search search-icon" onclick="toggleSearch()"></i>
-        </div>
-
-        <!-- Center: Logo + Tagline -->
-        <div class="navbar-center">
-            <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
-            <h5 class="navbar-tagline">- Your Personalized Newsroom -</h5>
-        </div>
-
-        <!-- Right Side: Authentication -->
-        <div class="auth-buttons">
-            {% if user.is_authenticated %}
-                <i class="fas fa-bell notification-icon"></i>
-                <a href="{% url 'users:profile' %}" class="profile-link">
-                    <i class="fas fa-user"></i> {{ user.username }}
-                </a>
-            {% else %}
+    
+            <!-- Center: Logo -->
+            <div class="navbar-center">
+                <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
+                <h5 class="navbar-tagline">- Your Personalized Newsroom -</h5>
+            </div>
+    
+            <!-- Right: User Dropdown -->
+            <div class="auth-buttons">
+                {% if user.is_authenticated %}
+                <div class="dropdown">
+                    <button class="btn btn-outline-dark dropdown-toggle" type="button" id="profileDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user"></i> {{ user.username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                        <li><a class="dropdown-item" href="{% url 'users:profile' %}">Profile</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'users:logout' %}">Logout</a></li>
+                    </ul>
+                </div>
+                {% else %}
                 <a href="{% url 'users:login' %}" class="btn btn-outline-dark btn-sm me-2">Log In</a>
                 <a href="{% url 'users:signup' %}" class="btn btn-primary btn-sm">Sign Up</a>
-            {% endif %}
+                {% endif %}
+            </div>
+    
         </div>
     </nav>
 
-    <!-- ✅ Page Content -->
+    <!-- Page Content -->
     <div class="container mt-4">
         {% block content %}{% endblock %}
     </div>
 
-    <!-- ✅ Footer -->
+    <!-- Footer -->
     <footer class="custom-footer">
         <div class="container text-center">
             <p>&copy; 2025 Bulleo. All Rights Reserved.</p>
@@ -69,5 +78,8 @@
             </p>
         </div>
     </footer>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

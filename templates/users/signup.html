@@ -2,6 +2,7 @@
 {% block content %}
     <div class="container mt-5">
         <h2>Sign Up</h2>
+        <p>Password must be at least 10 characters long and not commonly used.</p>
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
