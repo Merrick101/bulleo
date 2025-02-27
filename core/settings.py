@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.google",  # Handles Google OAuth
     'crispy_forms',
     'crispy_bootstrap5',
     'apps.users',
@@ -82,6 +82,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "allauth.account.context_processors.account",
+                "allauth.socialaccount.context_processors.socialaccount",
             ],
         },
     },
@@ -107,10 +109,6 @@ else:
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
-LOGIN_URL = "/users/login/"
-LOGIN_REDIRECT_URL = "/"  # Redirect after successful login
-LOGOUT_REDIRECT_URL = "/"
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -129,13 +127,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend", # Default
-    "allauth.account.auth_backends.AuthenticationBackend", # Allauth
-]
-
-
-ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_LOGIN_METHODS = {"email"}
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "optional"
@@ -148,6 +140,21 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {"access_type": "online"},
     }
 }
+
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",  # Default
+    "allauth.account.auth_backends.AuthenticationBackend",  # Allauth
+]
+
+SITE_ID = 1
+
+LOGIN_URL = "/users/login/"  # Redirect to login page
+LOGIN_REDIRECT_URL = "/"  # Redirect after successful login
+LOGOUT_REDIRECT_URL = "/"  # Redirect after successful logout
+
+# Load Google OAuth Credentials from .env
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -190,5 +197,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
-
-SITE_ID = 1
