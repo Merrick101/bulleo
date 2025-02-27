@@ -133,6 +133,15 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # Use email provider's SMTP server
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")  # Store email in .env
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")  # Store password in .env
+DEFAULT_FROM_EMAIL = "noreply@bulleo.com"
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
