@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        console.log("OAuth callback script running...");
+
+        if (window.opener) {
+            console.log("✅ Sending success message...");
+            window.opener.postMessage("google-login-success", window.opener.location.origin);
+
+            console.log("✅ Closing popup...");
+            window.close();
+        } else {
+            console.warn("⚠️ No opener detected. Using localStorage fallback...");
+            localStorage.setItem("googleLoginSuccess", "true");
+            window.location.href = "/";
+        }
+    </script>
+</head>
+<body>
+    <p>If this page does not close automatically, <a href="/" target="_top">click here</a>.</p>
+</body>
+</html>

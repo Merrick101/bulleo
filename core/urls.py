@@ -24,5 +24,5 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path("", homepage, name="home"),
     path('news/', include('apps.news.urls', namespace="news")),
-    path('users/', include('apps.users.urls', namespace="users")),
+    path("users/", include("apps.users.urls", namespace="users")),
 ]

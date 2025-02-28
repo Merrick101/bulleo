@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    "corsheaders",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -64,6 +65,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -127,31 +130,47 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SITE_ID = 1
 
-ACCOUNT_LOGIN_METHODS = ("email",)
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_LOGIN_METHODS = {'username'}
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_EMAIL_REQUIRED = False
 
 
 # Google OAuth settings
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "SCOPE": ["email", "profile"],
+        "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {"access_type": "online"},
     }
 }
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
+# Ensure session cookies work across OAuth logins
+SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_NAME = "bulleo_session"
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
+
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",  # Default
     "allauth.account.auth_backends.AuthenticationBackend",  # Allauth
 ]
 
-SITE_ID = 1
-
 LOGIN_URL = "/users/login/"  # Redirect to login page
-LOGIN_REDIRECT_URL = "/"  # Redirect after successful login
-LOGOUT_REDIRECT_URL = "/"  # Redirect after successful logout
+LOGIN_REDIRECT_URL = '/'  # Redirect after successful login
+LOGOUT_REDIRECT_URL = '/'  # Redirect after successful logout
 
 # Load Google OAuth Credentials from .env
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY", "")
@@ -165,6 +184,11 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")  # Store email in .env
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")  # Store password in .env
 DEFAULT_FROM_EMAIL = "bulleo.news@gmail.com"
+
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
 
 # Internationalization
