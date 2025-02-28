@@ -87,9 +87,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 SITE_ID = 1
 
-ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_EMAIL_REQUIRED = False
+# Ensure users must enter an email
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True  # Ensures no duplicate emails
+ACCOUNT_USERNAME_REQUIRED = True  # Keep username field too (optional)
+ACCOUNT_LOGIN_METHODS = {"email", "username"}  # Allow login with email or username
+
 
 # Google OAuth settings
 SOCIALACCOUNT_PROVIDERS = {

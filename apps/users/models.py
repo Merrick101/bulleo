@@ -1,9 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-
-# Create your models here.
+from django.core.exceptions import ValidationError
 
 
 # Category Model for News Preferences
@@ -30,6 +29,13 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
+
+# Ensure email is provided before saving user
+@receiver(pre_save, sender=User)
+def validate_user_email(sender, instance, **kwargs):
+    if not instance.email:
+        raise ValidationError("An email address is required to create an account.")
 
 
 # Automatically create and save Profile when a User is created
