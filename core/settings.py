@@ -95,8 +95,11 @@ ACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
-        "OAUTH_PKCE_ENABLED": True,
+        "AUTH_PARAMS": {
+            "access_type": "online",
+            "prompt": "select_account"  # Ensures the user sees account selection every time
+        },
+        "OAUTH_PKCE_ENABLED": True,  # Ensures better security
     }
 }
 
