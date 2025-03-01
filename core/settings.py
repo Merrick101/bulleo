@@ -61,7 +61,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # Removed custom auth_forms context processor since modals are removed.
             ],
         },
     },
@@ -90,6 +89,7 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False  # Use email-based login
 SOCIALACCOUNT_AUTO_SIGNUP = True   # Skip extra final step for social signups
 SOCIALACCOUNT_QUERY_EMAIL = True    # Ensure email is queried from provider
+SOCIALACCOUNT_LOGIN_ON_GET = True   # Login immediately after social login
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
