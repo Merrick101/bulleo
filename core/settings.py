@@ -92,7 +92,7 @@ SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True  # Ensures no duplicate emails
 ACCOUNT_USERNAME_REQUIRED = True  # Keep username field too (optional)
-ACCOUNT_LOGIN_METHODS = {"email", "username"}  # Allow login with email or username
+ACCOUNT_LOGIN_METHODS = ["email", "username"]  # Allow login with email or username
 
 
 # Google OAuth settings
@@ -120,7 +120,11 @@ SESSION_COOKIE_NAME = "bulleo_session"
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "https://bulleo-4e729939848e.herokuapp.com",
 ]
+
+CSRF_COOKIE_HTTPONLY = False  # Ensure CSRF cookie is accessible to JavaScript
+CSRF_COOKIE_SECURE = False  # Set to True in production
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",

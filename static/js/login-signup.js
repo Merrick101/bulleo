@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
         switchToSignup.addEventListener("click", function (event) {
             event.preventDefault();
             loginModal.hide();
-            signupModal.show();
+            setTimeout(() => signupModal.show(), 400); // Prevent modal glitch
         });
     }
 
@@ -61,14 +61,30 @@ document.addEventListener("DOMContentLoaded", function () {
         switchToLogin.addEventListener("click", function (event) {
             event.preventDefault();
             signupModal.hide();
-            loginModal.show();
+            setTimeout(() => loginModal.show(), 400);
         });
+    }
+
+    // Function to get CSRF token from cookies
+    function getCSRFToken() {
+        let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]")?.value;
+        if (!csrfToken) {
+            console.error("⚠️ CSRF token not found in form!");
+        }
+        return csrfToken;
     }
 
     // Handle login form submission
     const loginForm = document.querySelector("#login-modal form");
     if (loginForm) {
-        loginForm.addEventListener("submit", function () {
+        loginForm.addEventListener("submit", function (event) {
+            const csrfToken = getCSRFToken();
+            if (!csrfToken) {
+                event.preventDefault();
+                alert("CSRF token missing! Please refresh the page.");
+                return;
+            }
+
             setTimeout(() => {
                 window.location.reload();
             }, 1000); // Short delay to allow session update
@@ -78,7 +94,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // Handle signup form submission
     const signupForm = document.querySelector("#signup-modal form");
     if (signupForm) {
-        signupForm.addEventListener("submit", function () {
+        signupForm.addEventListener("submit", function (event) {
+            const csrfToken = getCSRFToken();
+            if (!csrfToken) {
+                event.preventDefault();
+                alert("CSRF token missing! Please refresh the page.");
+                return;
+            }
+
             setTimeout(() => {
                 window.location.reload();
             }, 1000);

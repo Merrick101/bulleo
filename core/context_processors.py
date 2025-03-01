@@ -1,13 +1,14 @@
 from django.contrib.auth.forms import AuthenticationForm
-from allauth.account.forms import SignupForm
+from apps.users.forms import CustomUserCreationForm
 
 
 def auth_forms(request):
     """
-    Provides authentication-related forms for modals in base.html.
+    Provides authentication-related forms for modals in base.html,
+    using the custom signup form for consistency.
     """
     login_form = AuthenticationForm()
-    signup_form = SignupForm()
+    signup_form = CustomUserCreationForm()
 
     return {
         "login_form": login_form,

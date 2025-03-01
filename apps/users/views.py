@@ -10,21 +10,19 @@ User = get_user_model()  # Ensure correct user model
 
 
 def signup_view(request):
-    """Handles user signup through the modal in base.html."""
-    from .forms import CustomUserCreationForm  # Import inside function
-
+    from .forms import CustomUserCreationForm
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-
-            # Authenticate and log in the user after signup
             authenticated_user = authenticate(username=user.username, password=form.cleaned_data["password1"])
             if authenticated_user:
                 login(request, authenticated_user, backend="django.contrib.auth.backends.ModelBackend")
-
-            return redirect("home")  # Redirect back to home page after signup
-    return redirect("home")  # If method is GET, simply go back to home
+            return redirect("home")
+        else:
+            # Instead of redirecting immediately, pass the form (with errors) back to the template.
+            return render(request, "users/signup_modal.html", {"signup_form": form})
+    return redirect("home")
 
 
 def login_view(request):
