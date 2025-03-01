@@ -4,7 +4,8 @@ from allauth.account.forms import SignupForm
 
 def auth_forms(request):
     """
-    Provides authentication-related forms for modals in base.html.
+    Provides authentication-related forms for modals in base.html,
+    using Allauth's default forms for consistency.
     """
     login_form = AuthenticationForm()
     signup_form = SignupForm()

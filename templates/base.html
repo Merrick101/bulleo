@@ -46,20 +46,16 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <li><a class="dropdown-item" href="{% url 'users:profile' %}">Profile</a></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'users:logout' %}">Logout</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'account_logout' %}">Logout</a></li>
                     </ul>
                 </div>
                 {% else %}
-                <button id="open-login-modal" class="btn btn-outline-dark btn-sm">Log In</button>
-                <button id="open-signup-modal" class="btn btn-primary btn-sm">Sign Up</button>
+                <a href="{% url 'account_login' %}" class="btn btn-outline-dark btn-sm">Log In</a>
+                <a href="{% url 'account_signup' %}" class="btn btn-primary btn-sm">Sign Up</a>
                 {% endif %}
             </div>
         </div>
     </nav>
-
-    <!-- Include Login and Signup Modals from separate partial templates -->
-    {% include "users/login_modal.html" %}
-    {% include "users/signup_modal.html" %}
 
     <!-- Page Content -->
     <div class="container mt-4">

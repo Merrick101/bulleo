@@ -6,9 +6,8 @@ urlpatterns = [
     # Admin Panel
     path('admin/', admin.site.urls),
 
-    # Authentication URLs
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/', include('allauth.urls')),  # Include Allauth's URLs
+    # Use Allauth for authentication (removing django.contrib.auth.urls)
+    path('accounts/', include('allauth.urls')),
 
     # Application URLs
     path("", homepage, name="home"),

@@ -61,7 +61,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "core.context_processors.auth_forms",
+                # Removed custom auth_forms context processor since modals are removed.
             ],
         },
     },
@@ -75,7 +75,6 @@ if DATABASE_URL:
 else:
     raise ValueError("DATABASE_URL is not set. Check your environment variables.")
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 10}},
@@ -83,27 +82,28 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+SITE_ID = 1
+
 # Allauth Configurations for social logins
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_USERNAME_REQUIRED = False  # Don't force a username
-SOCIALACCOUNT_AUTO_SIGNUP = True  # Skip the final step for Google OAuth
+ACCOUNT_USERNAME_REQUIRED = False  # Use email-based login
+SOCIALACCOUNT_AUTO_SIGNUP = True   # Skip extra final step for social signups
+SOCIALACCOUNT_QUERY_EMAIL = True    # Ensure email is queried from provider
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
-# Google OAuth settings
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {
             "access_type": "online",
-            "prompt": "select_account"  # Ensures the user sees account selection every time
+            "prompt": "select_account"  # Ensures account selection every time
         },
-        "OAUTH_PKCE_ENABLED": True,  # Ensures better security
+        "OAUTH_PKCE_ENABLED": True,  # For better security
     }
 }
 
-# Cookie Settings
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = False  # Set to True in production
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
@@ -115,8 +115,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://bulleo-4e729939848e.herokuapp.com",
 ]
 
-CSRF_COOKIE_HTTPONLY = False  # Ensure CSRF cookie is accessible to JavaScript
-CSRF_COOKIE_SECURE = False  # Set to True in production
+CSRF_COOKIE_HTTPONLY = False  # CSRF cookie accessible to JavaScript
+CSRF_COOKIE_SECURE = False      # Set to True in production
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -125,7 +125,8 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_USER_MODEL = "auth.User"
 
-LOGIN_URL = "/users/login/"
+# Use Allauth's default URLs
+LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
