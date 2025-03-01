@@ -1,24 +1,23 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.contrib.auth import login, logout, get_user
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import login, logout
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .models import Profile
-from .forms import ProfileForm
 
 
 def signup_view(request):
+    from .forms import CustomUserCreationForm  # Move import inside function
+
     if request.method == "POST":
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)  # Automatically log in the user after signup
-            return redirect('users:profile')  # Redirect to profile page
-
+            form.save()  # No need to assign user variable if it's not used
+            return redirect("home")  # Redirect to homepage or login page
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
-    return render(request, 'users/signup.html', {'form': form})
+    return render(request, "signup.html", {"form": form})
 
 
 def login_view(request):
@@ -36,6 +35,8 @@ def login_view(request):
 
 @login_required
 def profile_view(request):
+    from .forms import ProfileForm  # Move import inside function
+
     profile, created = Profile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
