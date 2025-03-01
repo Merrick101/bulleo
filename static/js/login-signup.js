@@ -1,13 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ login-signup.js loaded");
 
-    // Ensure modals exist before initializing them
+    // Initialize modals if they exist
     const loginModalEl = document.getElementById("login-modal");
     const signupModalEl = document.getElementById("signup-modal");
     const logoutModalEl = document.getElementById("logout-modal");
 
     let loginModal, signupModal, logoutModal;
-
     if (loginModalEl) {
         loginModal = new bootstrap.Modal(loginModalEl);
     }
@@ -18,45 +17,35 @@ document.addEventListener("DOMContentLoaded", function () {
         logoutModal = new bootstrap.Modal(logoutModalEl);
     }
 
-    // Selecting modal toggle buttons
+    // Modal toggle buttons
     const loginBtn = document.getElementById("open-login-modal");
     const signupBtn = document.getElementById("open-signup-modal");
     const logoutBtn = document.getElementById("logout-btn");
-
     const switchToSignup = document.getElementById("switch-to-signup");
     const switchToLogin = document.getElementById("switch-to-login");
 
-    // Open login modal
     if (loginBtn && loginModal) {
         loginBtn.addEventListener("click", function () {
             loginModal.show();
         });
     }
-
-    // Open signup modal
     if (signupBtn && signupModal) {
         signupBtn.addEventListener("click", function () {
             signupModal.show();
         });
     }
-
-    // Open logout confirmation modal
     if (logoutBtn && logoutModal) {
         logoutBtn.addEventListener("click", function () {
             logoutModal.show();
         });
     }
-
-    // Switch from login to signup modal
     if (switchToSignup && loginModal && signupModal) {
         switchToSignup.addEventListener("click", function (event) {
             event.preventDefault();
             loginModal.hide();
-            setTimeout(() => signupModal.show(), 400); // Prevent modal glitch
+            setTimeout(() => signupModal.show(), 400);
         });
     }
-
-    // Switch from signup to login modal
     if (switchToLogin && loginModal && signupModal) {
         switchToLogin.addEventListener("click", function (event) {
             event.preventDefault();
@@ -65,51 +54,80 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Function to get CSRF token from cookies
+    // Function to get CSRF token from the form
     function getCSRFToken() {
-        let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]")?.value;
-        if (!csrfToken) {
-            console.error("⚠️ CSRF token not found in form!");
+        const csrfInput = document.querySelector("[name=csrfmiddlewaretoken]");
+        if (csrfInput) {
+            return csrfInput.value;
+        } else {
+            console.error("⚠️ CSRF token not found!");
+            return "";
         }
-        return csrfToken;
     }
 
-    // Handle login form submission
-    const loginForm = document.querySelector("#login-modal form");
-    if (loginForm) {
-        loginForm.addEventListener("submit", function (event) {
-            const csrfToken = getCSRFToken();
-            if (!csrfToken) {
-                event.preventDefault();
-                alert("CSRF token missing! Please refresh the page.");
-                return;
-            }
-
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000); // Short delay to allow session update
-        });
-    }
-
-    // Handle signup form submission
+    // Handle signup form submission using AJAX
     const signupForm = document.querySelector("#signup-modal form");
     if (signupForm) {
         signupForm.addEventListener("submit", function (event) {
+            event.preventDefault();  // Prevent default form submission
+            const formData = new FormData(signupForm);
             const csrfToken = getCSRFToken();
             if (!csrfToken) {
-                event.preventDefault();
                 alert("CSRF token missing! Please refresh the page.");
                 return;
             }
+            fetch(signupForm.action, {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => { throw data; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                }
+            })
+            .catch(errorData => {
+                // Display errors within the modal
+                let errorContainer = document.getElementById("signup-errors");
+                if (!errorContainer) {
+                    errorContainer = document.createElement("div");
+                    errorContainer.id = "signup-errors";
+                    signupForm.prepend(errorContainer);
+                }
+                errorContainer.innerHTML = ""; // Clear any previous errors
+                for (const [field, errors] of Object.entries(errorData.errors)) {
+                    errors.forEach(errObj => {
+                        const p = document.createElement("p");
+                        p.classList.add("text-danger");
+                        p.textContent = `${field}: ${errObj.message}`;
+                        errorContainer.appendChild(p);
+                    });
+                }
+            });
+        });
+    }
 
+    // Login form submission remains as before (non-AJAX)
+    const loginForm = document.querySelector("#login-modal form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", function () {
+            // A delay to allow for session update; optionally, AJAX could be implemented here as well.
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
         });
     }
 
-    // Handle logout action to refresh page
-    const logoutLink = document.querySelector(".dropdown-item.text-danger"); // Logout link in dropdown
+    // Handle logout action to refresh the page
+    const logoutLink = document.querySelector(".dropdown-item.text-danger");
     if (logoutLink) {
         logoutLink.addEventListener("click", function () {
             setTimeout(() => {
