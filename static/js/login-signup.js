@@ -64,4 +64,34 @@ document.addEventListener("DOMContentLoaded", function () {
             loginModal.show();
         });
     }
+
+    // Handle login form submission
+    const loginForm = document.querySelector("#login-modal form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", function () {
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000); // Short delay to allow session update
+        });
+    }
+
+    // Handle signup form submission
+    const signupForm = document.querySelector("#signup-modal form");
+    if (signupForm) {
+        signupForm.addEventListener("submit", function () {
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+    }
+
+    // Handle logout action to refresh page
+    const logoutLink = document.querySelector(".dropdown-item.text-danger"); // Logout link in dropdown
+    if (logoutLink) {
+        logoutLink.addEventListener("click", function () {
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+    }
 });
