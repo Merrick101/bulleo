@@ -8,7 +8,7 @@ urlpatterns = [
 
     # Authentication URLs
     path('accounts/', include('django.contrib.auth.urls')),
-    path('accounts/', include('allauth.urls')),
+    path('accounts/', include('allauth.urls')),  # Include Allauth's URLs
 
     # Application URLs
     path("", homepage, name="home"),

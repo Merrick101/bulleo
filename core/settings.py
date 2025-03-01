@@ -2,7 +2,6 @@ from pathlib import Path
 import os
 import dj_database_url
 
-
 if os.path.isfile('env.py'):
     import env
 
@@ -70,13 +69,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database Configuration
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
     DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
 else:
     raise ValueError("DATABASE_URL is not set. Check your environment variables.")
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -86,14 +83,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-SITE_ID = 1
-
-# Ensure users must enter an email
+# Allauth Configurations for social logins
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True  # Ensures no duplicate emails
-ACCOUNT_USERNAME_REQUIRED = True  # Keep username field too (optional)
-ACCOUNT_LOGIN_METHODS = ["email", "username"]  # Allow login with email or username
-
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False  # Don't force a username
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Skip the final step for Google OAuth
+SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
 # Google OAuth settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -107,11 +103,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-SOCIALACCOUNT_LOGIN_ON_GET = True
-SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
-ACCOUNT_LOGOUT_REDIRECT_URL = "/"
-
-# Fixed SESSION_COOKIE_SAMESITE issue
+# Cookie Settings
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_SECURE = False  # Set to True in production
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
@@ -137,7 +129,6 @@ LOGIN_URL = "/users/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
-# Email Configuration
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -164,7 +155,6 @@ if DEBUG:
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 else:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 
 STATICFILES_DIRS = [
     BASE_DIR / "static"

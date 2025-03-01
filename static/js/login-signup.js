@@ -118,8 +118,14 @@ document.addEventListener("DOMContentLoaded", function () {
     // Login form submission remains as before (non-AJAX)
     const loginForm = document.querySelector("#login-modal form");
     if (loginForm) {
-        loginForm.addEventListener("submit", function () {
-            // A delay to allow for session update; optionally, AJAX could be implemented here as well.
+        loginForm.addEventListener("submit", function (event) {
+            // Handle login errors and response here, if needed.
+            const csrfToken = getCSRFToken();
+            if (!csrfToken) {
+                alert("CSRF token missing! Please refresh the page.");
+                return;
+            }
+            // Normally submit the form
             setTimeout(() => {
                 window.location.reload();
             }, 1000);
