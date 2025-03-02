@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-header text-center">
+          <h2>{% trans "Email Confirmation" %}</h2>
+        </div>
+        <div class="card-body">
+          {% if confirmation.is_expired %}
+            <p class="text-danger">{% trans "This confirmation link has expired." %}</p>
+            <p>{% trans "Please request a new confirmation email." %}</p>
+          {% elif confirmation.key %}
+            <p>{% trans "Thank you for confirming your email address." %}</p>
+            <p>{% trans "You can now log in to your account." %}</p>
+            <a href="{% url 'account_login' %}" class="btn btn-primary">{% trans "Log In" %}</a>
+          {% else %}
+            <p>{% trans "There was an error confirming your email address." %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

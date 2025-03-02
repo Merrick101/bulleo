@@ -1,0 +1,10 @@
+Hello {{ user.username }}!
+
+You're receiving this email because you (or someone else) registered an account on {{ site.domain }} using your email address.
+
+To confirm that this is correct, please click the link below:
+{{ activate_url }}
+
+This confirmation link will expire in 3 days.
+
+Thank you for using {{ site.name }}!
