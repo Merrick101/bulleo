@@ -33,25 +33,17 @@ def logout_view(request):
 
 @login_required
 def onboarding(request):
-    """
-    Display and process the category selection for user onboarding.
-    """
     if request.method == "POST":
-        # Get the list of selected category IDs
-        selected = request.POST.getlist("categories")
-        if len(selected) < 3:
+        selected = request.POST.get("categories", "")
+        selected_ids = [int(cid) for cid in selected.split(",") if cid]
+        if len(selected_ids) < 3:
             error = "Please select at least 3 categories."
-            categories = Category.objects.all()
-            return render(request, "onboarding/category_selection.html", {
-                "categories": categories,
-                "error": error
-            })
-        else:
-            # Save the selected categories to the user's profile.
-            profile = request.user.profile
-            profile.preferred_categories.set(selected)
-            profile.save()
-            return redirect("home")
+            return render(request, "onboarding/category_selection.html", {"categories": Category.objects.all(), "error": error})
+        # Save the selected categories to the user's profile
+        profile = request.user.profile
+        profile.preferred_categories.set(selected_ids)
+        profile.save()
+        return redirect("home")
     else:
         categories = Category.objects.all()
         return render(request, "onboarding/category_selection.html", {"categories": categories})
