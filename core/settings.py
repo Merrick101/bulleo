@@ -87,6 +87,7 @@ SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = False  # Use email-based login
+ACCOUNT_LOGIN_METHODS = {'email'}
 SOCIALACCOUNT_AUTO_SIGNUP = True   # Skip extra final step for social signups
 SOCIALACCOUNT_QUERY_EMAIL = True    # Ensure email is queried from provider
 SOCIALACCOUNT_LOGIN_ON_GET = True   # Login immediately after social login
