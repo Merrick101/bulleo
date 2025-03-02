@@ -88,10 +88,13 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+
 SOCIALACCOUNT_AUTO_SIGNUP = True   # Skip extra final step for social signups
 SOCIALACCOUNT_QUERY_EMAIL = True    # Ensure email is queried from provider
 SOCIALACCOUNT_LOGIN_ON_GET = True   # Login immediately after social login
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
+
+ACCOUNT_SIGNUP_REDIRECT_URL = '/users/onboarding/'
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
 
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/'

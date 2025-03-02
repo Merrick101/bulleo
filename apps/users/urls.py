@@ -6,5 +6,6 @@ app_name = "users"
 urlpatterns = [
     # Allauth handles login/signup/logout
     path('profile/', profile_view, name="profile"),
+    # Path to category selection
     path('onboarding/', onboarding, name="onboarding"),
 ]
