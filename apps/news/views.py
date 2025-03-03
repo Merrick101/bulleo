@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from .models import Article
-from users.models import Category
+from apps.users.models import Category
 
 # Create your views here.
 
