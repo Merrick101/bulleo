@@ -7,6 +7,7 @@ from django.contrib.sites.models import Site
 
 User = get_user_model()
 
+
 class UserAuthenticationTests(TestCase):
 
     def setUp(self):
@@ -103,6 +104,7 @@ class UserAuthenticationTests(TestCase):
         response = self.client.get(profile_url)
         self.assertEqual(response.status_code, 302)
 
+
 class SocialLoginTests(TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
@@ -121,6 +123,7 @@ class SocialLoginTests(TestCase):
         # Use the URL name provided by Allauth for Google login; typically 'google_login'
         google_login_url = reverse('google_login')
         self.assertTrue(google_login_url)
+
 
 class PasswordResetTests(TestCase):
     def setUp(self):
