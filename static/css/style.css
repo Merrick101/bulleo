@@ -137,7 +137,7 @@ body {
   background-color: #e7f1ff;
 }
 
-.category-card img {
-  height: 180px;
-  object-fit: cover;
+.selection-buttons {
+  gap: 10px; /* Gap between selection buttons */
+  margin-bottom: 10px;
 }

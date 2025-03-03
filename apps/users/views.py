@@ -47,3 +47,10 @@ def onboarding(request):
     else:
         categories = Category.objects.all()
         return render(request, "onboarding/category_selection.html", {"categories": categories})
+
+
+# Temporary test view
+def test_onboarding(request):
+    # Fetch all categories for testing
+    categories = Category.objects.all()
+    return render(request, "onboarding/category_selection.html", {"categories": categories})

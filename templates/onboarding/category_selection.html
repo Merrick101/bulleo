@@ -16,33 +16,38 @@
       {% for category in categories %}
       <div class="col-md-4 col-sm-6 mb-4">
         <div class="card category-card" data-id="{{ category.id }}">
-          <div class="card-body text-center">
-            {% comment "Display the Font Awesome icon based on category name" %}
+          <div class="card-body d-flex align-items-center">
             {% if category.name == "World News" %}
-              <i class="fas fa-globe fa-4x"></i>
+            <i class="fas fa-globe fa-2x me-3"></i>
             {% elif category.name == "Politics" %}
-              <i class="fas fa-gavel fa-4x"></i>
+            <i class="fas fa-gavel fa-2x me-3"></i>
             {% elif category.name == "Business" %}
-              <i class="fas fa-briefcase fa-4x"></i>
+            <i class="fas fa-briefcase fa-2x me-3"></i>
             {% elif category.name == "Technology" %}
-              <i class="fas fa-microchip fa-4x"></i>
+            <i class="fas fa-microchip fa-2x me-3"></i>
             {% elif category.name == "Sports" %}
-              <i class="fas fa-futbol fa-4x"></i>
+            <i class="fas fa-futbol fa-2x me-3"></i>
             {% elif category.name == "Entertainment" %}
-              <i class="fas fa-film fa-4x"></i>
+            <i class="fas fa-film fa-2x me-3"></i>
             {% else %}
-              <i class="fas fa-question-circle fa-4x"></i>
+            <i class="fas fa-question-circle fa-2x me-3"></i>
             {% endif %}
-            <h5 class="card-title mt-2">{{ category.name }}</h5>
+            <h5 class="card-title mb-0">{{ category.name }}</h5>
           </div>
         </div>
       </div>
       {% endfor %}
     </div>
-    <div class="text-center mt-4">
-      <button type="button" id="clear-selection" class="btn btn-secondary me-2">{% trans "Clear Selection" %}</button>
-      <button type="submit" class="btn btn-primary">{% trans "Confirm Selection" %}</button>
-      <button type="button" id="skip-selection" class="btn btn-link">{% trans "Skip for now" %}</button>
+    <div class="d-flex justify-content-center selection-buttons mt-4">
+      <button type="button" id="clear-selection" class="btn btn-secondary">
+        {% trans "Clear Selection" %}
+      </button>
+      <button type="submit" id="confirm-selection" class="btn btn-success">
+        {% trans "Confirm Selection" %}
+      </button>
+      <button type="button" id="skip-selection" class="btn btn-primary">
+        {% trans "Skip Selection" %}
+      </button>
     </div>
     <!-- Hidden input to store selected category IDs -->
     <input type="hidden" name="categories" id="selected-categories">
