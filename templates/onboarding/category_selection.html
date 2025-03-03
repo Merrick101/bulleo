@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load static %}
+{% load crispy_forms_tags %}
+{% load socialaccount %}
 
 {% block content %}
 <div class="container mt-5">
@@ -14,14 +16,24 @@
       {% for category in categories %}
       <div class="col-md-4 col-sm-6 mb-4">
         <div class="card category-card" data-id="{{ category.id }}">
-          {% if category.icon %}
-            <img src="{% static category.icon.url %}" class="card-img-top" alt="{{ category.name }}">
-          {% else %}
-            <!-- Placeholder image -->
-            <img src="{% static 'images/categories/default.jpg' %}" class="card-img-top" alt="{{ category.name }}">
-          {% endif %}
           <div class="card-body text-center">
-            <h5 class="card-title">{{ category.name }}</h5>
+            {% comment "Display the Font Awesome icon based on category name" %}
+            {% if category.name == "World News" %}
+              <i class="fas fa-globe fa-4x"></i>
+            {% elif category.name == "Politics" %}
+              <i class="fas fa-gavel fa-4x"></i>
+            {% elif category.name == "Business" %}
+              <i class="fas fa-briefcase fa-4x"></i>
+            {% elif category.name == "Technology" %}
+              <i class="fas fa-microchip fa-4x"></i>
+            {% elif category.name == "Sports" %}
+              <i class="fas fa-futbol fa-4x"></i>
+            {% elif category.name == "Entertainment" %}
+              <i class="fas fa-film fa-4x"></i>
+            {% else %}
+              <i class="fas fa-question-circle fa-4x"></i>
+            {% endif %}
+            <h5 class="card-title mt-2">{{ category.name }}</h5>
           </div>
         </div>
       </div>
@@ -40,7 +52,7 @@
 <!-- Include JavaScript for interactivity -->
 <script src="{% static 'js/category-selection.js' %}"></script>
 <script>
-  // If the user clicks "Skip", simply redirect to home (or another designated page)
+  // If the user clicks "Skip", redirect to home (or another designated page)
   document.getElementById("skip-selection").addEventListener("click", function(){
     window.location.href = "{% url 'home' %}";
   });
