@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="article-detail">
+        <h1>{{ article.title }}</h1>
+        <p class="text-muted">
+            Source: {{ article.source }} |
+            Published on: {{ article.published_at|date:"F d, Y" }}
+        </p>
+        <hr>
+        <div class="article-content">
+            {{ article.content|safe }}
+        </div>
+        <!-- Optionally, add social share buttons, comments, etc. -->
+    </div>
+</div>
+{% endblock content %}

@@ -33,6 +33,22 @@
                 </div>
                 <i class="fas fa-search search-icon" onclick="toggleSearch()"></i>
             </div>
+            <form class="d-flex" action="{% url 'news:search_results' %}" method="get">
+                <input class="form-control me-2" type="search" name="q" placeholder="{% trans 'Search for news...' %}" aria-label="Search">
+                <select name="category" class="form-select me-2">
+                    <option value="">{% trans 'All Categories' %}</option>
+                    {% for cat in categories %}
+                      <option value="{{ cat.slug }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="source" class="form-select me-2">
+                    <option value="">{% trans 'All Sources' %}</option>
+                    {% for source in sources %}
+                      <option value="{{ source.slug }}">{{ source.name }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-outline-success" type="submit">{% trans 'Search' %}</button>
+            </form>            
             <div class="navbar-center">
                 <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
                 <h5 class="navbar-tagline">- Your Personalized Newsroom -</h5>
