@@ -8,8 +8,17 @@
 <div class="container mt-5">
   <h2 class="text-center mb-4">{% trans "Select Your Preferred Categories" %}</h2>
   <p class="text-center text-muted">
-    {% trans "You can select at least three categories, or choose to skip and update your preferences later from your profile." %}
+    {% trans "You can select at least three categories, or choose to skip and update your preferences later from your
+    profile." %}
   </p>
+
+  <!-- Display error message if it exists -->
+  {% if error %}
+  <div class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+  {% endif %}
+
   <form method="post" action="{% url 'users:onboarding' %}" id="category-form">
     {% csrf_token %}
     <div class="row">

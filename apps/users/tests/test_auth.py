@@ -37,8 +37,11 @@ class UserAuthenticationTests(TestCase):
             'password1': 'ComplexPass123!',
             'password2': 'ComplexPass123!',
         }
-        response = self.client.post(signup_url, data, follow=True)
+        with self.settings(ACCOUNT_EMAIL_VERIFICATION="none"):
+            response = self.client.post(signup_url, data, follow=True)
         self.assertTrue(response.redirect_chain)
+        # Replace 'users:onboarding' with the actual URL name for your category selection page
+        self.assertRedirects(response, reverse("users:onboarding"))
         self.assertTrue(User.objects.filter(email='newuser@example.com').exists())
 
     def test_signup_invalid(self):
