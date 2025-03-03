@@ -121,12 +121,23 @@ body {
 /* Category Selection Styling */
 .category-card {
   cursor: pointer;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid #ddd;
 }
+
 .category-card:hover {
   transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
+
 .category-card.selected {
-  border: 2px solid #007bff; /* Blue border for selected cards */
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0,123,255,0.3);
   background-color: #e7f1ff;
+}
+
+.category-card img {
+  height: 180px;
+  object-fit: cover;
 }
