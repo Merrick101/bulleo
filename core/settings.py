@@ -173,6 +173,12 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# API Keys
+NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
+NYT_API_KEY = os.environ.get("NYT_API_KEY")
+NYT_SECRET_KEY = os.environ.get("NYT_SECRET_KEY")
+GUARDIAN_API_KEY = os.environ.get("GUARDIAN_API_KEY")
+
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
