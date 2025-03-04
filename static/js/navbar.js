@@ -1,36 +1,44 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Menu Toggle => Offcanvas
-  const menuToggle = document.getElementById("menuToggle");
-  const offcanvasEl = document.getElementById("mainMenuOffcanvas");
+  console.log("✅ navbar.js loaded");
 
-  if (menuToggle && offcanvasEl) {
+  // ========== MENU TOGGLE (OFFCANVAS) ==========
+  const menuToggle = document.getElementById("menuToggle");
+  const offcanvasMenu = document.getElementById("mainMenuOffcanvas");
+
+  if (menuToggle && offcanvasMenu) {
     menuToggle.addEventListener("click", function () {
-      // Show the offcanvas using Bootstrap's JS API
-      let offcanvas = new bootstrap.Offcanvas(offcanvasEl);
+      // Show the offcanvas menu (Bootstrap's built-in method)
+      let offcanvas = new bootstrap.Offcanvas(offcanvasMenu);
       offcanvas.show();
     });
   }
 
-  // Search Toggle => Inline Search Field
+  // ========== SEARCH TOGGLE ==========
   const searchToggle = document.getElementById("searchToggle");
-  const searchClose = document.getElementById("searchClose");
   const searchForm = document.getElementById("searchForm");
+  const searchClose = document.getElementById("searchClose");
 
-  if (searchToggle && searchClose && searchForm) {
-    // When the search icon is clicked, show the search form and the close icon, hide the search icon.
+  if (searchToggle && searchForm && searchClose) {
+    // When user clicks the search icon:
     searchToggle.addEventListener("click", function () {
-      searchForm.classList.remove("d-none");
+      // Hide the search icon
       searchToggle.classList.add("d-none");
-      searchClose.classList.remove("d-none");
-      // Focus on the search input after it expands.
-      searchForm.querySelector("input[type='search']").focus();
+      // Show the search form
+      searchForm.classList.remove("d-none");
+      // Optionally focus on the input
+      const inputEl = searchForm.querySelector("input[name='q']");
+      if (inputEl) {
+        inputEl.focus();
+      }
     });
 
-    // When the close icon is clicked, hide the search form and the close icon, show the search icon.
-    searchClose.addEventListener("click", function () {
+    // When user clicks the close (X) icon:
+    searchClose.addEventListener("click", function (event) {
+      event.preventDefault();
+      // Hide the search form
       searchForm.classList.add("d-none");
+      // Show the search icon again
       searchToggle.classList.remove("d-none");
-      searchClose.classList.add("d-none");
     });
   }
 });
