@@ -45,7 +45,6 @@
       <div class="d-flex align-items-center me-3">
         <!-- Menu Icon: toggles off-canvas menu -->
         <div class="menu-icon me-4" id="menuToggle">
-          <!-- Add extra spacing or margin for a nicer look -->
           <i class="fas fa-bars"></i>
           <span class="ms-1">Menu</span>
         </div>
@@ -71,7 +70,11 @@
                 placeholder="Search for news..."
                 aria-label="Search"
               />
-              <!-- Close icon appended at the end of input -->
+              <!-- Button that submits the form (magnifying glass) -->
+              <button class="btn btn-outline-secondary" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
+              <!-- Button to close/collapse the search bar -->
               <button
                 class="btn btn-outline-secondary"
                 type="button"
@@ -119,13 +122,11 @@
           <a
             href="{% url 'account_login' %}"
             class="btn btn-outline-dark btn-sm"
-            >Log In</a
-          >
+          >Log In</a>
           <a
             href="{% url 'account_signup' %}"
             class="btn btn-primary btn-sm"
-            >Sign Up</a
-          >
+          >Sign Up</a>
         {% endif %}
       </div>
     </div>
