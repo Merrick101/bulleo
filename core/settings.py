@@ -179,7 +179,7 @@ NYT_API_KEY = os.environ.get("NYT_API_KEY")
 NYT_SECRET_KEY = os.environ.get("NYT_SECRET_KEY")
 GUARDIAN_API_KEY = os.environ.get("GUARDIAN_API_KEY")
 
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 
 INTERNAL_IPS = [
     '127.0.0.1',
