@@ -177,8 +177,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # API Keys
 NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
-NYT_API_KEY = os.environ.get("NYT_API_KEY")
-NYT_SECRET_KEY = os.environ.get("NYT_SECRET_KEY")
 GUARDIAN_API_KEY = os.environ.get("GUARDIAN_API_KEY")
 
 # Celery Configuration
@@ -190,7 +188,11 @@ CELERY_TIMEZONE = "UTC"
 CELERY_BEAT_SCHEDULE = {
     'fetch-news-every-30-minutes': {
         'task': 'apps.news.tasks.fetch_news_articles',
-        'schedule': 1800.0,  # every 30 minutes in seconds
+        'schedule': 3600.0,  # every 1 hour
+    },
+    'fetch-guardian-every-hour': {
+        'task': 'apps.news.tasks.fetch_guardian_articles',
+        'schedule': 3600.0,  # every 1 hour
     },
 }
 
