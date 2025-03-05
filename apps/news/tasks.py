@@ -26,10 +26,12 @@ def fetch_news_articles():
     except requests.RequestException as e:
         # Log error
         print(f"Error fetching articles: {e}")
-        return
+        return f"Error fetching articles: {e}"
 
     data = response.json()
     articles_data = data.get("articles", [])
+
+    created_count = 0
 
     for article_data in articles_data:
         title = article_data.get("title")
@@ -74,5 +76,9 @@ def fetch_news_articles():
                 "category": category,
             }
         )
+        if created:
+            created_count += 1
 
-    print("News articles fetched and stored successfully.")
+    message = f"News articles fetched and stored successfully. {created_count} new articles created."
+    print(message)
+    return message
