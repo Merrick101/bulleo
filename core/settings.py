@@ -1,4 +1,5 @@
 from pathlib import Path
+from celery.schedules import crontab
 import os
 import dj_database_url
 
@@ -186,10 +187,9 @@ CELERY_TIMEZONE = "UTC"
 
 # Periodic Task Configuration
 CELERY_BEAT_SCHEDULE = {
-    'debug-task-every-30-seconds': {
-        'task': 'apps.news.tasks.debug_task',  # Full Python path to the task
-        'schedule': 30.0,  # Run every 30 seconds (adjust as needed)
-        'args': (),
+    'fetch-news-every-30-minutes': {
+        'task': 'apps.news.tasks.fetch_news_articles',
+        'schedule': 1800.0,  # every 30 minutes in seconds
     },
 }
 
