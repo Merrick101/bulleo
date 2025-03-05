@@ -1,11 +1,5 @@
-import os
-from celery import Celery, shared_task
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-
-app = Celery('bulleo')
-app.config_from_object('django.conf:settings', namespace='CELERY')
-app.autodiscover_tasks()
+# apps/news/tasks.py
+from celery import shared_task
 
 
 @shared_task

@@ -179,8 +179,19 @@ NYT_API_KEY = os.environ.get("NYT_API_KEY")
 NYT_SECRET_KEY = os.environ.get("NYT_SECRET_KEY")
 GUARDIAN_API_KEY = os.environ.get("GUARDIAN_API_KEY")
 
+# Celery Configuration
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+CELERY_TIMEZONE = "UTC"
+
+# Periodic Task Configuration
+CELERY_BEAT_SCHEDULE = {
+    'debug-task-every-30-seconds': {
+        'task': 'apps.news.tasks.debug_task',  # Full Python path to the task
+        'schedule': 30.0,  # Run every 30 seconds (adjust as needed)
+        'args': (),
+    },
+}
 
 INTERNAL_IPS = [
     '127.0.0.1',
