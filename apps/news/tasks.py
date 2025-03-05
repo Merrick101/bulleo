@@ -4,8 +4,10 @@ from dateutil import parser
 from celery import shared_task
 from django.conf import settings
 from django.utils.text import slugify
+from django.utils import timezone
 from apps.news.models import Article, NewsSource
 from apps.users.models import Category
+
 
 # Define a module-level logger
 logger = logging.getLogger(__name__)
@@ -29,9 +31,8 @@ def fetch_news_articles():
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
     except requests.RequestException as e:
-        error_message = f"Error fetching articles from News API: {e}"
-        logger.error(error_message)
-        return error_message
+        logger.error(f"Error fetching articles from News API: {e}")
+        return f"Error fetching articles from News API: {e}"
 
     data = response.json()
     articles_data = data.get("articles", [])
@@ -40,35 +41,34 @@ def fetch_news_articles():
 
     for article_data in articles_data:
         title = article_data.get("title")
-        content = article_data.get("content") or ""
-        summary = article_data.get("description") or ""
-        image_url = article_data.get("urlToImage")
-        published_str = article_data.get("publishedAt")
         url_article = article_data.get("url")
+        published_str = article_data.get("publishedAt")
+
+        if not title or not url_article:
+            logger.warning("Skipping article due to missing title or URL")
+            continue  # Skip invalid articles
+
+        # Parse the published date or use a default
+        try:
+            published_at = parser.parse(published_str) if published_str else timezone.now()
+        except (TypeError, ValueError):
+            logger.warning(f"Invalid date format for article '{title}', using default.")
+            published_at = timezone.now()  # Fallback to current time
+
+        # Create or get the news source
         source_info = article_data.get("source", {})
         source_name = source_info.get("name") or "Unknown"
+        news_source = get_or_create_news_source(source_name)
 
-        # Parse the published date string into a datetime object.
-        try:
-            published_at = parser.parse(published_str)
-        except (TypeError, ValueError):
-            published_at = None
+        # Fetch other fields safely
+        content = article_data.get("content", "")
+        summary = article_data.get("description", "")
+        image_url = article_data.get("urlToImage")
 
-        # Get or create the NewsSource record
-        news_source, _ = NewsSource.objects.get_or_create(
-            name=source_name,
-            defaults={
-                "slug": slugify(source_name),
-                "website": "",  # Optionally update if available
-                "description": "",
-            }
-        )
-
-        # Determine a category based on mapping; for now, leave as None.
+        # Determine a category (currently left as None)
         category = None
 
         # Create the article if it does not exist yet.
-        # Using the article URL as a unique field to prevent duplicates.
         _, article_created = Article.objects.get_or_create(
             url=url_article,
             defaults={
@@ -81,12 +81,28 @@ def fetch_news_articles():
                 "category": category,
             }
         )
+
         if article_created:
             created_count += 1
 
     message = f"News articles fetched and stored successfully. {created_count} new articles created."
     logger.info(message)
     return message
+
+
+def get_or_create_news_source(source_name):
+    """
+    Helper function to get or create a NewsSource object.
+    """
+    news_source, _ = NewsSource.objects.get_or_create(
+        name=source_name,
+        defaults={
+            "slug": slugify(source_name),
+            "website": "",  # Can be updated if available
+            "description": "",
+        }
+    )
+    return news_source
 
 
 @shared_task
