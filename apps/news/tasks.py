@@ -1,10 +1,14 @@
 import requests
+import logging
 from dateutil import parser
 from celery import shared_task
 from django.conf import settings
 from django.utils.text import slugify
 from apps.news.models import Article, NewsSource
 from apps.users.models import Category
+
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
@@ -80,5 +84,5 @@ def fetch_news_articles():
             created_count += 1
 
     message = f"News articles fetched and stored successfully. {created_count} new articles created."
-    print(message)
+    logger.info(message)
     return message
