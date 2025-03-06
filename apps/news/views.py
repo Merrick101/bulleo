@@ -4,8 +4,8 @@ from django.db.models import Q, Count
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from apps.users.forms import CommentForm
-from .models import Article, Comment
-from apps.users.models import Category
+from .models import Article
+from apps.users.models import Category, Comment
 
 
 # Create your views here.
