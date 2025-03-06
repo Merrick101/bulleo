@@ -1,12 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth import logout, get_user_model
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from .models import Profile, Category, Comment
-from .forms import CommentForm
-from apps.news.models import Article
+from .models import Profile, Category
+from .forms import ProfileForm
 
-User = get_user_model()  # Ensure correct user model
+User = get_user_model()
 
 
 @login_required
@@ -14,7 +12,6 @@ def profile_view(request):
     """
     Handles the user profile page.
     """
-    from .forms import ProfileForm  # Import inside function to reduce circular dependencies
     profile, created = Profile.objects.get_or_create(user=request.user)
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=profile)
@@ -52,8 +49,9 @@ def onboarding(request):
         return render(request, "onboarding/category_selection.html", {"categories": categories})
 
 
-# Temporary test view
 def test_onboarding(request):
-    # Fetch all categories for testing
+    """
+    Temporary test view for category selection.
+    """
     categories = Category.objects.all()
     return render(request, "onboarding/category_selection.html", {"categories": categories})
