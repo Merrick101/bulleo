@@ -20,7 +20,7 @@ class Article(models.Model):
     content = models.TextField(db_index=True)
     summary = models.TextField(blank=True, null=True)
     image_url = models.URLField(max_length=500, blank=True, null=True)
-    published_at = models.DateTimeField()
+    published_at = models.DateTimeField(auto_now_add=True)
     url = models.URLField(unique=True)
 
     # Link to article source and category

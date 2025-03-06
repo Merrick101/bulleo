@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.utils.timezone import now
 from .models import Profile, Category, Comment
 from .forms import CommentForm
 from apps.news.models import Article
@@ -58,28 +57,3 @@ def test_onboarding(request):
     # Fetch all categories for testing
     categories = Category.objects.all()
     return render(request, "onboarding/category_selection.html", {"categories": categories})
-
-
-@login_required
-def post_comment(request, article_id):
-    article = get_object_or_404(Article, id=article_id)
-
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.user = request.user
-            comment.article = article
-            comment.created_at = now()
-            comment.save()
-
-            # Return JSON response for AJAX
-            return JsonResponse({
-                "success": True,
-                "username": comment.user.username,
-                "content": comment.content,
-                "created_at": comment.created_at.strftime("%b %d, %Y %I:%M %p"),
-                "comment_id": comment.id,
-            })
-
-    return JsonResponse({"success": False, "error": "Invalid data."})

@@ -1,10 +1,11 @@
 from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
-from django.http import JsonResponse
+from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
-from apps.users.forms import CommentForm
 from .models import Article
+from apps.users.forms import CommentForm
 from apps.users.models import Category, Comment
 
 
@@ -104,3 +105,28 @@ def vote_comment(request, comment_id, action):
         })
 
     return JsonResponse({"success": False})
+
+
+@login_required
+def post_comment(request, article_id):
+    article = get_object_or_404(Article, id=article_id)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.article = article
+            comment.created_at = now()
+            comment.save()
+
+            # Return JSON response for AJAX
+            return JsonResponse({
+                "success": True,
+                "username": comment.user.username,
+                "content": comment.content,
+                "created_at": comment.created_at.strftime("%b %d, %Y %I:%M %p"),
+                "comment_id": comment.id,
+            })
+
+    return JsonResponse({"success": False, "error": "Invalid data."})
