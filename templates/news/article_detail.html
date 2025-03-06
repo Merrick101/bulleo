@@ -20,7 +20,7 @@
             
             <!-- Comment Form -->
             {% if user.is_authenticated %}
-                <form id="comment-form" method="POST" action="{% url 'users:post_comment' article.id %}" class="mb-4">
+                <form id="comment-form" method="POST" action="{% url 'news:post_comment' article.id %}" class="mb-4">
                     {% csrf_token %}
                     {{ form.as_p }}
                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -33,7 +33,7 @@
 
         <!-- Comment Count & Sorting Options -->
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <h4>Comments (<span id="comment-count">{{ article.comments.count }}</span>)</h4>
+            <h4>Comments (<span id="comment-count">{{ comments|length }}</span>)</h4>
             <div>
                 <label for="sort-comments">Sort By:</label>
                 <select id="sort-comments" class="form-select">
@@ -51,10 +51,14 @@
                     <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>
                     <p>{{ comment.content }}</p>
                     <div class="d-flex align-items-center">
-                        <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote">👍</button>
-                        <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
-                        <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote">👎</button>
-                        <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
+                        {% if user.is_authenticated %}
+                            <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
+                            <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
+                            <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
+                            <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
+                        {% else %}
+                            <p class="text-muted">Log in to vote on comments.</p>
+                        {% endif %}
                     </div>
                 </div>
             {% empty %}

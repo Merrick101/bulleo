@@ -120,7 +120,6 @@ def post_comment(request, article_id):
             comment.created_at = now()
             comment.save()
 
-            # Return JSON response for AJAX
             return JsonResponse({
                 "success": True,
                 "username": comment.user.username,
@@ -129,4 +128,4 @@ def post_comment(request, article_id):
                 "comment_id": comment.id,
             })
 
-    return JsonResponse({"success": False, "error": "Invalid data."})
+    return JsonResponse({"success": False, "error": "Invalid data."}, status=400)
