@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
+from django.apps import apps  # Lazy import
 
 User = get_user_model()  # Dynamically load user model
 
@@ -48,3 +49,22 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+
+
+# Comment Model
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    article = models.ForeignKey(
+        "news.Article",  # String reference instead of direct import
+        on_delete=models.CASCADE,
+        related_name="comments"
+    )
+    content = models.TextField()
+    parent_comment = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}: {self.content[:30]}"
