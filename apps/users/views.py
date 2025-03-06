@@ -1,7 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
-from .models import Profile, Category
+from .models import Profile, Category, Comment
+from .forms import CommentForm
+from apps.news.models import Article
 
 User = get_user_model()  # Ensure correct user model
 
@@ -54,3 +56,22 @@ def test_onboarding(request):
     # Fetch all categories for testing
     categories = Category.objects.all()
     return render(request, "onboarding/category_selection.html", {"categories": categories})
+
+
+@login_required
+def post_comment(request, article_id):
+    article = get_object_or_404(Article, id=article_id)
+
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.article = article
+            comment.save()
+            return redirect("news:article_detail", article_id=article.id)
+
+        # If form is invalid, return it to the template with error messages
+        return render(request, "news/article_detail.html", {"article": article, "form": form})
+
+    return redirect("news:article_detail", article_id=article.id)
