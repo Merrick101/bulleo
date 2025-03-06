@@ -54,17 +54,23 @@ class Profile(models.Model):
 # Comment Model
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    article = models.ForeignKey(
-        "news.Article",  # String reference instead of direct import
-        on_delete=models.CASCADE,
-        related_name="comments"
-    )
+    article = models.ForeignKey("news.Article", on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
-    parent_comment = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies"
-    )
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"{self.user.username}: {self.content[:30]}"
+    # Voting system
+    upvotes = models.ManyToManyField(User, related_name="upvoted_comments", blank=True)
+    downvotes = models.ManyToManyField(User, related_name="downvoted_comments", blank=True)
+
+    def upvote_count(self):
+        return self.upvotes.count()
+
+    def downvote_count(self):
+        return self.downvotes.count()
+
+    # Helper functions for checking if user has already voted
+    def has_upvoted(self, user):
+        return self.upvotes.filter(id=user.id).exists()
+
+    def has_downvoted(self, user):
+        return self.downvotes.filter(id=user.id).exists()

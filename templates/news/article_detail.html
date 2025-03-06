@@ -13,7 +13,62 @@
         <div class="article-content">
             {{ article.content|safe }}
         </div>
-        <!-- Optionally, add social share buttons, comments, etc. -->
+
+        <!-- Comment Section -->
+        <div class="comment-section mt-5">
+            <h3>Comment Section</h3>
+            
+            <!-- Comment Form -->
+            {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'users:post_comment' article.id %}" class="mb-4">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="reset" class="btn btn-secondary">Reset</button>
+                </form>
+            {% else %}
+                <p><a href="{% url 'login' %}">Log in</a> to post a comment.</p>
+            {% endif %}
+        </div>
+
+        <!-- Comment Count & Sorting Options -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <h4>Comments ({{ article.comments.count }})</h4>
+            <div>
+                <label for="sort-comments">Sort By:</label>
+                <select id="sort-comments" class="form-select" onchange="sortComments(this.value)">
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="most_upvoted">Most Upvoted</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Comments List -->
+        <div id="comments-list">
+            {% for comment in article.comments.all %}
+                <div class="comment border rounded p-3 my-3">
+                    <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>
+                    <p>{{ comment.content }}</p>
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-sm btn-outline-success">👍 Upvote</button>
+                        <button class="btn btn-sm btn-outline-danger">👎 Downvote</button>
+                        <button class="btn btn-sm btn-outline-primary">💬 Reply</button>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No comments yet. Be the first to comment!</p>
+            {% endfor %}
+        </div>
     </div>
 </div>
+
+<!-- Sorting Function (Optional JS for Dynamic Sorting) -->
+<script>
+function sortComments(order) {
+    // Reload page with sorting query
+    window.location.href = `?sort=${order}`;
+}
+</script>
+
 {% endblock content %}

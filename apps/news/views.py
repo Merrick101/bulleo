@@ -1,8 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
-from django.db.models import Q
-from .models import Article
+from django.db.models import Q, Count
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from apps.users.forms import CommentForm
+from .models import Article, Comment
 from apps.users.models import Category
+
 
 # Create your views here.
 
@@ -57,4 +61,39 @@ def search_articles(request):
 
 def article_detail(request, article_id):
     article = get_object_or_404(Article, id=article_id)
-    return render(request, "news/article_detail.html", {"article": article})
+
+    # Sorting Logic
+    sort_order = request.GET.get("sort", "newest")
+    if sort_order == "newest":
+        comments = article.comments.all().order_by("-created_at")
+    elif sort_order == "oldest":
+        comments = article.comments.all().order_by("created_at")
+    elif sort_order == "most_upvoted":
+        comments = article.comments.all().annotate(
+            upvote_count=Count("upvotes"),
+            downvote_count=Count("downvotes")
+        ).order_by("-upvote_count")
+    else:
+        comments = article.comments.all()
+
+    context = {
+        "article": article,
+        "comments": comments,
+        "sort_order": sort_order,
+        "form": CommentForm(),
+    }
+    return render(request, "news/article_detail.html", context)
+
+
+@login_required
+def vote_comment(request, comment_id, action):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    if action == "upvote":
+        comment.upvotes.add(request.user)
+        comment.downvotes.remove(request.user)  # Remove any existing downvote
+    elif action == "downvote":
+        comment.downvotes.add(request.user)
+        comment.upvotes.remove(request.user)  # Remove any existing upvote
+
+    return JsonResponse({"upvotes": comment.upvote_count(), "downvotes": comment.downvote_count()})

@@ -72,6 +72,10 @@ def post_comment(request, article_id):
             return redirect("news:article_detail", article_id=article.id)
 
         # If form is invalid, return it to the template with error messages
-        return render(request, "news/article_detail.html", {"article": article, "form": form})
+        return render(request, "news/article_detail.html", {
+            "article": article,
+            "form": form,
+            "comments": article.comments.all().order_by("-created_at"),  # Include comments
+        })
 
     return redirect("news:article_detail", article_id=article.id)
