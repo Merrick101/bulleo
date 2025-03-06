@@ -38,6 +38,7 @@ body {
   cursor: pointer;
 }
 
+/* Search Form & Icon Styling */
 #searchContainer .search-icon {
   cursor: pointer;
   font-size: 1.2rem;
