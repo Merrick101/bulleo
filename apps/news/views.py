@@ -89,11 +89,18 @@ def article_detail(request, article_id):
 def vote_comment(request, comment_id, action):
     comment = get_object_or_404(Comment, id=comment_id)
 
-    if action == "upvote":
-        comment.upvotes.add(request.user)
-        comment.downvotes.remove(request.user)  # Remove any existing downvote
-    elif action == "downvote":
-        comment.downvotes.add(request.user)
-        comment.upvotes.remove(request.user)  # Remove any existing upvote
+    if request.method == "POST":
+        if action == "upvote":
+            comment.upvotes.add(request.user)
+            comment.downvotes.remove(request.user)  # Remove any existing downvote
+        elif action == "downvote":
+            comment.downvotes.add(request.user)
+            comment.upvotes.remove(request.user)  # Remove any existing upvote
 
-    return JsonResponse({"upvotes": comment.upvote_count(), "downvotes": comment.downvote_count()})
+        return JsonResponse({
+            "success": True,
+            "upvotes": comment.upvote_count(),
+            "downvotes": comment.downvote_count(),
+        })
+
+    return JsonResponse({"success": False})

@@ -20,7 +20,7 @@
             
             <!-- Comment Form -->
             {% if user.is_authenticated %}
-                <form method="POST" action="{% url 'users:post_comment' article.id %}" class="mb-4">
+                <form id="comment-form" method="POST" action="{% url 'users:post_comment' article.id %}" class="mb-4">
                     {% csrf_token %}
                     {{ form.as_p }}
                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -33,10 +33,10 @@
 
         <!-- Comment Count & Sorting Options -->
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <h4>Comments ({{ article.comments.count }})</h4>
+            <h4>Comments (<span id="comment-count">{{ article.comments.count }}</span>)</h4>
             <div>
                 <label for="sort-comments">Sort By:</label>
-                <select id="sort-comments" class="form-select" onchange="sortComments(this.value)">
+                <select id="sort-comments" class="form-select">
                     <option value="newest">Newest</option>
                     <option value="oldest">Oldest</option>
                     <option value="most_upvoted">Most Upvoted</option>
@@ -46,29 +46,25 @@
 
         <!-- Comments List -->
         <div id="comments-list">
-            {% for comment in article.comments.all %}
-                <div class="comment border rounded p-3 my-3">
+            {% for comment in comments %}
+                <div class="comment border rounded p-3 my-3" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
                     <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>
                     <p>{{ comment.content }}</p>
                     <div class="d-flex align-items-center">
-                        <button class="btn btn-sm btn-outline-success">👍 Upvote</button>
-                        <button class="btn btn-sm btn-outline-danger">👎 Downvote</button>
-                        <button class="btn btn-sm btn-outline-primary">💬 Reply</button>
+                        <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote">👍</button>
+                        <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
+                        <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote">👎</button>
+                        <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
                     </div>
                 </div>
             {% empty %}
-                <p>No comments yet. Be the first to comment!</p>
+                <p id="no-comments">No comments yet. Be the first to comment!</p>
             {% endfor %}
         </div>
     </div>
 </div>
 
-<!-- Sorting Function (Optional JS for Dynamic Sorting) -->
-<script>
-function sortComments(order) {
-    // Reload page with sorting query
-    window.location.href = `?sort=${order}`;
-}
-</script>
+<!-- Include JavaScript File -->
+<script src="{% static 'js/comments.js' %}"></script>
 
 {% endblock content %}
