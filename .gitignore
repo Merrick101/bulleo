@@ -8,4 +8,4 @@ node_modules/
 .github/
 cloudinary_python.txt
 .venv
-social_app.json
+apps/news/tests/fixtures/social_app.json
