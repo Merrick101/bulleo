@@ -17,7 +17,7 @@
         <!-- Comment Section -->
         <div class="comment-section mt-5">
             <h3>Comment Section</h3>
-            
+
             <!-- Comment Form -->
             {% if user.is_authenticated %}
                 <form id="comment-form" method="POST" action="{% url 'news:post_comment' article.id %}" class="mb-4">
@@ -49,9 +49,26 @@
             {% for comment in comments %}
                 <div class="comment border rounded p-3 my-3" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
                     <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>
-                    <p>{{ comment.content }}</p>
+                    
+                    <!-- Comment Content -->
+                    <p class="comment-content">{{ comment.content }}</p>
+
+                    <!-- Inline Edit Form (Hidden by Default) -->
+                    <form class="edit-form" id="edit-form-{{ comment.id }}" style="display: none;">
+                        <textarea class="form-control edit-textarea">{{ comment.content }}</textarea>
+                        <button type="submit" class="btn btn-sm btn-success mt-2 save-edit-btn" data-comment-id="{{ comment.id }}">Save</button>
+                        <button type="button" class="btn btn-sm btn-secondary mt-2 cancel-edit-btn" data-comment-id="{{ comment.id }}">Cancel</button>
+                    </form>
+
                     <div class="d-flex align-items-center">
                         {% if user.is_authenticated %}
+                            <!-- Edit & Delete (Only for Comment Author) -->
+                            {% if user == comment.user %}
+                                <button class="btn btn-sm btn-outline-primary edit-btn" data-comment-id="{{ comment.id }}">✏️ Edit</button>
+                                <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="{{ comment.id }}">🗑️ Delete</button>
+                            {% endif %}
+
+                            <!-- Vote Buttons -->
                             <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
                             <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
                             <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
