@@ -83,6 +83,4 @@ class Comment(models.Model):
         return self.parent is not None
 
     def save(self, *args, **kwargs):
-        if self.parent and not self.parent.is_reply():  # Ensure the parent is a comment and not a reply itself.
-            raise ValidationError("A reply must be posted to an original comment.")
         super().save(*args, **kwargs)

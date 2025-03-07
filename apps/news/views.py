@@ -50,7 +50,7 @@ def search_articles(request):
     # 6. Prepare context
     context = {
         'page_obj': page_obj,
-        'articles': page_obj.object_list,       # The articles on this page
+        'articles': page_obj.object_list,  # The articles on this page
         'is_paginated': page_obj.has_other_pages(),
         'query': query,
         'category_slug': category_slug,
@@ -60,11 +60,33 @@ def search_articles(request):
     return render(request, "news/search_results.html", context)
 
 
+def get_sorted_comments(article, sort_order):
+    """
+    Retrieve and sort comments based on the provided sort order.
+    """
+    comments = article.comments.filter(parent__isnull=True)
+
+    # Define sorting options
+    sort_options = {
+        "newest": "-created_at",
+        "oldest": "created_at",
+        "most_upvoted": "-upvote_count"
+    }
+
+    # Default to 'newest' if the sort_order is invalid
+    sort_field = sort_options.get(sort_order, "-created_at")
+
+    # Apply sorting
+    if sort_order == "most_upvoted":
+        comments = comments.annotate(upvote_count=Count("upvotes"))
+
+    return comments.order_by(sort_field)
+
+
 def article_detail(request, article_id):
     article = get_object_or_404(Article, id=article_id)
 
     sort_order = request.GET.get("sort", "newest")
-
     comments = article.comments.filter(parent__isnull=True)
     if sort_order == "newest":
         comments = comments.order_by("-created_at")
@@ -73,12 +95,17 @@ def article_detail(request, article_id):
     elif sort_order == "most_upvoted":
         comments = comments.annotate(upvote_count=Count("upvotes")).order_by("-upvote_count")
 
+    # Pass the count of top-level comments and replies to the template
+    comment_count = comments.count() + sum([comment.replies.count() for comment in comments])
+
     context = {
         "article": article,
-        "comments": comments.prefetch_related("replies"),  # Load replies efficiently
+        "comments": comments.prefetch_related("replies"),
         "sort_order": sort_order,
         "form": CommentForm(),
+        "comment_count": comment_count,  # Pass total count to the template
     }
+
     return render(request, "news/article_detail.html", context)
 
 
@@ -109,6 +136,9 @@ def post_comment(request, article_id):
         content = request.POST.get('content')
         parent_comment_id = request.POST.get('parent_comment_id')
 
+        if not content.strip():  # Validate that content is not empty
+            return JsonResponse({"success": False, "error": "Comment cannot be empty."}, status=400)
+
         parent_comment = None
         if parent_comment_id:
             parent_comment = get_object_or_404(Comment, id=parent_comment_id)
@@ -128,6 +158,8 @@ def post_comment(request, article_id):
             'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'parent_comment_id': parent_comment_id
         })
+
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
 @login_required
@@ -164,3 +196,39 @@ def delete_comment(request, comment_id):
         return JsonResponse({"success": True, "comment_id": comment_id})
 
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
+
+
+@login_required
+def reply_to_comment(request, article_id, parent_comment_id):
+    # Retrieve the parent comment
+    parent_comment = get_object_or_404(Comment, id=parent_comment_id)
+
+    if request.method == "POST":
+        # Get content of the reply from the request
+        content = request.POST.get("content", "").strip()
+
+        if not content:
+            return JsonResponse({"success": False, "error": "Reply content cannot be empty."}, status=400)
+
+        # Create the new reply comment
+        new_comment = Comment.objects.create(
+            user=request.user,
+            article_id=article_id,
+            content=content,
+            parent=parent_comment  # This links the reply to the parent comment
+        )
+
+        # Return the success response with relevant comment data
+        response_data = {
+            'success': True,
+            'message': 'Reply submitted successfully!',
+            'comment_id': new_comment.id,
+            'content': new_comment.content,
+            'created_at': new_comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'parent_comment_id': parent_comment_id,
+            'username': new_comment.user.username,
+        }
+
+        return JsonResponse(response_data)
+
+    return JsonResponse({'success': False, 'message': 'Failed to submit reply.'})

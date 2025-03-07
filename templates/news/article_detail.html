@@ -13,6 +13,7 @@
         <div class="article-content">
             {{ article.content|safe }}
         </div>
+
         <!-- Comment Section -->
         <div class="comment-section mt-5">
             <h3>Comment Section</h3>
@@ -42,7 +43,7 @@
 
         <!-- Comment Count & Sorting Options -->
         <div class="d-flex justify-content-between align-items-center mt-4">
-            <h4>Comments (<span id="comment-count">{{ comments|length }}</span>)</h4>
+            <h4>Comments (<span id="comment-count">{{ comment_count }}</span>)</h4>
             <div>
                 <label for="sort-comments">Sort By:</label>
                 <select id="sort-comments" class="form-select">
@@ -54,15 +55,12 @@
         </div>
 
         <div id="comments-list">
-            <!-- Comment Section -->
             {% for comment in comments %}
-            <div class="comment border rounded p-3 my-3" id="comment-{{ comment.id }}"
-                data-comment-id="{{ comment.id }}">
+            <div class="comment" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
                 <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>
                 <p>{{ comment.content }}</p>
 
                 {% if user.is_authenticated %}
-                <!-- Vote buttons for original comments -->
                 <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote"
                     data-comment-id="{{ comment.id }}">👍</button>
                 <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
@@ -70,18 +68,16 @@
                     data-comment-id="{{ comment.id }}">👎</button>
                 <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
 
-                <button class="btn btn-sm btn-outline-primary reply-btn"
-                    data-parent-id="{{ comment.id }}">Reply</button>
+                <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
                 {% endif %}
 
                 <!-- Replies -->
                 <div class="replies ms-4">
                     {% for reply in comment.replies.all %}
-                    <div class="comment border rounded p-3 my-2" id="comment-{{ reply.id }}" data-comment-id="{{ reply.id }}">
+                    <div class="comment" id="comment-{{ reply.id }}" data-comment-id="{{ reply.id }}">
                         <p><strong>{{ reply.user.username }}</strong> - {{ reply.created_at|date:"F d, Y H:i" }}</p>
                         <p>{{ reply.content }}</p>
-                
-                        <!-- Vote buttons for replies -->
+
                         {% if user.is_authenticated %}
                         <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote"
                             data-comment-id="{{ reply.id }}">👍</button>
@@ -89,15 +85,13 @@
                         <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote"
                             data-comment-id="{{ reply.id }}">👎</button>
                         <span class="downvote-count" id="downvote-count-{{ reply.id }}">{{ reply.downvote_count }}</span>
-                
-                        <!-- Button to reply to a reply -->
+
                         <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ reply.id }}">Reply</button>
                         {% endif %}
                     </div>
                     {% endfor %}
-                
                 </div>
-                </div>
+            </div>
             {% empty %}
             <p>No comments yet. Be the first to comment!</p>
             {% endfor %}
@@ -107,5 +101,4 @@
     <!-- Include JavaScript File -->
     <script src="{% static 'js/comments.js' %}"></script>
 
-    {% endblock content %}
-    
+{% endblock content %}
