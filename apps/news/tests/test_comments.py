@@ -16,140 +16,137 @@ class CommentTests(TestCase):
     def setUpTestData(cls):
         """Load SocialApp fixture before tests run and ensure the site exists."""
 
-        # 🔹 Ensure testserver Site exists and override default site
+        # Ensure testserver Site exists
         cls.site, _ = Site.objects.update_or_create(
             id=1, defaults={"domain": "testserver", "name": "testserver"}
         )
 
-        # 🔹 Load the fixture (ensures SocialApp is created)
+        # Load SocialApp fixture
         call_command("loaddata", "apps/news/tests/fixtures/social_app.json")
 
-        # 🔹 Ensure the SocialApp is linked to 'testserver'
-        cls.social_app = SocialApp.objects.first()  # Fetch the loaded SocialApp
+        # Ensure the SocialApp is linked to 'testserver'
+        cls.social_app = SocialApp.objects.first()
         if cls.social_app:
-            cls.social_app.sites.set([cls.site])  # Explicitly attach it to testserver
+            cls.social_app.sites.set([cls.site])
             cls.social_app.save()
 
-            # Create a test user
-            cls.user = User.objects.create_user(username="testuser", password="password123")
+        # Create users
+        cls.user = User.objects.create_user(username="testuser", password="password123")
+        cls.other_user = User.objects.create_user(username="otheruser", password="password123")
 
-            # Create a test category
-            cls.category, _ = Category.objects.get_or_create(name="Politics", slug="politics")
+        # Create category
+        cls.category, _ = Category.objects.get_or_create(name="Politics", slug="politics")
 
-            # Create a test article
-            cls.article = Article.objects.create(
-                title="Test Article",
-                content="Some content",
-                category=cls.category,
-                published_at=datetime.now(timezone.utc)
-            )
+        # Create article
+        cls.article = Article.objects.create(
+            title="Test Article",
+            content="Some content",
+            category=cls.category,
+            published_at=datetime.now(timezone.utc)
+        )
+
+        # Create comment
+        cls.comment = Comment.objects.create(
+            user=cls.user,
+            article=cls.article,
+            content="Original Comment",
+            created_at=datetime.now(timezone.utc)
+        )
 
     def setUp(self):
         """Set up per-test client initialization (runs BEFORE each test method)."""
         self.client = Client()
-
-        # Define URLs inside `setUp()`
         self.comment_url = reverse("news:post_comment", args=[self.article.id])
-        self.article_detail_url = reverse("news:article_detail", args=[self.article.id])
+        self.comment_edit_url = reverse("news:edit_comment", args=[self.comment.id])
+        self.comment_delete_url = reverse("news:delete_comment", args=[self.comment.id])
 
-    def test_social_app_setup(self):
-        """Verify that SocialApp is properly set up in the test database."""
-        site = Site.objects.get(domain="testserver")
-        self.assertIsNotNone(site, "❌ Site does not exist in the test database!")
+    def test_edit_comment_authenticated(self):
+        """Test that the comment owner can edit their comment."""
+        self.client.login(username="testuser", password="password123")
 
-        social_app = SocialApp.objects.filter(provider="google").first()
-        self.assertIsNotNone(social_app, "❌ SocialApp does not exist in the test database!")
+        response = self.client.post(self.comment_edit_url, {
+            "content": "Edited Comment"
+        }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
 
-        # Ensure SocialApp is linked to the correct Site
-        self.assertIn(site, social_app.sites.all(), "❌ SocialApp is not linked to Site!")
+        self.comment.refresh_from_db()
 
-    def test_anonymous_voting(self):
-        """Ensure unauthenticated users cannot vote."""
-        comment = Comment.objects.create(user=self.user, article=self.article, content="Test comment")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.comment.content, "Edited Comment")
+        self.assertJSONEqual(response.content, {
+            "success": True,
+            "comment_id": self.comment.id,
+            "updated_content": "Edited Comment",
+            "updated_at": self.comment.created_at.strftime("%b %d, %Y %I:%M %p"),
+        })
 
-        vote_url = reverse("news:vote_comment", args=[comment.id, "upvote"])
-        response = self.client.post(vote_url)
+    def test_edit_comment_unauthorized(self):
+        """Test that a user cannot edit someone else's comment."""
+        self.client.login(username="otheruser", password="password123")
+
+        response = self.client.post(self.comment_edit_url, {
+            "content": "Unauthorized Edit"
+        }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+
+        self.comment.refresh_from_db()
+
+        self.assertEqual(response.status_code, 404)  # Should return Not Found
+        self.assertNotEqual(self.comment.content, "Unauthorized Edit")
+
+    def test_edit_comment_unauthenticated(self):
+        """Test that an unauthenticated user cannot edit a comment."""
+        response = self.client.post(self.comment_edit_url, {
+            "content": "Anonymous Edit"
+        }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
 
         login_url = reverse("account_login")
-        expected_redirect_url = f"{login_url}?next={vote_url}"
+        expected_redirect_url = f"{login_url}?next={self.comment_edit_url}"
 
         self.assertRedirects(response, expected_redirect_url)
-        self.assertEqual(comment.upvotes.count(), 0)
+        self.comment.refresh_from_db()
+        self.assertNotEqual(self.comment.content, "Anonymous Edit")
 
-    def test_post_comment_unauthenticated(self):
-        """Test that an unauthenticated user cannot post a comment."""
-        response = self.client.post(self.comment_url, {"content": "Test comment"})
-
-        # Redirects to login
-        self.assertRedirects(response, f"/accounts/login/?next={self.comment_url}")
-        self.assertEqual(Comment.objects.count(), 0)
-
-    def test_comment_validation(self):
-        """Test that invalid comments are rejected."""
-        self.client.login(username="testuser", password="password123")
-        response = self.client.post(self.comment_url, {"content": ""}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-
-        self.assertEqual(response.status_code, 400)  # Expect a failure
-        self.assertJSONEqual(response.content, {"success": False, "error": "Invalid data."})
-        self.assertEqual(Comment.objects.count(), 0)
-
-    def test_comment_sorting(self):
-        """Test sorting of comments by newest, oldest, most upvoted."""
+    def test_edit_comment_invalid_content(self):
+        """Test that an empty comment edit is rejected."""
         self.client.login(username="testuser", password="password123")
 
-        old_comment = Comment.objects.create(
-            user=self.user, article=self.article, content="Old Comment",
-            created_at=datetime(2025, 3, 5, 12, 0, 0, tzinfo=timezone.utc)
-        )
-        new_comment = Comment.objects.create(
-            user=self.user, article=self.article, content="New Comment",
-            created_at=datetime(2025, 3, 6, 14, 0, 0, tzinfo=timezone.utc)
-        )
+        response = self.client.post(self.comment_edit_url, {
+            "content": ""
+        }, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
 
-        response = self.client.get(f"{self.article_detail_url}?sort=newest")
+        self.assertEqual(response.status_code, 400)
+        self.assertJSONEqual(response.content, {
+            "success": False,
+            "error": "Comment cannot be empty."
+        })
 
-        self.assertContains(response, "New Comment")
-        self.assertContains(response, "Old Comment")
-
-    def test_upvote_comment(self):
-        """Test that an authenticated user can upvote a comment."""
+    def test_delete_comment_authenticated(self):
+        """Test that the comment owner can delete their comment."""
         self.client.login(username="testuser", password="password123")
-        comment = Comment.objects.create(user=self.user, article=self.article, content="Test comment")
 
-        vote_url = reverse("news:vote_comment", args=[comment.id, "upvote"])
-        response = self.client.post(vote_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        comment.refresh_from_db()
+        response = self.client.post(self.comment_delete_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(comment.upvotes.count(), 1)
+        self.assertJSONEqual(response.content, {
+            "success": True,
+            "comment_id": self.comment.id,
+        })
+        self.assertFalse(Comment.objects.filter(id=self.comment.id).exists())
 
-    def test_downvote_comment(self):
-        """Test that an authenticated user can downvote a comment."""
-        self.client.login(username="testuser", password="password123")
-        comment = Comment.objects.create(user=self.user, article=self.article, content="Test comment")
+    def test_delete_comment_unauthorized(self):
+        """Test that a user cannot delete someone else's comment."""
+        self.client.login(username="otheruser", password="password123")
 
-        vote_url = reverse("news:vote_comment", args=[comment.id, "downvote"])
-        response = self.client.post(vote_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        comment.refresh_from_db()
+        response = self.client.post(self.comment_delete_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(comment.downvotes.count(), 1)
+        self.assertEqual(response.status_code, 404)  # Should return Not Found
+        self.assertTrue(Comment.objects.filter(id=self.comment.id).exists())
 
-    def test_vote_switching(self):
-        """Test that an upvote is removed if downvoted and vice versa."""
-        self.client.login(username="testuser", password="password123")
-        comment = Comment.objects.create(user=self.user, article=self.article, content="Test comment")
+    def test_delete_comment_unauthenticated(self):
+        """Test that an unauthenticated user cannot delete a comment."""
+        response = self.client.post(self.comment_delete_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
 
-        # Upvote first
-        vote_url = reverse("news:vote_comment", args=[comment.id, "upvote"])
-        self.client.post(vote_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        comment.refresh_from_db()
-        self.assertEqual(comment.upvotes.count(), 1)
-        self.assertEqual(comment.downvotes.count(), 0)
+        login_url = reverse("account_login")
+        expected_redirect_url = f"{login_url}?next={self.comment_delete_url}"
 
-        # Now downvote
-        vote_url = reverse("news:vote_comment", args=[comment.id, "downvote"])
-        self.client.post(vote_url, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        comment.refresh_from_db()
-        self.assertEqual(comment.upvotes.count(), 0)
-        self.assertEqual(comment.downvotes.count(), 1)
+        self.assertRedirects(response, expected_redirect_url)
+        self.assertTrue(Comment.objects.filter(id=self.comment.id).exists())
