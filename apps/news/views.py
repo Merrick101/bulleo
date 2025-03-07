@@ -105,32 +105,29 @@ def vote_comment(request, comment_id, action):
 
 @login_required
 def post_comment(request, article_id):
-    article = get_object_or_404(Article, id=article_id)
-    parent_id = request.POST.get("parent_id", None)  # Get parent ID if it's a reply
-
     if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.user = request.user
-            comment.article = article
-            comment.created_at = now()
+        content = request.POST.get('content')
+        parent_comment_id = request.POST.get('parent_comment_id')
 
-            if parent_id:  # If it's a reply, set the parent
-                comment.parent = get_object_or_404(Comment, id=parent_id)
+        parent_comment = None
+        if parent_comment_id:
+            parent_comment = get_object_or_404(Comment, id=parent_comment_id)
 
-            comment.save()
+        comment = Comment.objects.create(
+            user=request.user,
+            article_id=article_id,
+            content=content,
+            parent=parent_comment  # Ensure this is linked to the parent comment for replies
+        )
 
-            return JsonResponse({
-                "success": True,
-                "username": comment.user.username,
-                "content": comment.content,
-                "created_at": comment.created_at.strftime("%b %d, %Y %I:%M %p"),
-                "comment_id": comment.id,
-                "parent_id": parent_id,
-            })
-
-    return JsonResponse({"success": False, "error": "Invalid data."}, status=400)
+        return JsonResponse({
+            'success': True,
+            'comment_id': comment.id,
+            'username': comment.user.username,
+            'content': comment.content,
+            'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'parent_comment_id': parent_comment_id
+        })
 
 
 @login_required

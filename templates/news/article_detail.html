@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="article-detail">
+    <div class="article-detail" data-article-id="{{ article.id }}">
         <h1>{{ article.title }}</h1>
         <p class="text-muted">
             Source: {{ article.source }} |
@@ -13,21 +13,30 @@
         <div class="article-content">
             {{ article.content|safe }}
         </div>
-
         <!-- Comment Section -->
         <div class="comment-section mt-5">
             <h3>Comment Section</h3>
 
             <!-- Comment Form -->
             {% if user.is_authenticated %}
-                <form id="comment-form" method="POST" action="{% url 'news:post_comment' article.id %}" class="mb-4">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <button type="reset" class="btn btn-secondary">Reset</button>
-                </form>
+            <form id="comment-form" method="POST" action="{% url 'news:post_comment' article.id %}" class="mb-4">
+                {% csrf_token %}
+
+                <!-- Comment Content Field -->
+                <p>
+                    <label for="id_content">Content:</label>
+                    <textarea name="content" id="id_content" cols="40" rows="3" placeholder="Write a comment..."
+                        maxlength="1000" required></textarea>
+                </p>
+
+                <!-- Hidden Parent Comment ID (if applicable) -->
+                <input type="hidden" name="parent_comment_id" id="id_parent_comment_id">
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="reset" class="btn btn-secondary">Reset</button>
+            </form>
             {% else %}
-                <p><a href="{% url 'login' %}">Log in</a> to post a comment.</p>
+            <p><a href="{% url 'login' %}">Log in</a> to post a comment.</p>
             {% endif %}
         </div>
 
@@ -47,32 +56,56 @@
         <div id="comments-list">
             <!-- Comment Section -->
             {% for comment in comments %}
-            <div class="comment border rounded p-3 my-3" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
+            <div class="comment border rounded p-3 my-3" id="comment-{{ comment.id }}"
+                data-comment-id="{{ comment.id }}">
                 <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>
                 <p>{{ comment.content }}</p>
-        
+
                 {% if user.is_authenticated %}
-                <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
+                <!-- Vote buttons for original comments -->
+                <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote"
+                    data-comment-id="{{ comment.id }}">👍</button>
+                <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
+                <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote"
+                    data-comment-id="{{ comment.id }}">👎</button>
+                <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
+
+                <button class="btn btn-sm btn-outline-primary reply-btn"
+                    data-parent-id="{{ comment.id }}">Reply</button>
                 {% endif %}
-        
+
                 <!-- Replies -->
                 <div class="replies ms-4">
                     {% for reply in comment.replies.all %}
                     <div class="comment border rounded p-3 my-2" id="comment-{{ reply.id }}" data-comment-id="{{ reply.id }}">
                         <p><strong>{{ reply.user.username }}</strong> - {{ reply.created_at|date:"F d, Y H:i" }}</p>
                         <p>{{ reply.content }}</p>
+                
+                        <!-- Vote buttons for replies -->
+                        {% if user.is_authenticated %}
+                        <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote"
+                            data-comment-id="{{ reply.id }}">👍</button>
+                        <span class="upvote-count" id="upvote-count-{{ reply.id }}">{{ reply.upvote_count }}</span>
+                        <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote"
+                            data-comment-id="{{ reply.id }}">👎</button>
+                        <span class="downvote-count" id="downvote-count-{{ reply.id }}">{{ reply.downvote_count }}</span>
+                
+                        <!-- Button to reply to a reply -->
+                        <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ reply.id }}">Reply</button>
+                        {% endif %}
                     </div>
                     {% endfor %}
+                
                 </div>
-            </div>
+                </div>
             {% empty %}
             <p>No comments yet. Be the first to comment!</p>
             {% endfor %}
         </div>
-        </div>
-        </div>
+    </div>
 
-<!-- Include JavaScript File -->
-<script src="{% static 'js/comments.js' %}"></script>
+    <!-- Include JavaScript File -->
+    <script src="{% static 'js/comments.js' %}"></script>
 
-{% endblock content %}
+    {% endblock content %}
+    

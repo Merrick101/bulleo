@@ -9,6 +9,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Get the article_id from the DOM
+    const articleDetail = document.querySelector('.article-detail');
+    const article_id = articleDetail ? articleDetail.getAttribute('data-article-id') : null;
+
     // AJAX for Comment Submission (Top-Level & Replies)
     document.getElementById("comment-form").addEventListener("submit", function (event) {
         event.preventDefault();
@@ -16,16 +20,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function submitComment(form) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;  // Disable the submit button to prevent multiple submissions
+
         const formData = new FormData(form);
         fetch(form.action, {
             method: "POST",
             body: formData,
-            headers: {
+            headers: { 
                 "X-Requested-With": "XMLHttpRequest",
-                "X-CSRFToken": getCSRFToken()
+                "X-CSRFToken": getCSRFToken()  // Ensure CSRF token is sent
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            // Debugging: Check if the response is HTML or JSON
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error("Server returned an error page:", text);
+                    throw new Error("Server returned an error page.");
+                });
+            }
+            // Attempt to parse the response as JSON
+            return response.json().catch(err => {
+                console.error("Failed to parse JSON:", err);
+                throw new Error("Failed to parse JSON response.");
+            });
+        })
         .then(data => {
             if (data.success) {
                 renderNewComment(data);
@@ -34,13 +54,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("Failed to submit comment.");
             }
         })
-        .catch(error => console.error("Error submitting comment:", error));
-    }
+        .catch(function(error) {
+            console.error("Error submitting comment:", error);
+        })
+        .finally(() => {
+            submitButton.disabled = false;  // Re-enable the submit button after the process
+        });
+    }       
 
     function renderNewComment(data) {
         const commentList = document.getElementById("comments-list");
-        const parentCommentId = data.parent_comment_id;
-
+    
+        // Check if commentList exists
+        if (!commentList) {
+            console.error("Element with ID 'comments-list' not found.");
+            return; // Exit the function if the element is not found
+        }
+    
+        // Create the new comment element
         const newComment = document.createElement("div");
         newComment.classList.add("comment", "border", "rounded", "p-3", "my-3");
         newComment.dataset.commentId = data.comment_id;
@@ -58,15 +89,31 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <div class="replies ms-4"></div>
         `;
-
-        if (parentCommentId) {
-            document.querySelector(`#comment-${parentCommentId} .replies`).appendChild(newComment);
+    
+        // Check if parentCommentId exists and append to the correct parent
+        if (data.parent_comment_id) {
+            const parentComment = document.querySelector(`#comment-${data.parent_comment_id}`);
+            if (parentComment) {
+                let repliesContainer = parentComment.querySelector(".replies");
+                if (!repliesContainer) {
+                    repliesContainer = document.createElement("div");
+                    repliesContainer.classList.add("replies");
+                    parentComment.appendChild(repliesContainer);
+                }
+                repliesContainer.appendChild(newComment);  // Append the new reply to the parent comment's replies section
+            } else {
+                console.error(`Parent comment with ID ${data.parent_comment_id} not found.`);
+            }
         } else {
-            commentList.prepend(newComment);
+            commentList.prepend(newComment);  // For top-level comments
         }
-
-        document.getElementById("comment-count").textContent++;
-    }
+    
+        // Update comment count
+        const commentCount = document.getElementById("comment-count");
+        if (commentCount) {
+            commentCount.textContent = parseInt(commentCount.textContent) + 1;
+        }
+    }             
 
     // Handle Reply Button Clicks
     document.getElementById("comments-list").addEventListener("click", function (event) {
@@ -77,24 +124,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function showReplyForm(parentId, replyButton) {
+        // Check if reply form already exists
         if (document.querySelector(`#reply-form-${parentId}`)) return;
 
+        // Create reply form
         const replyForm = document.createElement("form");
         replyForm.classList.add("reply-form", "mt-2");
         replyForm.id = `reply-form-${parentId}`;
+        replyForm.action = `/news/article/${article_id}/comment/`;  // Ensure this points to the right URL
+        replyForm.method = "POST";
+
+        // Add the textarea and the hidden parent_comment_id input dynamically
         replyForm.innerHTML = `
             <textarea name="content" class="form-control" rows="2" required placeholder="Write a reply..."></textarea>
             <input type="hidden" name="parent_comment_id" value="${parentId}">
             <button type="submit" class="btn btn-sm btn-success mt-2">Post Reply</button>
         `;
 
+        // Insert the reply form after the reply button
         replyButton.insertAdjacentElement("afterend", replyForm);
 
+        // Attach an event listener for the reply form submission
         replyForm.addEventListener("submit", function (e) {
             e.preventDefault();
-            submitComment(replyForm);
+            submitComment(replyForm);  // Submit the reply
         });
-    }
+    }            
 
     // AJAX for Editing Comments
     document.getElementById("comments-list").addEventListener("click", function (event) {
@@ -124,10 +179,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     method: "POST",
                     body: new URLSearchParams({"content": newContent}),
                     headers: { 
-                        "X-Requested-With": "XMLHttpRequest", 
-                        "X-CSRFToken": getCSRFToken() 
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRFToken": getCSRFToken()
                     }
-                })
+                })                
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -153,10 +208,10 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch(`/news/comment/${commentId}/delete/`, {
                 method: "POST",
                 headers: { 
-                    "X-Requested-With": "XMLHttpRequest", 
-                    "X-CSRFToken": getCSRFToken() 
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": getCSRFToken()
                 }
-            })
+            })            
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -194,10 +249,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Helper function to get CSRF token
+    // Function to retrieve CSRF token from cookies
     function getCSRFToken() {
-        return document.cookie.split("; ")
-            .find(row => row.startsWith("csrftoken="))
-            ?.split("=")[1];
+        const cookie = document.cookie
+            .split("; ")
+            .find(row => row.startsWith("csrftoken="));
+        return cookie ? cookie.split("=")[1] : "";
     }
 });
