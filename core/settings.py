@@ -191,13 +191,13 @@ CELERY_TIMEZONE = "UTC"
 
 # Periodic Task Configuration
 CELERY_BEAT_SCHEDULE = {
-    'fetch-news-every-30-minutes': {
+    'fetch-news-every-12-hours': {
         'task': 'apps.news.tasks.fetch_news_articles',
-        'schedule': 3600.0,  # every 1 hour
+        'schedule': 43200.0,  # every 12 hours
     },
-    'fetch-guardian-every-hour': {
+    'fetch-guardian-every-12-hours': {
         'task': 'apps.news.tasks.fetch_guardian_articles',
-        'schedule': 3600.0,  # every 1 hour
+        'schedule': 43200.0,  # every 12 hours
     },
 }
 
