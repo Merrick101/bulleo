@@ -20,7 +20,10 @@ document.addEventListener("DOMContentLoaded", function () {
         fetch(form.action, {
             method: "POST",
             body: formData,
-            headers: { "X-Requested-With": "XMLHttpRequest" }
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCSRFToken()
+            }
         })
         .then(response => response.json())
         .then(data => {
@@ -43,8 +46,16 @@ document.addEventListener("DOMContentLoaded", function () {
         newComment.dataset.commentId = data.comment_id;
         newComment.innerHTML = `
             <p><strong>${data.username}</strong> - ${data.created_at}</p>
-            <p>${data.content}</p>
-            <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
+            <p class="comment-content">${data.content}</p>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
+                <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
+                <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
+                <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
+                <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
+                <button class="btn btn-sm btn-outline-primary edit-btn" data-comment-id="${data.comment_id}">✏️ Edit</button>
+                <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">🗑️ Delete</button>
+            </div>
             <div class="replies ms-4"></div>
         `;
 
@@ -90,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.target.classList.contains("edit-btn")) {
             const commentDiv = event.target.closest(".comment");
             const commentId = event.target.dataset.commentId;
-            const contentElement = commentDiv.querySelector("p:nth-of-type(2)");
+            const contentElement = commentDiv.querySelector(".comment-content");
 
             const editForm = document.createElement("form");
             editForm.innerHTML = `
@@ -112,7 +123,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 fetch(`/news/comment/${commentId}/edit/`, {
                     method: "POST",
                     body: new URLSearchParams({"content": newContent}),
-                    headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": getCSRFToken() }
+                    headers: { 
+                        "X-Requested-With": "XMLHttpRequest", 
+                        "X-CSRFToken": getCSRFToken() 
+                    }
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -138,7 +152,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch(`/news/comment/${commentId}/delete/`, {
                 method: "POST",
-                headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": getCSRFToken() }
+                headers: { 
+                    "X-Requested-With": "XMLHttpRequest", 
+                    "X-CSRFToken": getCSRFToken() 
+                }
             })
             .then(response => response.json())
             .then(data => {
@@ -150,6 +167,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             })
             .catch(error => console.error("Error deleting comment:", error));
+        }
+    });
+
+    // AJAX for Upvote/Downvote
+    document.getElementById("comments-list").addEventListener("click", function (event) {
+        if (event.target.classList.contains("vote-btn")) {
+            const commentId = event.target.dataset.commentId;
+            const action = event.target.dataset.action;
+
+            fetch(`/news/comment/${commentId}/vote/${action}/`, {
+                method: "POST",
+                headers: { 
+                    "X-Requested-With": "XMLHttpRequest", 
+                    "X-CSRFToken": getCSRFToken() 
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`upvote-count-${commentId}`).textContent = data.upvotes;
+                    document.getElementById(`downvote-count-${commentId}`).textContent = data.downvotes;
+                }
+            })
+            .catch(error => console.error("Error processing vote:", error));
         }
     });
 

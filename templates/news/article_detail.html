@@ -45,6 +45,7 @@
         </div>
 
         <div id="comments-list">
+            <!-- Comment Section -->
             {% for comment in comments %}
             <div class="comment border rounded p-3 my-3" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
                 <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>

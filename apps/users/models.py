@@ -53,7 +53,7 @@ class Profile(models.Model):
 
 # Comment Model
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     article = models.ForeignKey("news.Article", on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -78,6 +78,6 @@ class Comment(models.Model):
 
     def has_downvoted(self, user):
         return self.downvotes.filter(id=user.id).exists()
-    
+
     def is_reply(self):
         return self.parent is not None
