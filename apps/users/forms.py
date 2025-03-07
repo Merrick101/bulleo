@@ -35,6 +35,8 @@ class CommentForm(forms.ModelForm):
         max_length=1000
     )
 
+    parent_comment_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+
     class Meta:
         model = Comment
-        fields = ["content"]
+        fields = ["content", "parent_comment_id"]

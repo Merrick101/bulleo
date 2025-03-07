@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("Comments.js loaded successfully!");
+    console.log("comments.js loaded successfully!");
 
     // Sorting function
     const sortDropdown = document.getElementById("sort-comments");
@@ -9,51 +9,79 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // AJAX for Comment Submission
-    const commentForm = document.getElementById("comment-form");
-    if (commentForm) {
-        commentForm.addEventListener("submit", function (event) {
-            event.preventDefault();  // Prevent full-page reload
+    // AJAX for Comment Submission (Top-Level & Replies)
+    document.getElementById("comment-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        submitComment(this);
+    });
 
-            const formData = new FormData(commentForm);
-            fetch(commentForm.action, {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest"
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const commentList = document.getElementById("comments-list");
-                    const newComment = document.createElement("div");
-                    newComment.classList.add("comment", "border", "rounded", "p-3", "my-3");
-                    newComment.dataset.commentId = data.comment_id;
-                    newComment.innerHTML = `
-                        <p><strong>${data.username}</strong> - ${data.created_at}</p>
-                        <p class="comment-content">${data.content}</p>
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-sm btn-outline-primary edit-btn" data-comment-id="${data.comment_id}">✏️ Edit</button>
-                            <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">🗑️ Delete</button>
-                            <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote">👍</button>
-                            <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
-                            <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote">👎</button>
-                            <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
-                        </div>
-                    `;
-                    commentList.prepend(newComment);
+    function submitComment(form) {
+        const formData = new FormData(form);
+        fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderNewComment(data);
+                form.reset();
+            } else {
+                alert("Failed to submit comment.");
+            }
+        })
+        .catch(error => console.error("Error submitting comment:", error));
+    }
 
-                    document.getElementById("comment-count").textContent++;
-                    const noComments = document.getElementById("no-comments");
-                    if (noComments) noComments.style.display = "none";
+    function renderNewComment(data) {
+        const commentList = document.getElementById("comments-list");
+        const parentCommentId = data.parent_comment_id;
 
-                    commentForm.reset();
-                } else {
-                    alert("Failed to submit comment.");
-                }
-            })
-            .catch(error => console.error("Error submitting comment:", error));
+        const newComment = document.createElement("div");
+        newComment.classList.add("comment", "border", "rounded", "p-3", "my-3");
+        newComment.dataset.commentId = data.comment_id;
+        newComment.innerHTML = `
+            <p><strong>${data.username}</strong> - ${data.created_at}</p>
+            <p>${data.content}</p>
+            <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
+            <div class="replies ms-4"></div>
+        `;
+
+        if (parentCommentId) {
+            document.querySelector(`#comment-${parentCommentId} .replies`).appendChild(newComment);
+        } else {
+            commentList.prepend(newComment);
+        }
+
+        document.getElementById("comment-count").textContent++;
+    }
+
+    // Handle Reply Button Clicks
+    document.getElementById("comments-list").addEventListener("click", function (event) {
+        if (event.target.classList.contains("reply-btn")) {
+            const parentId = event.target.dataset.parentId;
+            showReplyForm(parentId, event.target);
+        }
+    });
+
+    function showReplyForm(parentId, replyButton) {
+        if (document.querySelector(`#reply-form-${parentId}`)) return;
+
+        const replyForm = document.createElement("form");
+        replyForm.classList.add("reply-form", "mt-2");
+        replyForm.id = `reply-form-${parentId}`;
+        replyForm.innerHTML = `
+            <textarea name="content" class="form-control" rows="2" required placeholder="Write a reply..."></textarea>
+            <input type="hidden" name="parent_comment_id" value="${parentId}">
+            <button type="submit" class="btn btn-sm btn-success mt-2">Post Reply</button>
+        `;
+
+        replyButton.insertAdjacentElement("afterend", replyForm);
+
+        replyForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            submitComment(replyForm);
         });
     }
 
@@ -62,9 +90,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.target.classList.contains("edit-btn")) {
             const commentDiv = event.target.closest(".comment");
             const commentId = event.target.dataset.commentId;
-            const contentElement = commentDiv.querySelector(".comment-content");
+            const contentElement = commentDiv.querySelector("p:nth-of-type(2)");
 
-            // Create an edit form
             const editForm = document.createElement("form");
             editForm.innerHTML = `
                 <textarea class="form-control" id="edit-content-${commentId}">${contentElement.textContent.trim()}</textarea>
@@ -74,12 +101,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             commentDiv.replaceChild(editForm, contentElement);
 
-            // Cancel Edit
             editForm.querySelector(".cancel-edit").addEventListener("click", function () {
                 commentDiv.replaceChild(contentElement, editForm);
             });
 
-            // Submit Edit
             editForm.addEventListener("submit", function (event) {
                 event.preventDefault();
                 const newContent = document.getElementById(`edit-content-${commentId}`).value.trim();
@@ -87,10 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 fetch(`/news/comment/${commentId}/edit/`, {
                     method: "POST",
                     body: new URLSearchParams({"content": newContent}),
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest",
-                        "X-CSRFToken": getCSRFToken()
-                    }
+                    headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": getCSRFToken() }
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -116,10 +138,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch(`/news/comment/${commentId}/delete/`, {
                 method: "POST",
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                    "X-CSRFToken": getCSRFToken()
-                }
+                headers: { "X-Requested-With": "XMLHttpRequest", "X-CSRFToken": getCSRFToken() }
             })
             .then(response => response.json())
             .then(data => {
@@ -131,31 +150,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             })
             .catch(error => console.error("Error deleting comment:", error));
-        }
-    });
-
-    // AJAX for Upvote/Downvote
-    document.getElementById("comments-list").addEventListener("click", function (event) {
-        if (event.target.classList.contains("vote-btn")) {
-            const commentDiv = event.target.closest(".comment");
-            const commentId = commentDiv.dataset.commentId;
-            const action = event.target.dataset.action;
-
-            fetch(`/news/comment/${commentId}/vote/${action}/`, {
-                method: "POST",
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                    "X-CSRFToken": getCSRFToken()
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    commentDiv.querySelector(".upvote-count").textContent = data.upvotes;
-                    commentDiv.querySelector(".downvote-count").textContent = data.downvotes;
-                }
-            })
-            .catch(error => console.error("Error processing vote:", error));
         }
     });
 

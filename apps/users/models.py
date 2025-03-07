@@ -58,19 +58,26 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
+    )
+
     # Voting system
     upvotes = models.ManyToManyField(User, related_name="upvoted_comments", blank=True)
     downvotes = models.ManyToManyField(User, related_name="downvoted_comments", blank=True)
 
+    # Helper Functions
     def upvote_count(self):
         return self.upvotes.count()
 
     def downvote_count(self):
         return self.downvotes.count()
 
-    # Helper functions for checking if user has already voted
     def has_upvoted(self, user):
         return self.upvotes.filter(id=user.id).exists()
 
     def has_downvoted(self, user):
         return self.downvotes.filter(id=user.id).exists()
+    
+    def is_reply(self):
+        return self.parent is not None

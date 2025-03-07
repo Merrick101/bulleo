@@ -44,46 +44,32 @@
             </div>
         </div>
 
-        <!-- Comments List -->
         <div id="comments-list">
             {% for comment in comments %}
-                <div class="comment border rounded p-3 my-3" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
-                    <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>
-                    
-                    <!-- Comment Content -->
-                    <p class="comment-content">{{ comment.content }}</p>
-
-                    <!-- Inline Edit Form (Hidden by Default) -->
-                    <form class="edit-form" id="edit-form-{{ comment.id }}" style="display: none;">
-                        <textarea class="form-control edit-textarea">{{ comment.content }}</textarea>
-                        <button type="submit" class="btn btn-sm btn-success mt-2 save-edit-btn" data-comment-id="{{ comment.id }}">Save</button>
-                        <button type="button" class="btn btn-sm btn-secondary mt-2 cancel-edit-btn" data-comment-id="{{ comment.id }}">Cancel</button>
-                    </form>
-
-                    <div class="d-flex align-items-center">
-                        {% if user.is_authenticated %}
-                            <!-- Edit & Delete (Only for Comment Author) -->
-                            {% if user == comment.user %}
-                                <button class="btn btn-sm btn-outline-primary edit-btn" data-comment-id="{{ comment.id }}">✏️ Edit</button>
-                                <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="{{ comment.id }}">🗑️ Delete</button>
-                            {% endif %}
-
-                            <!-- Vote Buttons -->
-                            <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
-                            <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
-                            <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
-                            <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
-                        {% else %}
-                            <p class="text-muted">Log in to vote on comments.</p>
-                        {% endif %}
+            <div class="comment border rounded p-3 my-3" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
+                <p><strong>{{ comment.user.username }}</strong> - {{ comment.created_at|date:"F d, Y H:i" }}</p>
+                <p>{{ comment.content }}</p>
+        
+                {% if user.is_authenticated %}
+                <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
+                {% endif %}
+        
+                <!-- Replies -->
+                <div class="replies ms-4">
+                    {% for reply in comment.replies.all %}
+                    <div class="comment border rounded p-3 my-2" id="comment-{{ reply.id }}" data-comment-id="{{ reply.id }}">
+                        <p><strong>{{ reply.user.username }}</strong> - {{ reply.created_at|date:"F d, Y H:i" }}</p>
+                        <p>{{ reply.content }}</p>
                     </div>
+                    {% endfor %}
                 </div>
+            </div>
             {% empty %}
-                <p id="no-comments">No comments yet. Be the first to comment!</p>
+            <p>No comments yet. Be the first to comment!</p>
             {% endfor %}
         </div>
-    </div>
-</div>
+        </div>
+        </div>
 
 <!-- Include JavaScript File -->
 <script src="{% static 'js/comments.js' %}"></script>

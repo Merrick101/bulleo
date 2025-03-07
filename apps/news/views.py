@@ -63,23 +63,19 @@ def search_articles(request):
 def article_detail(request, article_id):
     article = get_object_or_404(Article, id=article_id)
 
-    # Sorting Logic
     sort_order = request.GET.get("sort", "newest")
+
+    comments = article.comments.filter(parent__isnull=True)
     if sort_order == "newest":
-        comments = article.comments.all().order_by("-created_at")
+        comments = comments.order_by("-created_at")
     elif sort_order == "oldest":
-        comments = article.comments.all().order_by("created_at")
+        comments = comments.order_by("created_at")
     elif sort_order == "most_upvoted":
-        comments = article.comments.all().annotate(
-            upvote_count=Count("upvotes"),
-            downvote_count=Count("downvotes")
-        ).order_by("-upvote_count")
-    else:
-        comments = article.comments.all()
+        comments = comments.annotate(upvote_count=Count("upvotes")).order_by("-upvote_count")
 
     context = {
         "article": article,
-        "comments": comments,
+        "comments": comments.prefetch_related("replies"),  # Load replies efficiently
         "sort_order": sort_order,
         "form": CommentForm(),
     }
@@ -111,24 +107,29 @@ def vote_comment(request, comment_id, action):
 def post_comment(request, article_id):
     article = get_object_or_404(Article, id=article_id)
 
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.user = request.user
-            comment.article = article
-            comment.created_at = now()
-            comment.save()
+    parent_comment = None
+    if request.POST.get("parent_comment_id"):
+        parent_comment = get_object_or_404(Comment, id=request.POST["parent_comment_id"])
 
-            return JsonResponse({
-                "success": True,
-                "username": comment.user.username,
-                "content": comment.content,
-                "created_at": comment.created_at.strftime("%b %d, %Y %I:%M %p"),
-                "comment_id": comment.id,
-            })
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.user = request.user
+        comment.article = article
+        comment.created_at = now()
+        comment.parent = parent_comment
+        comment.save()
 
-    return JsonResponse({"success": False, "error": "Invalid data."}, status=400)
+        return JsonResponse({
+            "success": True,
+            "username": comment.user.username,
+            "content": comment.content,
+            "created_at": comment.created_at.strftime("%b %d, %Y %I:%M %p"),
+            "comment_id": comment.id,
+            "parent_comment_id": parent_comment.id if parent_comment else None,
+        })
+
+    return JsonResponse({"success": False, "error": "Invalid data."})
 
 
 @login_required
