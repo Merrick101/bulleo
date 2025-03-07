@@ -129,3 +129,39 @@ def post_comment(request, article_id):
             })
 
     return JsonResponse({"success": False, "error": "Invalid data."}, status=400)
+
+
+@login_required
+def edit_comment(request, comment_id):
+    """Allows users to edit their own comments."""
+    comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+
+    if request.method == "POST":
+        new_content = request.POST.get("content", "").strip()
+        if not new_content:
+            return JsonResponse({"success": False, "error": "Comment cannot be empty."}, status=400)
+
+        comment.content = new_content
+        comment.created_at = now()  # Update timestamp
+        comment.save()
+
+        return JsonResponse({
+            "success": True,
+            "comment_id": comment.id,
+            "updated_content": comment.content,
+            "updated_at": comment.created_at.strftime("%b %d, %Y %I:%M %p"),
+        })
+
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
+
+
+@login_required
+def delete_comment(request, comment_id):
+    """Allows users to delete their own comments."""
+    comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+
+    if request.method == "POST":
+        comment.delete()
+        return JsonResponse({"success": True, "comment_id": comment_id})
+
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
