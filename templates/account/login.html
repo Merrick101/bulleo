@@ -14,24 +14,23 @@
                 </div>
                 <div class="card-body">
                     <p>Enter your email or username</p>
-                    <form method="post" action="{% url 'account_login' %}">
+                    <form method="post" action="{% url 'account_login' %}" id="login-form">
                         {% csrf_token %}
-                        {# Optionally update the label if needed #}
                         {{ form|crispy }}
-                        <button type="submit" class="btn btn-primary w-100 mt-3">{% trans "Log In" %}</button>
+                        <button type="submit" class="btn btn-primary w-100 mt-3" id="login-button">{% trans "Log In" %}</button>
                     </form>
                     <hr>
                     <div class="text-center">
-                        <a href="{% provider_login_url 'google' %}" class="btn btn-danger w-100">
+                        <a href="{% provider_login_url 'google' %}" class="btn btn-danger w-100" id="google-login">
                             <i class="fab fa-google"></i> {% trans "Continue with Google" %}
                         </a>
                     </div>
                     <div class="text-center mt-3">
-                        <a href="{% url 'account_reset_password' %}">{% trans "Forgot password?" %}</a>
+                        <a href="{% url 'account_reset_password' %}" id="forgot-password-link">{% trans "Forgot password?" %}</a>
                     </div>
                 </div>
                 <div class="card-footer text-center">
-                    <p>{% trans "Don't have an account?" %} <a href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a></p>
+                    <p>{% trans "Don't have an account?" %} <a href="{% url 'account_signup' %}" id="signup-link">{% trans "Sign Up" %}</a></p>
                 </div>
             </div>
         </div>

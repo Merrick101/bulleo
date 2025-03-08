@@ -6,7 +6,7 @@ body {
 }
 
 /* Navbar Styling */
-  .custom-navbar {
+.custom-navbar {
   background-color: #f7f2d7; /* Breezy Beige */
   border-bottom: 1px solid #000;
   padding: 10px 0;
@@ -48,6 +48,7 @@ body {
 #searchForm {
   transition: width 0.3s ease;
 }
+
 #searchForm.expanded {
   width: 250px;
 }
@@ -142,6 +143,11 @@ body {
   border: none;
 }
 
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
 /* Category Selection Styling */
 .category-card {
   cursor: pointer;
@@ -201,6 +207,88 @@ body {
   width: 80%;
 }
 
+/* Form and Button Styling Specific to Profile Page */
+#profile-picture-section form input[type="file"] {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#profile-picture-section form button {
+  margin-top: 10px;
+}
+
+#edit-account-form .form-group {
+  margin-bottom: 15px;
+}
+
+#edit-account-form .form-control {
+  width: 100%;
+}
+
+#edit-account-form button {
+  margin-top: 10px;
+}
+
+#news-feed-preferences-form .form-group {
+  margin-bottom: 15px;
+}
+
+#news-feed-preferences-form input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+#news-feed-preferences-form button {
+  margin-top: 10px;
+}
+
+#saved-for-later-section .form-group {
+  margin-bottom: 15px;
+}
+
+#saved-for-later-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+#saved-for-later-section button,
+#upvoted-articles-section button,
+#downvoted-articles-section button {
+  margin-top: 10px;
+}
+
+#saved-for-later-section li,
+#upvoted-articles-section li,
+#downvoted-articles-section li {
+  display: flex;
+  align-items: center;
+}
+
+#saved-for-later-section img,
+#upvoted-articles-section img,
+#downvoted-articles-section img {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+#saved-for-later-section button,
+#upvoted-articles-section button,
+#downvoted-articles-section button {
+  margin-left: auto;
+}
+
+#comment-history-section .btn-sm {
+  margin-left: 10px;
+}
+
+#delete-account-section .form-group {
+  margin-bottom: 15px;
+}
+
+#delete-account-section button {
+  margin-top: 10px;
+}
+
 /* Button styles */
 .btn-primary {
   background-color: #007bff;
@@ -215,6 +303,7 @@ body {
 .accordion-button {
   transition: background-color 0.2s ease;
 }
+
 .accordion-button:hover {
   background-color: #f1f1f1;
 }

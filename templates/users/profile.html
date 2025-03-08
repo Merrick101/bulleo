@@ -4,54 +4,98 @@
 <div class="container mt-5">
     <h2 class="mb-4">Edit Profile</h2>
 
-    <!-- Profile Card: Image on Left, Menu on Right -->
-    <div class="profile-card mb-4">
+    <div class="row">
         <!-- Profile Info Section (Left Side) -->
-        <div class="card-body">
-            <h5 class="card-title">{{ profile.user.username }}</h5>
-            <p class="card-text">{{ profile.bio }}</p>
-            
-            <!-- Profile Picture Section -->
-            <div class="profile-picture-section">
-                {% if profile.profile_picture %}
-                    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
-                {% else %}
-                    <p>No profile picture uploaded.</p>
-                {% endif %}
-                
-                <!-- Form for Profile Picture Upload (only on the left side) -->
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="file" name="profile_picture" accept="image/*">
-                    <button type="submit" class="btn btn-primary">Upload Picture</button>
-                </form>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ profile.user.username }}</h5>
+                    <p class="card-text">{{ profile.bio }}</p>
+                    
+                    <!-- Profile Picture Section -->
+                    <div class="profile-picture-section" id="profile-picture-section">
+                        {% if profile.profile_picture %}
+                            <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture" id="profile-picture">
+                        {% else %}
+                            <p>No profile picture uploaded.</p>
+                        {% endif %}
+                        
+                        <!-- Form for Profile Picture Upload (only on the left side) -->
+                        <form method="POST" enctype="multipart/form-data" id="profile-picture-form">
+                            {% csrf_token %}
+                            <input type="file" name="profile_picture" accept="image/*" id="profile-picture-upload">
+                            <button type="submit" class="btn btn-primary" id="upload-picture-btn">Upload Picture</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Collapsible Menu Section (Right Side) -->
-        <div class="collapsible-menu">
+        <div class="col-md-8">
             <div class="accordion" id="profileAccordion">
-
+                
                 <!-- Edit Account Details Section -->
-                <div class="accordion-item">
+                <div class="accordion-item" id="edit-account-section">
                     <h2 class="accordion-header" id="headingOne">
                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                            Edit Account Details
+                            Edit Account
                         </button>
                     </h2>
                     <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#profileAccordion">
                         <div class="accordion-body">
-                            <form method="POST" enctype="multipart/form-data">
+                            <form method="POST" id="edit-account-form">
                                 {% csrf_token %}
-                                {{ form.as_p }}
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <div class="form-group">
+                                    <label for="username">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" value="{{ profile.user.username }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ profile.user.email }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="current_password">Current Password</label>
+                                    <input type="password" class="form-control" id="current_password" name="current_password">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="new_password">New Password</label>
+                                    <input type="password" class="form-control" id="new_password" name="new_password">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="confirm_new_password">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirm_new_password" name="confirm_new_password">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="notification_preferences">Notification Preferences</label>
+                                    <label class="switch">
+                                        <input type="checkbox" name="notification_preferences" id="notification_preferences" {% if profile.notification_preferences %} checked {% endif %}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="theme">Default Theme (Light/Dark)</label>
+                                    <label class="switch">
+                                        <input type="checkbox" name="theme" id="theme" {% if profile.theme == 'dark' %} checked {% endif %}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary" id="save-account-changes-btn">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" id="discard-account-changes-btn">Discard Changes</button>
                             </form>
                         </div>
                     </div>
                 </div>
 
                 <!-- News Feed Preferences Section -->
-                <div class="accordion-item">
+                <div class="accordion-item" id="news-feed-preferences-section">
                     <h2 class="accordion-header" id="headingTwo">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                             News Feed Preferences
@@ -59,17 +103,31 @@
                     </h2>
                     <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#profileAccordion">
                         <div class="accordion-body">
-                            <form method="POST">
+                            <form method="POST" id="news-feed-preferences-form">
                                 {% csrf_token %}
-                                {{ form.as_p }}
-                                <button type="submit" class="btn btn-primary">Save Preferences</button>
+                                <div class="form-group">
+                                    <label for="preferred_categories">Preferred Categories</label><br>
+                                    <label><i class="fas fa-globe"></i> World News</label>
+                                    <input type="checkbox" name="world_news" id="world_news" {% if 'World News' in profile.preferred_categories %} checked {% endif %}><br>
+                                    <label><i class="fas fa-flag"></i> Politics</label>
+                                    <input type="checkbox" name="politics" id="politics" {% if 'Politics' in profile.preferred_categories %} checked {% endif %}><br>
+                                    <label><i class="fas fa-briefcase"></i> Business</label>
+                                    <input type="checkbox" name="business" id="business" {% if 'Business' in profile.preferred_categories %} checked {% endif %}><br>
+                                    <label><i class="fas fa-laptop"></i> Technology</label>
+                                    <input type="checkbox" name="technology" id="technology" {% if 'Technology' in profile.preferred_categories %} checked {% endif %}><br>
+                                    <label><i class="fas fa-basketball-ball"></i> Sports</label>
+                                    <input type="checkbox" name="sports" id="sports" {% if 'Sports' in profile.preferred_categories %} checked {% endif %}><br>
+                                    <label><i class="fas fa-tv"></i> Entertainment</label>
+                                    <input type="checkbox" name="entertainment" id="entertainment" {% if 'Entertainment' in profile.preferred_categories %} checked {% endif %}><br>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="save-preferences-btn">Save Preferences</button>
                             </form>
                         </div>
                     </div>
                 </div>
 
                 <!-- Saved for Later Section -->
-                <div class="accordion-item">
+                <div class="accordion-item" id="saved-for-later-section">
                     <h2 class="accordion-header" id="headingThree">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                             Saved for Later
@@ -77,19 +135,33 @@
                     </h2>
                     <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#profileAccordion">
                         <div class="accordion-body">
-                            <ul>
-                                {% for saved_article in saved_articles %}
-                                    <li><a href="{{ saved_article.article.get_absolute_url }}">{{ saved_article.article.title }}</a></li>
+                            <div class="form-group">
+                                <label for="sort_by">Sort By:</label>
+                                <select class="form-control" id="sort_by">
+                                    <option>Most Recent</option>
+                                    <option>Oldest</option>
+                                    <option>Category</option>
+                                    <option>Source</option>
+                                </select>
+                            </div>
+                            <ul id="saved-articles-list">
+                                {% for article in saved_articles %}
+                                    <li>
+                                        <img src="{{ article.thumbnail.url }}" alt="Article Thumbnail" style="width: 50px; height: 50px;">
+                                        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                                        <button class="btn btn-sm btn-danger" id="remove-article-{{ article.id }}">Remove</button>
+                                    </li>
                                 {% empty %}
                                     <p>No saved articles.</p>
                                 {% endfor %}
                             </ul>
+                            <button class="btn btn-danger" id="clear-saved-articles-btn">Clear History</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Upvoted Articles Section -->
-                <div class="accordion-item">
+                <div class="accordion-item" id="upvoted-articles-section">
                     <h2 class="accordion-header" id="headingFour">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                             Upvoted Articles
@@ -97,19 +169,24 @@
                     </h2>
                     <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#profileAccordion">
                         <div class="accordion-body">
-                            <ul>
+                            <ul id="upvoted-articles-list">
                                 {% for article in upvoted_articles %}
-                                    <li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
+                                    <li>
+                                        <img src="{{ article.thumbnail.url }}" alt="Article Thumbnail" style="width: 50px; height: 50px;">
+                                        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                                        <button class="btn btn-sm btn-danger" id="remove-upvote-{{ article.id }}">Remove</button>
+                                    </li>
                                 {% empty %}
                                     <p>No upvoted articles.</p>
                                 {% endfor %}
                             </ul>
+                            <button class="btn btn-danger" id="clear-upvoted-articles-btn">Clear History</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Downvoted Articles Section -->
-                <div class="accordion-item">
+                <div class="accordion-item" id="downvoted-articles-section">
                     <h2 class="accordion-header" id="headingFive">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
                             Downvoted Articles
@@ -117,19 +194,24 @@
                     </h2>
                     <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#profileAccordion">
                         <div class="accordion-body">
-                            <ul>
+                            <ul id="downvoted-articles-list">
                                 {% for article in downvoted_articles %}
-                                    <li><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></li>
+                                    <li>
+                                        <img src="{{ article.thumbnail.url }}" alt="Article Thumbnail" style="width: 50px; height: 50px;">
+                                        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                                        <button class="btn btn-sm btn-danger" id="remove-downvote-{{ article.id }}">Remove</button>
+                                    </li>
                                 {% empty %}
                                     <p>No downvoted articles.</p>
                                 {% endfor %}
                             </ul>
+                            <button class="btn btn-danger" id="clear-downvoted-articles-btn">Clear History</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Comment History Section -->
-                <div class="accordion-item">
+                <div class="accordion-item" id="comment-history-section">
                     <h2 class="accordion-header" id="headingSix">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
                             Comment History
@@ -137,9 +219,15 @@
                     </h2>
                     <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#profileAccordion">
                         <div class="accordion-body">
-                            <ul>
+                            <ul id="comment-history-list">
                                 {% for comment in comments %}
-                                    <li>{{ comment.article.title }}: {{ comment.content }}</li>
+                                    <li>
+                                        <img src="{{ comment.article.thumbnail.url }}" alt="Article Thumbnail" style="width: 50px; height: 50px;">
+                                        <a href="{{ comment.article.get_absolute_url }}">{{ comment.article.title }}</a>
+                                        <p>{{ comment.content }}</p>
+                                        <button class="btn btn-sm btn-danger" id="remove-comment-{{ comment.id }}">Remove</button>
+                                        <button class="btn btn-sm btn-warning" id="edit-comment-{{ comment.id }}">Edit</button>
+                                    </li>
                                 {% empty %}
                                     <p>No comments yet.</p>
                                 {% endfor %}
@@ -149,7 +237,7 @@
                 </div>
 
                 <!-- Delete Account Section -->
-                <div class="accordion-item">
+                <div class="accordion-item" id="delete-account-section">
                     <h2 class="accordion-header" id="headingSeven">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
                             Delete Account
@@ -157,10 +245,23 @@
                     </h2>
                     <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#profileAccordion">
                         <div class="accordion-body">
-                            <!-- Add delete account functionality here -->
+                            <form method="POST" id="delete-account-form">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label for="password">Enter Password:</label>
+                                    <input type="password" name="password" id="password" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm_password">Confirm Password:</label>
+                                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger" id="confirm-deletion-btn">Confirm Account Deletion</button>
+                                <button type="button" class="btn btn-secondary" id="cancel-deletion-btn">Cancel</button>
+                            </form>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
