@@ -28,6 +28,16 @@ class ProfileForm(forms.ModelForm):
         fields = ["bio", "preferred_categories"]
 
 
+class NewsPreferencesForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['preferred_categories']  # Categories user can select
+
+
+class DeleteAccountForm(forms.Form):
+    password = forms.CharField(widget=forms.PasswordInput, label="Confirm with your password")
+
+
 class CommentForm(forms.ModelForm):
     content = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Write a comment..."}),
