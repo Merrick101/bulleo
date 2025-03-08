@@ -165,3 +165,99 @@ body {
   gap: 10px; /* Gap between selection buttons */
   margin-bottom: 10px;
 }
+
+/* User Profile Styling */
+
+/* General Styles */
+.profile-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.profile-picture-section {
+  width: 150px;
+  margin-right: 20px;
+}
+
+.profile-picture {
+  width: 100%;
+  height: auto;
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 50%;
+}
+
+.collapsible-menu {
+  width: 80%;
+}
+
+/* Button styles */
+.btn-primary {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #004085;
+}
+
+.accordion-button {
+  transition: background-color 0.2s ease;
+}
+.accordion-button:hover {
+  background-color: #f1f1f1;
+}
+
+/* Responsive form inputs */
+.form-control {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Tablet Styles */
+@media (max-width: 991px) and (min-width: 768px) {
+    .profile-card {
+      flex-direction: column;
+      align-items: center;
+    }
+    .profile-picture {
+      margin-bottom: 10px;
+    }
+    .card-body {
+      text-align: center;
+    }
+    .collapsible-menu {
+      width: 100%;
+    }
+}
+
+/* Mobile Styles */
+@media (max-width: 767px) {
+    .profile-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+  }
+    .profile-picture {
+      margin-bottom: 15px;
+      width: 100px;
+      height: 100px;
+  }
+    .form-label {
+      font-size: 1rem;
+  }
+    .collapsible-menu {
+      width: 100%;
+  }
+}

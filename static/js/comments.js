@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // AJAX for Comment Voting (Upvote/Downvote)
     function voteComment(commentId, action, button) {
         const csrfToken = getCSRFToken();
-
+    
         fetch(`/news/comment/${commentId}/vote/${action}/`, {
             method: "POST",
             headers: {
@@ -110,13 +110,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Update vote counts dynamically
                 document.querySelector(`#upvote-count-${commentId}`).textContent = data.upvotes;
                 document.querySelector(`#downvote-count-${commentId}`).textContent = data.downvotes;
+    
+                // Disable the vote buttons after voting
+                button.disabled = true;
             } else {
                 console.error("Failed to vote");
             }
         })
         .catch(err => console.error("Error with voting:", err));
     }
-
+    
     // Helper Functions
     function updateCommentCount() {
         const commentCount = document.getElementById("comment-count");
