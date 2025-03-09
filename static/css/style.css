@@ -309,10 +309,10 @@ body {
 }
 
 /* Responsive form inputs */
-.form-control {
+/* .form-control {
   max-width: 100%;
   box-sizing: border-box;
-}
+} */
 
 /* Tablet Styles */
 @media (max-width: 991px) and (min-width: 768px) {
@@ -352,12 +352,62 @@ body {
 }
 
 /* Specific Styles for Login/Signup Forms */
-#login-form .form-control, #signup-form .form-control {
-  width: 100%;
+
+/* General form controls and buttons */
+.form-control, .textinput, .passwordinput {
+  width: 100%; /* Ensures the form inputs take full width */
+  padding: 0.75rem 1.25rem; /* Standard padding for input fields */
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1rem; /* Adds some space between inputs */
 }
 
-#login-form button, #signup-form button {
-  width: 100%;
+/* Login Button */
+#login-button {
+  width: 100%; /* Ensure the login button spans the full width */
+  padding: 10px;
+  margin-top: 10px; /* Ensures spacing from other elements */
+}
+
+/* Signup Button */
+#signup-button {
+  width: 100%; /* Ensure the signup button spans the full width */
+  padding: 10px;
+  margin-top: 10px;
+}
+
+/* Google Login Button */
+#google-login, #google-signup {
+  width: 100%; /* Ensure Google login buttons span the full width */
+  padding: 10px;
+  margin-top: 10px;
+}
+
+/* Form Containers */
+#login-form, #signup-form {
+  max-width: 500px; /* Control the width of the form */
+  margin: 0 auto; /* Center the form horizontally */
+}
+
+/* Adjust password fields */
+.passwordinput {
+  width: 100%; /* Ensure password fields take full width */
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* Optional: Additional styling for input and button focus states */
+.form-control:focus, .passwordinput:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+}
+
+/* For form controls that have IDs of textinput */
+.textinput {
+  width: 100%; /* Makes sure the input fields take full width */
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
 }
 
 /* Profile Form Specific Styles */
