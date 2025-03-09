@@ -18,7 +18,7 @@ body {
 .navbar-left {
   display: flex;
   align-items: center;
-}  
+}
 
 .navbar-left .menu-icon {
   display: flex;
@@ -173,7 +173,6 @@ body {
 }
 
 /* User Profile Styling */
-
 /* General Styles */
 .profile-card {
   display: flex;
@@ -207,171 +206,45 @@ body {
   width: 80%;
 }
 
-/* Form and Button Styling Specific to Profile Page */
-#profile-picture-section form input[type="file"] {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
+/* Additional global styling can be placed here */
 
-#profile-picture-section form button {
-  margin-top: 10px;
-}
-
-#edit-account-form .form-group {
-  margin-bottom: 15px;
-}
-
-#edit-account-form .form-control {
-  width: 100%;
-}
-
-#edit-account-form button {
-  margin-top: 10px;
-}
-
-#news-feed-preferences-form .form-group {
-  margin-bottom: 15px;
-}
-
-#news-feed-preferences-form input[type="checkbox"] {
-  margin-left: 10px;
-}
-
-#news-feed-preferences-form button {
-  margin-top: 10px;
-}
-
-#saved-for-later-section .form-group {
-  margin-bottom: 15px;
-}
-
-#saved-for-later-section ul {
-  list-style: none;
-  padding: 0;
-}
-
-#saved-for-later-section button,
-#upvoted-articles-section button,
-#downvoted-articles-section button {
-  margin-top: 10px;
-}
-
-#saved-for-later-section li,
-#upvoted-articles-section li,
-#downvoted-articles-section li {
-  display: flex;
-  align-items: center;
-}
-
-#saved-for-later-section img,
-#upvoted-articles-section img,
-#downvoted-articles-section img {
-  width: 50px;
-  height: 50px;
-  margin-right: 10px;
-}
-
-#saved-for-later-section button,
-#upvoted-articles-section button,
-#downvoted-articles-section button {
-  margin-left: auto;
-}
-
-#comment-history-section .btn-sm {
-  margin-left: 10px;
-}
-
-#delete-account-section .form-group {
-  margin-bottom: 15px;
-}
-
-#delete-account-section button {
-  margin-top: 10px;
-}
-
-/* Button styles */
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #004085;
-}
-
-.accordion-button {
-  transition: background-color 0.2s ease;
-}
-
-.accordion-button:hover {
-  background-color: #f1f1f1;
-}
-
-/* Responsive form inputs */
-/* .form-control {
-  max-width: 100%;
-  box-sizing: border-box;
-} */
+/* =========================
+   MEDIA QUERIES (MOBILE & TABLET)
+   ========================= */
 
 /* Tablet Styles */
 @media (max-width: 991px) and (min-width: 768px) {
-    .profile-card {
-      flex-direction: column;
-      align-items: center;
-    }
-    .profile-picture {
-      margin-bottom: 10px;
-    }
-    .card-body {
-      text-align: center;
-    }
-    .collapsible-menu {
-      width: 100%;
-    }
+  .profile-card {
+    flex-direction: column;
+    align-items: center;
+  }
+  .profile-picture {
+    margin-bottom: 10px;
+  }
+  .card-body {
+    text-align: center;
+  }
+  .collapsible-menu {
+    width: 100%;
+  }
 }
 
 /* Mobile Styles */
 @media (max-width: 767px) {
-    .profile-card {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+  .profile-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
-    .profile-picture {
-      margin-bottom: 15px;
-      width: 100px;
-      height: 100px;
+  .profile-picture {
+    margin-bottom: 15px;
+    width: 100px;
+    height: 100px;
   }
-    .form-label {
-      font-size: 1rem;
+  .form-label {
+    font-size: 1rem;
   }
-    .collapsible-menu {
-      width: 100%;
+  .collapsible-menu {
+    width: 100%;
   }
-}
-
-/* Profile Form Specific Styles */
-#profile-picture-section form input[type="file"],
-#profile-picture-section form button,
-#edit-account-form .form-group input,
-#news-feed-preferences-form input[type="checkbox"],
-#news-feed-preferences-form button {
-  width: 100%;
-}
-
-#edit-account-form .form-group {
-  margin-bottom: 15px;
-}
-
-#edit-account-form .form-control,
-#news-feed-preferences-form .form-control {
-  width: 100%;
-}
-
-#profile-picture-section form button,
-#edit-account-form button,
-#news-feed-preferences-form button {
-  margin-top: 10px;
-  width: 100%;  /* Ensures buttons in the profile page are aligned */
 }
