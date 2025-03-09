@@ -172,10 +172,7 @@ body {
   margin-bottom: 10px;
 }
 
-/* Account Templates */
-
-
-/* User Profile Page */
+/* User Profile Styling */
 
 /* General Styles */
 .profile-card {
@@ -352,4 +349,38 @@ body {
     .collapsible-menu {
       width: 100%;
   }
+}
+
+/* Specific Styles for Login/Signup Forms */
+#login-form .form-control, #signup-form .form-control {
+  width: 100%;
+}
+
+#login-form button, #signup-form button {
+  width: 100%;
+}
+
+/* Profile Form Specific Styles */
+#profile-picture-section form input[type="file"],
+#profile-picture-section form button,
+#edit-account-form .form-group input,
+#news-feed-preferences-form input[type="checkbox"],
+#news-feed-preferences-form button {
+  width: 100%;
+}
+
+#edit-account-form .form-group {
+  margin-bottom: 15px;
+}
+
+#edit-account-form .form-control,
+#news-feed-preferences-form .form-control {
+  width: 100%;
+}
+
+#profile-picture-section form button,
+#edit-account-form button,
+#news-feed-preferences-form button {
+  margin-top: 10px;
+  width: 100%;  /* Ensures buttons in the profile page are aligned */
 }
