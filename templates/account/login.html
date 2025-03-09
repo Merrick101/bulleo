@@ -1,39 +1,107 @@
-{% extends "base.html" %}
-{% load i18n %}
-{% load static %}
-{% load crispy_forms_tags %}
-{% load socialaccount %}
-
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header text-center">
-                    <h3>{% trans "Log In" %}</h3>
-                </div>
-                <div class="card-body">
-                    <p>Enter your email or username</p>
-                    <form method="post" action="{% url 'account_login' %}" id="login-form">
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <button type="submit" class="btn btn-primary w-100 mt-3" id="login-button">{% trans "Log In" %}</button>
-                    </form>
-                    <hr>
-                    <div class="text-center">
-                        <a href="{% provider_login_url 'google' %}" class="btn btn-danger w-100" id="google-login">
-                            <i class="fab fa-google"></i> {% trans "Continue with Google" %}
-                        </a>
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="{% url 'account_reset_password' %}" id="forgot-password-link">{% trans "Forgot password?" %}</a>
-                    </div>
-                </div>
-                <div class="card-footer text-center">
-                    <p>{% trans "Don't have an account?" %} <a href="{% url 'account_signup' %}" id="signup-link">{% trans "Sign Up" %}</a></p>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+  {% load i18n %}
+  {% load socialaccount %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log In - Bulleo</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/e293581b17.js" crossorigin="anonymous"></script>
+  <!-- Custom CSS for Login/Signup pages -->
+  <link rel="stylesheet" href="{% static 'css/login-signup.css' %}">
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon/favicon-32x32.png' %}">
+</head>
+<body>
+  <div class="container-fluid mt-5 mb-5 d-flex justify-content-center">
+    <div class="card shadow-sm custom-auth-card" style="max-width: 500px;">
+      <!-- Tabbed Header -->
+      <div class="card-header p-0">
+        <div class="row g-0">
+          <!-- Home Icon -->
+          <div class="col-2 d-flex align-items-center justify-content-center">
+            <a href="{% url 'home' %}" class="btn text-dark">
+              <i class="fas fa-home fa-lg"></i>
+            </a>
+          </div>
+          <!-- Login Tab -->
+          <div class="col-5">
+            <a href="{% url 'account_login' %}"
+               class="btn w-100 py-3 {% if request.resolver_match.url_name == 'account_login' %}btn-light{% else %}btn-secondary{% endif %}">
+              Log In
+            </a>
+          </div>
+          <!-- Register Tab -->
+          <div class="col-5">
+            <a href="{% url 'account_signup' %}"
+               class="btn w-100 py-3 {% if request.resolver_match.url_name == 'account_signup' %}btn-light{% else %}btn-secondary{% endif %}">
+              Sign Up
+            </a>
+          </div>
         </div>
+      </div>
+      <!-- Card Body -->
+      <div class="card-body">
+        <!-- Social Login Section -->
+        <p class="text-center mb-2">{% trans "Continue with:" %}</p>
+        <div class="d-flex justify-content-center mb-3">
+          <a href="{% provider_login_url 'google' %}" class="mx-2">
+            <i class="fab fa-google fa-2x"></i>
+          </a>
+          <!-- Add more providers if needed -->
+        </div>
+        <p class="text-center">{% trans "or" %}</p>
+        <!-- Login Form -->
+        <form method="post" action="{% url 'account_login' %}" id="login-form">
+          {% csrf_token %}
+          <div class="form-group mb-3">
+            <label for="id_login">{% trans "Email or Username" %}</label>
+            <input type="text" name="login" id="id_login" class="form-control" required>
+            {% if form.login.errors %}
+              <div class="text-danger small">{{ form.login.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group mb-3 position-relative">
+            <label for="id_password">{% trans "Password" %}</label>
+            <input type="password" name="password" id="id_password" class="form-control" required>
+            <span class="toggle-password" data-target="#id_password">
+              <i class="fas fa-eye"></i>
+            </span>
+            {% if form.password.errors %}
+              <div class="text-danger small">{{ form.password.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <input type="checkbox" name="remember" id="remember-me">
+              <label for="remember-me" class="ms-1">{% trans "Remember me" %}</label>
+            </div>
+            <a href="{% url 'account_reset_password' %}">{% trans "Forgot password?" %}</a>
+          </div>
+          <button type="submit" class="btn btn-primary w-100" id="login-button">{% trans "Sign In" %}</button>
+        </form>
+      </div>
+      <!-- Card Footer -->
+      <div class="card-footer text-center">
+        <p>{% trans "Don't have an account?" %} <a href="{% url 'account_signup' %}" id="login-link">{% trans "Sign Up" %}</a></p>
+      </div>
     </div>
-</div>
-{% endblock %}
+  </div>
+
+  <!-- Footer -->
+  <footer class="signup-login-footer">
+    <div class="container text-center">
+      <p>&copy; 2025 Bulleo. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JavaScript for password toggle -->
+  <script src="{% static 'js/auth.js' %}"></script>
+</body>
+</html>

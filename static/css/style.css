@@ -351,39 +351,6 @@ body {
   }
 }
 
-/* Specific Styles for Login/Signup Forms */
-
-/* Form Field Styling */
-#signup-form #id_email, 
-#signup-form #id_username, 
-#signup-form #id_password1, 
-#signup-form #id_password2 {
-    min-width: 100%;
-    padding: 0.75rem 1.25rem;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0.375rem;
-    border: 1px solid #ccc;
-}
-
-/* Button Styling */
-#signup-form #signup-button {
-    background-color: #007bff;
-    border-color: #007bff;
-    color: #fff;
-    padding: 12px;
-    font-size: 1rem;
-    border-radius: 0.375rem;
-    width: 100%;
-    margin-top: 10px;
-}
-
-/* Focus State for Inputs */
-#signup-form .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
-}
-
 /* Profile Form Specific Styles */
 #profile-picture-section form input[type="file"],
 #profile-picture-section form button,
