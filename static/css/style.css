@@ -7,8 +7,9 @@ body {
 
 /* Navbar Styling */
 .custom-navbar {
-  background-color: #f7f2d7; /* Breezy Beige */
-  border-bottom: 1px solid #000;
+  background-color:#0D0D0D; /* Midnight Black */
+  color: #f7f2d7; /* Breezy Beige */
+  border-bottom: 2px solid #ccc; /* Light Grey */
   padding: 10px 0;
   display: flex;
   justify-content: space-between;
@@ -29,7 +30,7 @@ body {
 }
 
 #menuToggle {
-  border: solid 1px #000;
+  border: solid 1px #f7f2d7;
   padding: 5px;
 }
 
@@ -40,6 +41,7 @@ body {
 
 /* Search Form & Icon Styling */
 #searchContainer .search-icon {
+  color: #f7f2d7;
   cursor: pointer;
   font-size: 1.2rem;
   margin-right: 10px;
@@ -63,14 +65,14 @@ body {
   font-weight: 700;
   font-family: 'Merriweather', serif;
   letter-spacing: 1px;
-  color: #000;
+  color: #f7f2d7;
   text-decoration: none;
   display: block;
 }
 
 .navbar-tagline {
   font-size: 14px;
-  color: #333;
+  color: #f7f2d7;
   font-weight: 300;
 }
 
@@ -90,13 +92,13 @@ body {
 }
 
 .notification-icon {
-  color: #000;
+  color: #f7f2d7;
   font-size: 18px;
   margin-right: 15px;
 }
 
 .profile-link {
-  color: #000;
+  color: #f7f2d7;
   font-weight: bold;
   text-decoration: none;
 }
@@ -107,9 +109,9 @@ body {
 
 /* Footer Styling */
 .custom-footer {
-  background-color: #f7f2d7; /* Breezy Beige */
-  border-top: 1px solid #000;
-  color: #333;
+  background-color:#0D0D0D; /* Midnight Black */
+  color: #f7f2d7; /* Breezy Beige */
+  border-top: 2px solid #ccc; /* Light Grey */
   padding: 15px 0;
 }
 
@@ -118,7 +120,7 @@ body {
 }
 
 .footer-icon {
-  color: #000;
+  color: #f7f2d7;
   margin: 0 10px;
   font-size: 18px;
 }
