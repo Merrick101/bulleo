@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function showReplyForm(parentId) {
         const parentComment = document.querySelector(`#comment-${parentId}`);
         if (!parentComment) return;
-
+    
         const replyFormHTML = `
             <form class="reply-form">
                 <textarea name="content" rows="3" placeholder="Write a reply..." required></textarea>
@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button type="button" class="btn btn-secondary cancel-reply">Cancel</button>
             </form>
         `;
+    
         let replyContainer = parentComment.querySelector(".replies");
         if (!replyContainer) {
             replyContainer = document.createElement("div");
@@ -83,22 +84,23 @@ document.addEventListener("DOMContentLoaded", function () {
             parentComment.appendChild(replyContainer);
         }
         replyContainer.innerHTML = replyFormHTML;
-
+    
         const replyForm = replyContainer.querySelector(".reply-form");
         replyForm.addEventListener("submit", function (e) {
             e.preventDefault();
             submitReply(replyForm, parentId);
         });
-
+    
         const cancelButton = replyContainer.querySelector(".cancel-reply");
         cancelButton.addEventListener("click", function () {
-            replyContainer.innerHTML = '';
+            replyContainer.innerHTML = '';  // Remove the reply form
         });
-    }
+    }    
 
     function submitReply(form, parentId) {
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
+    
         const formData = new FormData(form);
         formData.append("parent_comment_id", parentId);
     
@@ -114,7 +116,8 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             if (data.success) {
                 renderNewComment(data);
-                // Automatically close the reply box after submission:
+    
+                // Clear the reply form after submission
                 const parentComment = document.querySelector(`#comment-${parentId}`);
                 if (parentComment) {
                     const replyContainer = parentComment.querySelector(".replies");
@@ -122,19 +125,18 @@ document.addEventListener("DOMContentLoaded", function () {
                         replyContainer.innerHTML = '';
                     }
                 }
-                updateCommentCount();
-                updateIndentation();
+    
+                updateCommentCount();  // Update count
+                updateIndentation();   // Update indentation
             } else {
                 alert("Failed to submit reply.");
             }
         })
-        .catch(function(error) {
-            console.error("Error submitting reply:", error);
-        })
+        .catch(error => console.error("Error submitting reply:", error))
         .finally(() => {
             submitButton.disabled = false;
         });
-    }
+    }    
 
     // 3) Report
     function reportComment(commentId, button) {
@@ -314,34 +316,49 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderNewComment(data) {
         const noCommentsMsg = document.getElementById("no-comments-msg");
         if (noCommentsMsg) {
-            noCommentsMsg.remove();
+            noCommentsMsg.remove();  // Remove "No comments yet" message
         }
     
         const newCommentHTML = `
-            <div class="comment" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}" data-level="0">
-                <p><strong>${data.username}</strong> - ${data.created_at}</p>
-                <p>${data.content}</p>
-                <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
-                <div class="replies"></div>
+            <div class="comment mb-3" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}" data-level="${data.parent_comment_id ? 1 : 0}">
+                <div class="comment-header">
+                    <p>
+                        <strong>${data.username}</strong> 
+                        <small>${data.created_at}</small>
+                    </p>
+                </div>
+                <div class="comment-body">
+                    <p>${data.content}</p>
+                </div>
+                <div class="comment-actions">
+                    <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
+                    <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
+                    <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
+                    <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
+                    <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
+                    <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="${data.comment_id}">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">Delete</button>
+                </div>
+                <div class="replies"></div> <!-- Replies go here -->
             </div>
         `;
     
-        // If it's a reply, append inside the parent's replies div
         if (data.parent_comment_id) {
+            // Find the parent comment and append reply inside its .replies container
             const parentComment = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
             if (parentComment) {
                 parentComment.insertAdjacentHTML("beforeend", newCommentHTML);
             } else {
-                document.getElementById("comments-list").insertAdjacentHTML("beforeend", newCommentHTML);
+                console.error("Parent comment not found in DOM.");
             }
         } else {
-            // Otherwise, it's a top-level comment
+            // If it's a top-level comment, append to #comments-list
             document.getElementById("comments-list").insertAdjacentHTML("beforeend", newCommentHTML);
         }
     
-        updateIndentation();
-    }    
-
+        updateIndentation();  // Ensure indentation updates correctly
+    }
+    
     // 10) Update indentation dynamically based on data-level
     function updateIndentation() {
         const commentElements = document.querySelectorAll("[data-level]");
