@@ -43,22 +43,22 @@ class CommentForm(forms.ModelForm):
         widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Write a comment..."}),
         max_length=1000
     )
-
     parent_comment_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
     class Meta:
         model = Comment
         fields = ["content", "parent_comment_id"]
 
+    def clean_content(self):
+        content = self.cleaned_data.get("content", "").strip()
+        if not content:
+            raise forms.ValidationError("Comment cannot be empty.")
+        return content
+
     def clean_parent_comment_id(self):
         parent_comment_id = self.cleaned_data.get("parent_comment_id")
         if parent_comment_id:
-            # Ensure that the parent comment exists
-            try:
-                parent_comment = Comment.objects.get(id=parent_comment_id)
-            except Comment.DoesNotExist:
+            # Check that a comment with this ID exists.
+            if not Comment.objects.filter(id=parent_comment_id).exists():
                 raise forms.ValidationError("The parent comment does not exist.")
-            # Optional: You could add more validation, like checking if it's not a reply to a reply.
-            if parent_comment.is_reply():
-                raise forms.ValidationError("You cannot reply to a reply.")
         return parent_comment_id
