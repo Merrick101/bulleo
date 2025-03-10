@@ -152,13 +152,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const commentDiv = document.querySelector(`#comment-${commentId}`);
         if (!commentDiv) return;
 
-        // Get the existing content from the <p> tag
-        const contentParagraph = commentDiv.querySelector("p:nth-of-type(2)"); // second <p> inside
+        // Instead of nth-of-type(2), specifically target .comment-body p
+        const contentParagraph = commentDiv.querySelector(".comment-body p");
         if (!contentParagraph) return;
 
         const oldContent = contentParagraph.textContent.trim();
 
-        // Create an inline form
         const editFormHTML = `
             <form class="edit-form">
                 <textarea name="content" rows="3" required>${oldContent}</textarea>
@@ -166,10 +165,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button type="button" class="btn btn-secondary cancel-edit">Cancel</button>
             </form>
         `;
-        // Replace the content with the form
         contentParagraph.innerHTML = editFormHTML;
 
-        // Attach event listeners
         const editForm = contentParagraph.querySelector(".edit-form");
         const cancelEditButton = contentParagraph.querySelector(".cancel-edit");
 
@@ -188,6 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
         const formData = new FormData(form);
+
         fetch(`/news/comment/${commentId}/edit/`, {
             method: "POST",
             body: formData,
@@ -201,8 +199,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.success) {
                 // Update the comment content on the page
                 const commentDiv = document.querySelector(`#comment-${data.comment_id}`);
-                const contentParagraph = commentDiv.querySelector("p:nth-of-type(2)");
-                contentParagraph.textContent = data.updated_content;
+                const contentParagraph = commentDiv.querySelector(".comment-body p");
+                if (contentParagraph) {
+                    contentParagraph.textContent = data.updated_content;
+                }
             } else {
                 alert("Failed to edit comment. " + (data.error || ""));
             }
@@ -229,6 +229,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 const commentDiv = document.getElementById(`comment-${data.comment_id}`);
                 if (commentDiv) {
                     commentDiv.remove();
+                    // Decrement comment count
+                    decrementCommentCount();
                 }
             } else {
                 alert("Failed to delete the comment.");
@@ -243,6 +245,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (commentCount) {
             const currentCount = parseInt(commentCount.textContent, 10);
             commentCount.textContent = currentCount + 1;
+        }
+    }
+
+    // Decrement comment count when a comment is deleted
+    function decrementCommentCount() {
+        const commentCount = document.getElementById("comment-count");
+        if (commentCount) {
+            const currentCount = parseInt(commentCount.textContent, 10);
+            if (currentCount > 0) {
+                commentCount.textContent = currentCount - 1;
+            }
         }
     }
 
