@@ -56,19 +56,16 @@ def search_articles(request):
 
 
 def get_sorted_comments(article, sort_order):
-    """
-    Retrieve and sort top-level comments for the given article based on sort_order.
-    """
     comments = article.comments.filter(parent__isnull=True)
-    sort_options = {
-        "newest": "-created_at",
-        "oldest": "created_at",
-        "most_upvoted": "-upvote_count"
-    }
-    sort_field = sort_options.get(sort_order, "-created_at")
+
     if sort_order == "most_upvoted":
-        comments = comments.annotate(upvote_count=Count("upvotes"))
-    return comments.order_by(sort_field)
+        comments = comments.annotate(upvote_count=Count("upvotes")).order_by("-upvote_count", "-created_at")
+    elif sort_order == "newest":
+        comments = comments.order_by("-created_at")
+    elif sort_order == "oldest":
+        comments = comments.order_by("created_at")
+
+    return comments
 
 
 def count_all_comments(comment_qs):
@@ -166,35 +163,32 @@ def post_comment(request, article_id):
 
 @login_required
 def edit_comment(request, comment_id):
-    """
-    Allow users to edit their own comments.
-    """
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
     if request.method == "POST":
         new_content = request.POST.get("content", "").strip()
         if not new_content:
             return JsonResponse({"success": False, "error": "Comment cannot be empty."}, status=400)
+
         comment.content = new_content
-        comment.created_at = now()  # Update timestamp
         comment.save()
+
         return JsonResponse({
             "success": True,
             "comment_id": comment.id,
             "updated_content": comment.content,
-            "updated_at": comment.created_at.strftime("%b %d, %Y %I:%M %p"),
+            "updated_at": comment.updated_at.strftime("%b %d, %Y %I:%M %p"),
         })
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
 @login_required
 def delete_comment(request, comment_id):
-    """
-    Allow users to delete their own comments.
-    """
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
     if request.method == "POST":
-        comment.delete()
-        return JsonResponse({"success": True, "comment_id": comment_id})
+        comment.content = "[Deleted]"
+        comment.user = None  # Make it anonymous
+        comment.save()
+        return JsonResponse({"success": True, "comment_id": comment.id, "deleted": True})
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 

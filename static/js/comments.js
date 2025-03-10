@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 updateCommentCount();
-                updateIndentation(); // Update dynamic indentation
+                updateIndentation();
             } else {
                 alert("Failed to submit reply.");
             }
@@ -232,15 +232,14 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.success) {
                 const commentDiv = document.getElementById(`comment-${data.comment_id}`);
                 if (commentDiv) {
-                    commentDiv.remove();
-                    decrementCommentCount();
+                    commentDiv.querySelector(".comment-body").innerHTML = "<p>[Deleted]</p>";
                 }
             } else {
                 alert("Failed to delete the comment.");
             }
         })
         .catch(err => console.error("Error deleting comment:", err));
-    }
+    }    
 
     // 6) Update Comment Count (Increment)
     function updateCommentCount() {
@@ -317,24 +316,31 @@ document.addEventListener("DOMContentLoaded", function () {
         if (noCommentsMsg) {
             noCommentsMsg.remove();
         }
-        const commentList = document.getElementById("comments-list");
+    
         const newCommentHTML = `
             <div class="comment" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}" data-level="0">
                 <p><strong>${data.username}</strong> - ${data.created_at}</p>
                 <p>${data.content}</p>
-                <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
-                <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
-                <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
-                <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
                 <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
-                <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="${data.comment_id}">Edit</button>
-                <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">Delete</button>
-                <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="${data.comment_id}">Report</button>
+                <div class="replies"></div>
             </div>
         `;
-        commentList.insertAdjacentHTML("beforeend", newCommentHTML);
-        updateIndentation(); // update indentation after adding new comment
-    }
+    
+        // If it's a reply, append inside the parent's replies div
+        if (data.parent_comment_id) {
+            const parentComment = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
+            if (parentComment) {
+                parentComment.insertAdjacentHTML("beforeend", newCommentHTML);
+            } else {
+                document.getElementById("comments-list").insertAdjacentHTML("beforeend", newCommentHTML);
+            }
+        } else {
+            // Otherwise, it's a top-level comment
+            document.getElementById("comments-list").insertAdjacentHTML("beforeend", newCommentHTML);
+        }
+    
+        updateIndentation();
+    }    
 
     // 10) Update indentation dynamically based on data-level
     function updateIndentation() {
@@ -349,6 +355,20 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             // Add the appropriate indentation class
             elem.classList.add("comment-indent-" + level);
+        });
+    }
+
+    // Optional: Use MutationObserver to automatically update indentation on DOM changes
+    const observer = new MutationObserver(() => {
+        updateIndentation();
+    });
+    const commentsContainer = document.getElementById("comments-list");
+    if (commentsContainer) {
+        observer.observe(commentsContainer, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["data-level"]
         });
     }
 });

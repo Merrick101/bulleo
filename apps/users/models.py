@@ -58,27 +58,39 @@ class Comment(models.Model):
     article = models.ForeignKey("news.Article", on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    parent = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="replies"
-    )
-    # Voting system
+    updated_at = models.DateTimeField(auto_now=True)
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="replies")
+
+    # Voting System
     upvotes = models.ManyToManyField(User, related_name="upvoted_comments", blank=True)
     downvotes = models.ManyToManyField(User, related_name="downvoted_comments", blank=True)
+    upvote_count = models.PositiveIntegerField(default=0)
+    downvote_count = models.PositiveIntegerField(default=0)
+
     # Report field: marks a comment as reported/harmful.
     reported = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['created_at']
 
-    # Helper Functions
     def get_replies(self):
-        return self.replies.all()
+        return self.replies.order_by("created_at")
 
-    def upvote_count(self):
-        return self.upvotes.count()
+    def upvote(self, user):
+        if not self.has_upvoted(user):
+            self.upvotes.add(user)
+            self.downvotes.remove(user)
+            self.upvote_count += 1
+            self.downvote_count = max(0, self.downvote_count - 1)
+            self.save()
 
-    def downvote_count(self):
-        return self.downvotes.count()
+    def downvote(self, user):
+        if not self.has_downvoted(user):
+            self.downvotes.add(user)
+            self.upvotes.remove(user)
+            self.downvote_count += 1
+            self.upvote_count = max(0, self.upvote_count - 1)
+            self.save()
 
     def has_upvoted(self, user):
         return self.upvotes.filter(id=user.id).exists()
@@ -89,8 +101,11 @@ class Comment(models.Model):
     def is_reply(self):
         return self.parent is not None
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def delete(self, *args, **kwargs):
+        self.content = "[Deleted]"
+        self.user = None
+        self.save()
 
     def __str__(self):
-        return f"Comment by {self.user} on {self.article}"
+        username = self.user.username if self.user else "Anonymous"
+        return f"Comment by {username} on {self.article.title}"

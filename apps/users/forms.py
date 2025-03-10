@@ -58,7 +58,10 @@ class CommentForm(forms.ModelForm):
     def clean_parent_comment_id(self):
         parent_comment_id = self.cleaned_data.get("parent_comment_id")
         if parent_comment_id:
-            # Check that a comment with this ID exists.
-            if not Comment.objects.filter(id=parent_comment_id).exists():
+            try:
+                parent_comment = Comment.objects.get(id=parent_comment_id)
+                if parent_comment.article_id != self.instance.article_id:
+                    raise forms.ValidationError("Parent comment must belong to the same article.")
+            except Comment.DoesNotExist:
                 raise forms.ValidationError("The parent comment does not exist.")
         return parent_comment_id
