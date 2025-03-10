@@ -78,11 +78,16 @@ def get_sorted_comments(article, sort_order):
 def article_detail(request, article_id):
     """
     Display article details along with its comments.
-    Top-level comments are displayed and replies are pre-fetched.
+    Top-level comments are filtered (parent is null) and replies are pre-fetched.
+    Sorting is applied based on the GET parameter 'sort'.
     """
     article = get_object_or_404(Article, id=article_id)
     sort_order = request.GET.get("sort", "newest")
+
+    # Filter top-level comments
     comments = article.comments.filter(parent__isnull=True)
+
+    # Apply sorting based on sort_order
     if sort_order == "newest":
         comments = comments.order_by("-created_at")
     elif sort_order == "oldest":

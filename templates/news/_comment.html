@@ -1,6 +1,8 @@
 {% load i18n static %}
-{% with indent_class="comment-indent-"|add:level|default:"0" %}
-<div class="comment mb-3 {{ indent_class }}" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
+
+{# Calculate the indentation class; default to 0 if not provided #}
+{% with indent_value=level|default:"0" %}
+<div class="comment mb-3 comment-indent-{{ indent_value }}" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
   <div class="comment-header">
     <p>
       <strong>{{ comment.user.username }}</strong>
@@ -19,10 +21,10 @@
     <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
   </div>
   {% endif %}
-  <!-- Render replies recursively -->
   <div class="replies">
     {% for reply in comment.replies.all %}
-      {% with new_level=level|default:"0"|add:"20" %}
+      {# Increase indentation by 20 for each nesting level #}
+      {% with new_level=indent_value|add:"20" %}
         {% include "news/_comment.html" with comment=reply level=new_level %}
       {% endwith %}
     {% endfor %}

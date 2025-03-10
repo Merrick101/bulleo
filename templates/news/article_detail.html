@@ -26,7 +26,6 @@
             <label for="id_content">Content:</label>
             <textarea name="content" id="id_content" cols="40" rows="3" placeholder="Write a comment..." maxlength="1000" required></textarea>
           </p>
-          <!-- Hidden Parent Comment ID (if applicable) -->
           <input type="hidden" name="parent_comment_id" id="id_parent_comment_id">
           <button type="submit" class="btn btn-primary">Submit</button>
           <button type="reset" class="btn btn-secondary">Reset</button>
@@ -51,7 +50,7 @@
 
     <!-- Comments List -->
     <div id="comments-list">
-      {% for comment in article.comments.filter(parent__isnull=True) %}
+      {% for comment in comments %}
         {% include "news/_comment.html" with comment=comment level=0 %}
       {% empty %}
         <p>No comments yet. Be the first to comment!</p>
