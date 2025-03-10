@@ -75,6 +75,18 @@ def get_sorted_comments(article, sort_order):
     return comments.order_by(sort_field)
 
 
+def count_all_comments(comment_qs):
+    """
+    Recursively count all comments and nested replies in a QuerySet of top-level comments.
+    """
+    total = 0
+    for comment in comment_qs:
+        total += 1  # count this comment
+        # recursively count children
+        total += count_all_comments(comment.replies.all())
+    return total
+
+
 def article_detail(request, article_id):
     """
     Display article details along with its comments.
@@ -92,8 +104,8 @@ def article_detail(request, article_id):
     elif sort_order == "most_upvoted":
         comments = comments.annotate(upvote_count=Count("upvotes")).order_by("-upvote_count")
 
-    # Calculate total comment count (top-level + replies)
-    comment_count = comments.count() + sum(comment.replies.count() for comment in comments)
+    # Recursively count all top-level comments + nested replies
+    comment_count = count_all_comments(comments)
 
     context = {
         "article": article,
