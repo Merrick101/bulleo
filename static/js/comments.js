@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
         submitButton.disabled = true;
         const formData = new FormData(form);
         formData.append("parent_comment_id", parentId);
-
+    
         fetch(`/news/article/${article_id}/comment/${parentId}/reply/`, {
             method: "POST",
             body: formData,
@@ -112,8 +112,16 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             if (data.success) {
                 renderNewComment(data);
-                form.reset();
+                // Automatically close the reply box after submission
+                const parentComment = document.querySelector(`#comment-${parentId}`);
+                if (parentComment) {
+                    const replyContainer = parentComment.querySelector(".replies");
+                    if (replyContainer) {
+                        replyContainer.innerHTML = '';
+                    }
+                }
                 updateCommentCount();
+                updateIndentation(); // Update dynamic indentation
             } else {
                 alert("Failed to submit reply.");
             }
@@ -124,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .finally(() => {
             submitButton.disabled = false;
         });
-    }
+    }    
 
     // 3) Report
     function reportComment(commentId, button) {
@@ -151,13 +159,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function showEditForm(commentId) {
         const commentDiv = document.querySelector(`#comment-${commentId}`);
         if (!commentDiv) return;
-
-        // Instead of nth-of-type(2), specifically target .comment-body p
         const contentParagraph = commentDiv.querySelector(".comment-body p");
         if (!contentParagraph) return;
 
         const oldContent = contentParagraph.textContent.trim();
-
         const editFormHTML = `
             <form class="edit-form">
                 <textarea name="content" rows="3" required>${oldContent}</textarea>
@@ -176,7 +181,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         cancelEditButton.addEventListener("click", function() {
-            // restore original text if canceled
             contentParagraph.textContent = oldContent;
         });
     }
@@ -197,7 +201,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update the comment content on the page
                 const commentDiv = document.querySelector(`#comment-${data.comment_id}`);
                 const contentParagraph = commentDiv.querySelector(".comment-body p");
                 if (contentParagraph) {
@@ -225,11 +228,9 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Remove the comment from the DOM
                 const commentDiv = document.getElementById(`comment-${data.comment_id}`);
                 if (commentDiv) {
                     commentDiv.remove();
-                    // Decrement comment count
                     decrementCommentCount();
                 }
             } else {
@@ -239,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.error("Error deleting comment:", err));
     }
 
-    // 6) Update Comment Count
+    // 6) Update Comment Count (Increment)
     function updateCommentCount() {
         const commentCount = document.getElementById("comment-count");
         if (commentCount) {
@@ -265,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return cookie ? cookie.split("=")[1] : "";
     }
 
-    // 8) Handle main comment form submission via AJAX
+    // 8) Main Comment Form Submission
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
         commentForm.addEventListener("submit", function (e) {
@@ -285,6 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     renderNewComment(data);
                     commentForm.reset();
                     updateCommentCount();
+                    updateIndentation(); // update indentation after new comment
                 } else {
                     alert("There was an error posting your comment.");
                 }
@@ -295,9 +297,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 9) Render new comment after successful submission
     function renderNewComment(data) {
+        const noCommentsMsg = document.getElementById("no-comments-msg");
+        if (noCommentsMsg) {
+            noCommentsMsg.remove();
+        }
         const commentList = document.getElementById("comments-list");
         const newCommentHTML = `
-            <div class="comment" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}">
+            <div class="comment" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}" data-level="0">
                 <p><strong>${data.username}</strong> - ${data.created_at}</p>
                 <p>${data.content}</p>
                 <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
@@ -311,5 +317,23 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
         commentList.insertAdjacentHTML("beforeend", newCommentHTML);
+        updateIndentation(); // update indentation after adding new comment
+    }
+
+    // 10) Update indentation dynamically
+    function updateIndentation() {
+        // Find all comment elements with a data-level attribute
+        const commentElements = document.querySelectorAll('[data-level]');
+        commentElements.forEach(function (elem) {
+            const level = elem.getAttribute('data-level');
+            // Remove any existing indentation classes that follow the pattern
+            elem.classList.forEach(function(className) {
+                if (className.startsWith("comment-indent-")) {
+                    elem.classList.remove(className);
+                }
+            });
+            // Add the appropriate indentation class based on the data-level value
+            elem.classList.add("comment-indent-" + level);
+        });
     }
 });

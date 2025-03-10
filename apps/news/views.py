@@ -57,32 +57,27 @@ def search_articles(request):
 
 def get_sorted_comments(article, sort_order):
     """
-    Retrieve and sort top-level comments for the given article
-    based on the sort_order.
+    Retrieve and sort top-level comments for the given article based on sort_order.
     """
     comments = article.comments.filter(parent__isnull=True)
-
     sort_options = {
         "newest": "-created_at",
         "oldest": "created_at",
         "most_upvoted": "-upvote_count"
     }
     sort_field = sort_options.get(sort_order, "-created_at")
-
     if sort_order == "most_upvoted":
         comments = comments.annotate(upvote_count=Count("upvotes"))
-
     return comments.order_by(sort_field)
 
 
 def count_all_comments(comment_qs):
     """
-    Recursively count all comments and nested replies in a QuerySet of top-level comments.
+    Recursively count all comments and nested replies in a QuerySet.
     """
     total = 0
     for comment in comment_qs:
         total += 1  # count this comment
-        # recursively count children
         total += count_all_comments(comment.replies.all())
     return total
 
@@ -104,7 +99,7 @@ def article_detail(request, article_id):
     elif sort_order == "most_upvoted":
         comments = comments.annotate(upvote_count=Count("upvotes")).order_by("-upvote_count")
 
-    # Recursively count all top-level comments + nested replies
+    # Recursively count all comments (top-level and nested replies)
     comment_count = count_all_comments(comments)
 
     context = {
@@ -114,7 +109,6 @@ def article_detail(request, article_id):
         "form": CommentForm(),
         "comment_count": comment_count,
     }
-
     return render(request, "news/article_detail.html", context)
 
 
@@ -138,15 +132,13 @@ def vote_comment(request, comment_id, action):
             "upvotes": comment.upvote_count(),
             "downvotes": comment.downvote_count(),
         })
-
     return JsonResponse({"success": False}, status=400)
 
 
 @login_required
 def post_comment(request, article_id):
     """
-    Handle posting a new comment or a reply.
-    Uses CommentForm for validation.
+    Handle posting a new comment or reply using CommentForm for validation.
     """
     if request.method == "POST":
         form = CommentForm(request.POST)
@@ -154,7 +146,6 @@ def post_comment(request, article_id):
             comment = form.save(commit=False)
             comment.article_id = article_id
             comment.user = request.user
-            # If parent_comment_id exists, set the parent comment.
             parent_comment_id = form.cleaned_data.get("parent_comment_id")
             if parent_comment_id:
                 comment.parent = get_object_or_404(Comment, id=parent_comment_id)
@@ -170,7 +161,6 @@ def post_comment(request, article_id):
             })
         else:
             return JsonResponse({"success": False, "errors": form.errors}, status=400)
-
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
@@ -180,23 +170,19 @@ def edit_comment(request, comment_id):
     Allow users to edit their own comments.
     """
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
-
     if request.method == "POST":
         new_content = request.POST.get("content", "").strip()
         if not new_content:
             return JsonResponse({"success": False, "error": "Comment cannot be empty."}, status=400)
-
         comment.content = new_content
         comment.created_at = now()  # Update timestamp
         comment.save()
-
         return JsonResponse({
             "success": True,
             "comment_id": comment.id,
             "updated_content": comment.content,
             "updated_at": comment.created_at.strftime("%b %d, %Y %I:%M %p"),
         })
-
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
@@ -206,34 +192,28 @@ def delete_comment(request, comment_id):
     Allow users to delete their own comments.
     """
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
-
     if request.method == "POST":
         comment.delete()
         return JsonResponse({"success": True, "comment_id": comment_id})
-
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
 @login_required
 def reply_to_comment(request, article_id, parent_comment_id):
     """
-    Handle replies to comments. This view creates a reply
-    by linking it to the parent comment.
+    Handle replies to comments by linking a new comment to the parent.
     """
     parent_comment = get_object_or_404(Comment, id=parent_comment_id)
-
     if request.method == "POST":
         content = request.POST.get("content", "").strip()
         if not content:
             return JsonResponse({"success": False, "error": "Reply content cannot be empty."}, status=400)
-
         new_comment = Comment.objects.create(
             user=request.user,
             article_id=article_id,
             content=content,
             parent=parent_comment
         )
-
         response_data = {
             'success': True,
             'message': 'Reply submitted successfully!',
@@ -243,9 +223,7 @@ def reply_to_comment(request, article_id, parent_comment_id):
             'parent_comment_id': parent_comment_id,
             'username': new_comment.user.username,
         }
-
         return JsonResponse(response_data)
-
     return JsonResponse({'success': False, 'message': 'Failed to submit reply.'}, status=400)
 
 
@@ -254,11 +232,9 @@ def report_comment(request, comment_id):
     """
     Allow a user to report a comment as harmful.
     This view marks the comment as reported.
-    (You can expand this logic to create a separate Report model if needed.)
     """
     comment = get_object_or_404(Comment, id=comment_id)
     if request.method == "POST":
-        # Mark the comment as reported.
         comment.reported = True
         comment.save()
         return JsonResponse({"success": True, "comment_id": comment_id})

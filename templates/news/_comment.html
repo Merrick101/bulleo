@@ -1,6 +1,6 @@
 {% load i18n static %}
 {% with indent_value=level|default:"0" %}
-<div class="comment mb-3 comment-indent-{{ indent_value }}" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
+<div class="comment mb-3 comment-indent-{{ indent_value }}" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}" data-level="{{ indent_value }}">
   <div class="comment-header">
     <p>
       <strong>{{ comment.user.username }}</strong>
@@ -9,6 +9,10 @@
   </div>
   <div class="comment-body">
     <p>{{ comment.content }}</p>
+    {# If this is a nested reply and its parent is missing, display a placeholder message #}
+    {% if level and level != "0" and not comment.parent %}
+      <div class="deleted-parent-msg">Original comment deleted</div>
+    {% endif %}
   </div>
   {% if user.is_authenticated %}
   <div class="comment-actions">

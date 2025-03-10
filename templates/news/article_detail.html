@@ -53,9 +53,9 @@
       {% for comment in comments %}
         {% include "news/_comment.html" with comment=comment level=0 %}
       {% empty %}
-        <p>No comments yet. Be the first to comment!</p>
+        <p id="no-comments-msg">No comments yet. Be the first to comment!</p>
       {% endfor %}
-    </div>
+    </div>    
   </div>
 </div>
 

@@ -59,7 +59,7 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
+        "self", on_delete=models.SET_NULL, null=True, blank=True, related_name="replies"
     )
     # Voting system
     upvotes = models.ManyToManyField(User, related_name="upvoted_comments", blank=True)

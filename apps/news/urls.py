@@ -1,5 +1,8 @@
 from django.urls import path
-from .views import homepage, search_articles, article_detail, vote_comment, post_comment, edit_comment, delete_comment, reply_to_comment, report_comment
+from .views import (
+    homepage, search_articles, article_detail, vote_comment, post_comment,
+    edit_comment, delete_comment, reply_to_comment, report_comment
+)
 
 app_name = "news"
 
