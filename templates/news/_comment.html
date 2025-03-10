@@ -18,10 +18,10 @@
     <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
     <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
     {% if comment.user == user %}
-      <a href="{% url 'news:edit_comment' comment.id %}" class="btn btn-sm btn-outline-warning">Edit</a>
-      <a href="{% url 'news:delete_comment' comment.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+      <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="{{ comment.id }}">Edit</button>
+      <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="{{ comment.id }}">Delete</button>
     {% else %}
-      <a href="{% url 'news:report_comment' comment.id %}" class="btn btn-sm btn-outline-danger">Report</a>
+      <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="{{ comment.id }}">Report</button>
     {% endif %}
   </div>
   {% endif %}

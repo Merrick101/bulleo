@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const articleDetail = document.querySelector('.article-detail');
     const article_id = articleDetail ? articleDetail.getAttribute('data-article-id') : null;
 
-    // Event delegation for vote, reply, and report
+    // Event delegation for vote, reply, report, edit, and delete
     const commentsList = document.getElementById("comments-list");
     if (commentsList) {
         commentsList.addEventListener("click", function (event) {
@@ -27,10 +27,42 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (event.target.classList.contains("report-btn")) {
                 const commentId = event.target.dataset.commentId;
                 reportComment(commentId, event.target);
+            } else if (event.target.classList.contains("edit-btn")) {
+                const commentId = event.target.dataset.commentId;
+                showEditForm(commentId);
+            } else if (event.target.classList.contains("delete-btn")) {
+                const commentId = event.target.dataset.commentId;
+                if (confirm("Are you sure you want to delete this comment?")) {
+                    deleteComment(commentId);
+                }
             }
         });
     }
 
+    // 1) Vote
+    function voteComment(commentId, action) {
+        fetch(`/news/comment/${commentId}/vote/${action}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCSRFToken(),
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const upvoteElem = document.querySelector(`#upvote-count-${commentId}`);
+                const downvoteElem = document.querySelector(`#downvote-count-${commentId}`);
+                if (upvoteElem) upvoteElem.textContent = data.upvotes;
+                if (downvoteElem) downvoteElem.textContent = data.downvotes;
+            } else {
+                alert("Failed to vote.");
+            }
+        })
+        .catch(err => console.error("Error with voting:", err));
+    }
+
+    // 2) Reply
     function showReplyForm(parentId) {
         const parentComment = document.querySelector(`#comment-${parentId}`);
         if (!parentComment) return;
@@ -65,7 +97,6 @@ document.addEventListener("DOMContentLoaded", function () {
     function submitReply(form, parentId) {
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
-
         const formData = new FormData(form);
         formData.append("parent_comment_id", parentId);
 
@@ -95,37 +126,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // No more button.disabled = true here, so user can keep changing votes
-    function voteComment(commentId, action) {
-        const csrfToken = getCSRFToken();
-        fetch(`/news/comment/${commentId}/vote/${action}/`, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrfToken,
-                "X-Requested-With": "XMLHttpRequest"
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update vote counts
-                const upvoteElem = document.querySelector(`#upvote-count-${commentId}`);
-                const downvoteElem = document.querySelector(`#downvote-count-${commentId}`);
-                if (upvoteElem) upvoteElem.textContent = data.upvotes;
-                if (downvoteElem) downvoteElem.textContent = data.downvotes;
-            } else {
-                alert("Failed to vote.");
-            }
-        })
-        .catch(err => console.error("Error with voting:", err));
-    }
-
+    // 3) Report
     function reportComment(commentId, button) {
-        const csrfToken = getCSRFToken();
         fetch(`/news/comment/${commentId}/report/`, {
             method: "POST",
             headers: {
-                "X-CSRFToken": csrfToken,
+                "X-CSRFToken": getCSRFToken(),
                 "X-Requested-With": "XMLHttpRequest"
             }
         })
@@ -141,6 +147,97 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.error("Error reporting comment:", err));
     }
 
+    // 4) Edit
+    function showEditForm(commentId) {
+        const commentDiv = document.querySelector(`#comment-${commentId}`);
+        if (!commentDiv) return;
+
+        // Get the existing content from the <p> tag
+        const contentParagraph = commentDiv.querySelector("p:nth-of-type(2)"); // second <p> inside
+        if (!contentParagraph) return;
+
+        const oldContent = contentParagraph.textContent.trim();
+
+        // Create an inline form
+        const editFormHTML = `
+            <form class="edit-form">
+                <textarea name="content" rows="3" required>${oldContent}</textarea>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary cancel-edit">Cancel</button>
+            </form>
+        `;
+        // Replace the content with the form
+        contentParagraph.innerHTML = editFormHTML;
+
+        // Attach event listeners
+        const editForm = contentParagraph.querySelector(".edit-form");
+        const cancelEditButton = contentParagraph.querySelector(".cancel-edit");
+
+        editForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            submitEditForm(commentId, editForm);
+        });
+
+        cancelEditButton.addEventListener("click", function() {
+            // restore original text if canceled
+            contentParagraph.textContent = oldContent;
+        });
+    }
+
+    function submitEditForm(commentId, form) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        const formData = new FormData(form);
+        fetch(`/news/comment/${commentId}/edit/`, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCSRFToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the comment content on the page
+                const commentDiv = document.querySelector(`#comment-${data.comment_id}`);
+                const contentParagraph = commentDiv.querySelector("p:nth-of-type(2)");
+                contentParagraph.textContent = data.updated_content;
+            } else {
+                alert("Failed to edit comment. " + (data.error || ""));
+            }
+        })
+        .catch(error => console.error("Error editing comment:", error))
+        .finally(() => {
+            submitButton.disabled = false;
+        });
+    }
+
+    // 5) Delete
+    function deleteComment(commentId) {
+        fetch(`/news/comment/${commentId}/delete/`, {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCSRFToken()
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the comment from the DOM
+                const commentDiv = document.getElementById(`comment-${data.comment_id}`);
+                if (commentDiv) {
+                    commentDiv.remove();
+                }
+            } else {
+                alert("Failed to delete the comment.");
+            }
+        })
+        .catch(err => console.error("Error deleting comment:", err));
+    }
+
+    // 6) Update Comment Count
     function updateCommentCount() {
         const commentCount = document.getElementById("comment-count");
         if (commentCount) {
@@ -149,12 +246,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // 7) Get CSRF Token
     function getCSRFToken() {
         const cookie = document.cookie.split("; ").find(row => row.startsWith("csrftoken="));
         return cookie ? cookie.split("=")[1] : "";
     }
 
-    // Handle main comment form submission via AJAX
+    // 8) Handle main comment form submission via AJAX
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
         commentForm.addEventListener("submit", function (e) {
@@ -182,7 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Render new comment after successful submission
+    // 9) Render new comment after successful submission
     function renderNewComment(data) {
         const commentList = document.getElementById("comments-list");
         const newCommentHTML = `
@@ -194,6 +292,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
                 <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
                 <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
+                <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="${data.comment_id}">Edit</button>
+                <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">Delete</button>
                 <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="${data.comment_id}">Report</button>
             </div>
         `;
