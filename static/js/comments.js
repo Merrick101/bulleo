@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (confirm("Are you sure you want to delete this comment?")) {
                     deleteComment(commentId);
                 }
+            } else if (event.target.classList.contains("toggle-replies")) {
+                toggleReplies(event.target);
             }
         });
     }
@@ -104,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData(form);
         formData.append("parent_comment_id", parentId);
     
-        fetch(`/news/article/${article_id}/comment/${parentId}/reply/`, {  // ✅ Ensure `article_id` is included
+        fetch(`/news/article/${article_id}/comment/${parentId}/reply/`, {
             method: "POST",
             body: formData,
             headers: {
@@ -127,7 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
     
                 updateCommentCount();  // Update count
-                updateIndentation();   // Update indentation
             } else {
                 alert("Failed to submit reply.");
             }
@@ -136,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .finally(() => {
             submitButton.disabled = false;
         });
-    }          
+    }    
 
     // 3) Report
     function reportComment(commentId, button) {
@@ -243,47 +244,25 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.error("Error deleting comment:", err));
     }    
 
-    // 6) Update Comment Count (Increment)
-    function updateCommentCount() {
-        const commentCount = document.getElementById("comment-count");
-        if (commentCount) {
-            const currentCount = parseInt(commentCount.textContent, 10);
-            commentCount.textContent = currentCount + 1;
+    // Toggle Replies Visibility
+    function toggleReplies(button) {
+        const repliesContainer = button.nextElementSibling; // The next div is the replies container
+        if (repliesContainer.style.display === "none" || repliesContainer.style.display === "") {
+            repliesContainer.style.display = "block";
+            button.textContent = "Hide Replies";
+        } else {
+            repliesContainer.style.display = "none";
+            button.textContent = "Show Replies";
         }
     }
 
-    // Decrement comment count when a comment is deleted
-    function decrementCommentCount() {
-        const commentCount = document.getElementById("comment-count");
-        if (commentCount) {
-            const currentCount = parseInt(commentCount.textContent, 10);
-            if (currentCount > 0) {
-                const newCount = currentCount - 1;
-                commentCount.textContent = newCount;
-                if (newCount === 0) {
-                    insertNoCommentsMsg();
-                }
-            }
-        }
-    }
-
-    function insertNoCommentsMsg() {
-        const commentList = document.getElementById("comments-list");
-        if (commentList) {
-            const msg = document.createElement("p");
-            msg.id = "no-comments-msg";
-            msg.textContent = "No comments yet. Be the first to comment!";
-            commentList.appendChild(msg);
-        }
-    }
-
-    // 7) Get CSRF Token
+    // Get CSRF Token
     function getCSRFToken() {
         const cookie = document.cookie.split("; ").find(row => row.startsWith("csrftoken="));
         return cookie ? cookie.split("=")[1] : "";
     }
 
-    // 8) Main Comment Form Submission via AJAX
+    // Main Comment Form Submission via AJAX
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
         commentForm.addEventListener("submit", function (e) {
@@ -303,7 +282,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     renderNewComment(data);
                     commentForm.reset();
                     updateCommentCount();
-                    updateIndentation(); // update indentation after new comment
                 } else {
                     alert("There was an error posting your comment.");
                 }
@@ -312,15 +290,15 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 9) Render new comment after successful submission
+    // Render new comment after successful submission
     function renderNewComment(data) {
         const noCommentsMsg = document.getElementById("no-comments-msg");
         if (noCommentsMsg) {
-            noCommentsMsg.remove();  // Remove "No comments yet" message
+            noCommentsMsg.remove();
         }
     
         const newCommentHTML = `
-            <div class="comment mb-3" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}" data-level="${data.parent_comment_id ? parseInt(data.parent_level) + 1 : 0}">
+            <div class="comment mb-3" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}" data-level="${data.parent_comment_id ? 1 : 0}">
                 <div class="comment-header">
                     <p>
                         <strong>${data.username}</strong> 
@@ -336,63 +314,22 @@ document.addEventListener("DOMContentLoaded", function () {
                     <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
                     <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
                     <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
+                    <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="${data.comment_id}">Edit</button>
+                    <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">Delete</button>
                 </div>
                 <div class="replies"></div> <!-- Replies go here -->
             </div>
         `;
     
         if (data.parent_comment_id) {
-            const parentComment = document.querySelector(`#comment-${data.parent_comment_id}`);
-    
+            const parentComment = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
             if (parentComment) {
-                let replyContainer = parentComment.querySelector(".replies");
-                
-                // If .replies doesn't exist, create it
-                if (!replyContainer) {
-                    replyContainer = document.createElement("div");
-                    replyContainer.classList.add("replies");
-                    parentComment.appendChild(replyContainer);
-                }
-                
-                replyContainer.insertAdjacentHTML("beforeend", newCommentHTML);
-            } else {
-                console.error("Parent comment not found in DOM.");
+                parentComment.insertAdjacentHTML("beforeend", newCommentHTML);
             }
         } else {
-            // If it's a top-level comment, append to #comments-list
             document.getElementById("comments-list").insertAdjacentHTML("beforeend", newCommentHTML);
         }
     
-        updateIndentation();  // Ensure indentation updates correctly
-    }       
-    
-    // 10) Update indentation dynamically based on data-level
-    function updateIndentation() {
-        const commentElements = document.querySelectorAll("[data-level]");
-        commentElements.forEach(function (elem) {
-            const level = elem.getAttribute("data-level");
-            // Remove any existing indentation classes that start with "comment-indent-"
-            elem.classList.forEach(function(className) {
-                if (className.startsWith("comment-indent-")) {
-                    elem.classList.remove(className);
-                }
-            });
-            // Add the appropriate indentation class
-            elem.classList.add("comment-indent-" + level);
-        });
-    }
-
-    // Optional: Use MutationObserver to automatically update indentation on DOM changes
-    const observer = new MutationObserver(() => {
         updateIndentation();
-    });
-    const commentsContainer = document.getElementById("comments-list");
-    if (commentsContainer) {
-        observer.observe(commentsContainer, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ["data-level"]
-        });
     }
 });

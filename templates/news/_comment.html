@@ -1,8 +1,5 @@
 {% with indent_value=level|default:"0" %}
-<div class="comment mb-3 comment-indent-{{ indent_value }}" 
-     id="comment-{{ comment.id }}" 
-     data-comment-id="{{ comment.id }}" 
-     data-level="{{ indent_value }}">
+<div class="comment mb-3" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}" data-level="{{ indent_value }}">
 
   <div class="comment-header">
     <p>
@@ -20,17 +17,29 @@
 
   {% if user.is_authenticated %}
   <div class="comment-actions">
+    <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
+    <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
+    <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
+    <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
     <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
+    {% if comment.user == user %}
+      <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="{{ comment.id }}">Edit</button>
+      <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="{{ comment.id }}">Delete</button>
+    {% else %}
+      <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="{{ comment.id }}">Report</button>
+    {% endif %}
   </div>
   {% endif %}
 
-  <div class="replies">
-    {% for reply in comment.replies.all %}
-      {% with new_level=level|add:"1" %}
-        {% include "news/_comment.html" with comment=reply level=new_level %}
-      {% endwith %}
-    {% endfor %}
-  </div>
-
+  {% if comment.replies.all %}
+    <button class="btn btn-link toggle-replies">Show Replies</button>
+    <div class="replies" style="display: none;">
+      {% for reply in comment.replies.all %}
+        {% with new_level=indent_value|add:"1" %}
+          {% include "news/_comment.html" with comment=reply level=new_level %}
+        {% endwith %}
+      {% endfor %}
+    </div>
+  {% endif %}
 </div>
 {% endwith %}

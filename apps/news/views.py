@@ -126,8 +126,8 @@ def vote_comment(request, comment_id, action):
 
         return JsonResponse({
             "success": True,
-            "upvotes": comment.upvote_count(),
-            "downvotes": comment.downvote_count(),
+            "upvotes": comment.upvotes.count(),
+            "downvotes": comment.downvotes.count(),
         })
     return JsonResponse({"success": False}, status=400)
 
@@ -141,11 +141,21 @@ def post_comment(request, article_id):
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
+            # Set the article for the comment now
             comment.article_id = article_id
             comment.user = request.user
+
             parent_comment_id = form.cleaned_data.get("parent_comment_id")
             if parent_comment_id:
-                comment.parent = get_object_or_404(Comment, id=parent_comment_id)
+                parent_comment = get_object_or_404(Comment, id=parent_comment_id)
+                # Validate that the parent comment belongs to the same article
+                if parent_comment.article_id != article_id:
+                    return JsonResponse({
+                        "success": False,
+                        "error": "Parent comment must belong to the same article."
+                    }, status=400)
+                comment.parent = parent_comment
+
             comment.save()
 
             return JsonResponse({
@@ -215,8 +225,8 @@ def reply_to_comment(request, article_id, parent_comment_id):
             'parent_comment_id': parent_comment_id,
             'parent_level': request.POST.get("parent_level", 0),
             'username': new_comment.user.username,
+            'is_owner': request.user == new_comment.user
         })
-    return JsonResponse({'success': False, 'error': 'Failed to submit reply.'}, status=400)
 
 
 @login_required

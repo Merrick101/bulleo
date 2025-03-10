@@ -174,18 +174,31 @@ body {
   margin-bottom: 10px;
 }
 
-/* Unique Comment Indentation Styles */
-.comment-indent-0 {
-  margin-left: 0px;
+/* Comment Styles */
+.comment .replies {
+  background-color: #f9f9f9; /* Light background for replies */
+  padding: 5px;
+  margin-top: 10px;
 }
-.comment-indent-20 {
-  margin-left: 20px;
+
+.comment-actions {
+  margin-top: 10px;
 }
-.comment-indent-40 {
-  margin-left: 40px;
+
+.comment-actions button {
+  margin-right: 5px;
 }
-.comment-indent-60 {
-  margin-left: 60px;
+
+/* Show/Hide Button for Replies */
+.toggle-replies {
+  background-color: transparent;
+  color: #007bff;
+  border: none;
+  cursor: pointer;
+}
+
+.toggle-replies:hover {
+  text-decoration: underline;
 }
 
 /* User Profile Styling */
