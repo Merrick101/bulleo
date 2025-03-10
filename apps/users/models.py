@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -57,14 +58,14 @@ class Comment(models.Model):
     article = models.ForeignKey("news.Article", on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
     parent = models.ForeignKey(
         "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
     )
-
     # Voting system
     upvotes = models.ManyToManyField(User, related_name="upvoted_comments", blank=True)
     downvotes = models.ManyToManyField(User, related_name="downvoted_comments", blank=True)
+    # Report field: marks a comment as reported/harmful.
+    reported = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['created_at']
@@ -90,3 +91,6 @@ class Comment(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Comment by {self.user} on {self.article}"

@@ -1,6 +1,4 @@
 {% load i18n static %}
-
-{# Calculate the indentation class; default to 0 if not provided #}
 {% with indent_value=level|default:"0" %}
 <div class="comment mb-3 comment-indent-{{ indent_value }}" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
   <div class="comment-header">
@@ -19,11 +17,17 @@
     <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
     <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
     <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
+    {% if comment.user == user %}
+      <a href="{% url 'news:edit_comment' comment.id %}" class="btn btn-sm btn-outline-warning">Edit</a>
+      <a href="{% url 'news:delete_comment' comment.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+    {% else %}
+      <a href="{% url 'news:report_comment' comment.id %}" class="btn btn-sm btn-outline-danger">Report</a>
+    {% endif %}
   </div>
   {% endif %}
+  <!-- Render Replies Recursively -->
   <div class="replies">
     {% for reply in comment.replies.all %}
-      {# Increase indentation by 20 for each nesting level #}
       {% with new_level=indent_value|add:"20" %}
         {% include "news/_comment.html" with comment=reply level=new_level %}
       {% endwith %}

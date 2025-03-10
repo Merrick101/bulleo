@@ -83,11 +83,8 @@ def article_detail(request, article_id):
     """
     article = get_object_or_404(Article, id=article_id)
     sort_order = request.GET.get("sort", "newest")
-
-    # Filter top-level comments
     comments = article.comments.filter(parent__isnull=True)
 
-    # Apply sorting based on sort_order
     if sort_order == "newest":
         comments = comments.order_by("-created_at")
     elif sort_order == "oldest":
@@ -238,3 +235,19 @@ def reply_to_comment(request, article_id, parent_comment_id):
         return JsonResponse(response_data)
 
     return JsonResponse({'success': False, 'message': 'Failed to submit reply.'}, status=400)
+
+
+@login_required
+def report_comment(request, comment_id):
+    """
+    Allow a user to report a comment as harmful.
+    This view marks the comment as reported.
+    (You can expand this logic to create a separate Report model if needed.)
+    """
+    comment = get_object_or_404(Comment, id=comment_id)
+    if request.method == "POST":
+        # Mark the comment as reported.
+        comment.reported = True
+        comment.save()
+        return JsonResponse({"success": True, "comment_id": comment_id})
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
