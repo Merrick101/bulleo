@@ -2,7 +2,6 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
-from django.utils.timezone import now
 from django.contrib.auth.decorators import login_required
 from .models import Article
 from apps.users.forms import CommentForm
@@ -51,20 +50,17 @@ def search_articles(request):
         'category_slug': category_slug,
         'source_slug': source_slug,
     }
-
     return render(request, "news/search_results.html", context)
 
 
 def get_sorted_comments(article, sort_order):
     comments = article.comments.filter(parent__isnull=True)
-
     if sort_order == "most_upvoted":
         comments = comments.annotate(upvote_count=Count("upvotes")).order_by("-upvote_count", "-created_at")
     elif sort_order == "newest":
         comments = comments.order_by("-created_at")
     elif sort_order == "oldest":
         comments = comments.order_by("created_at")
-
     return comments
 
 
@@ -113,8 +109,11 @@ def article_detail(request, article_id):
 def vote_comment(request, comment_id, action):
     """
     Handle AJAX request for upvoting or downvoting a comment.
+    Block the action if the comment is deleted.
     """
     comment = get_object_or_404(Comment, id=comment_id)
+    if comment.deleted:
+        return JsonResponse({"success": False, "error": "Cannot vote on a deleted comment."}, status=400)
 
     if request.method == "POST":
         if action == "upvote":
@@ -141,7 +140,7 @@ def post_comment(request, article_id):
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
-            # Set the article for the comment now
+            # Set the article and user for the comment now
             comment.article_id = article_id
             comment.user = request.user
 
@@ -153,6 +152,12 @@ def post_comment(request, article_id):
                     return JsonResponse({
                         "success": False,
                         "error": "Parent comment must belong to the same article."
+                    }, status=400)
+                # Optionally block replies to deleted comments
+                if parent_comment.deleted:
+                    return JsonResponse({
+                        "success": False,
+                        "error": "Cannot reply to a deleted comment."
                     }, status=400)
                 comment.parent = parent_comment
 
@@ -173,7 +178,13 @@ def post_comment(request, article_id):
 
 @login_required
 def edit_comment(request, comment_id):
+    """
+    Allow the owner of a comment to edit it, unless the comment is deleted.
+    """
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+    if comment.deleted:
+        return JsonResponse({"success": False, "error": "Cannot edit a deleted comment."}, status=400)
+
     if request.method == "POST":
         new_content = request.POST.get("content", "").strip()
         if not new_content:
@@ -193,18 +204,25 @@ def edit_comment(request, comment_id):
 
 @login_required
 def delete_comment(request, comment_id):
+    """
+    Mark a comment as deleted.
+    """
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
     if request.method == "POST":
-        comment.content = "[Deleted]"
-        comment.user = None  # Make it anonymous
-        comment.save()
+        comment.delete()  # This calls the custom delete() method that marks the comment as deleted.
         return JsonResponse({"success": True, "comment_id": comment.id, "deleted": True})
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
 @login_required
 def reply_to_comment(request, article_id, parent_comment_id):
+    """
+    Handle replying to an existing comment.
+    """
     parent_comment = get_object_or_404(Comment, id=parent_comment_id)
+    if parent_comment.deleted:
+        return JsonResponse({"success": False, "error": "Cannot reply to a deleted comment."}, status=400)
+
     if request.method == "POST":
         content = request.POST.get("content", "").strip()
         if not content:
@@ -227,6 +245,7 @@ def reply_to_comment(request, article_id, parent_comment_id):
             'username': new_comment.user.username,
             'is_owner': request.user == new_comment.user
         })
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
 @login_required

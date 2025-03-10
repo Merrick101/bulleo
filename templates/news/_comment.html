@@ -3,7 +3,7 @@
 
   <div class="comment-header">
     <p>
-      <strong>{{ comment.user.username }}</strong>
+      <strong>{% if comment.deleted %}Deleted{% else %}{{ comment.user.username }}{% endif %}</strong>
       <small>{{ comment.created_at|date:"F d, Y H:i" }}</small>
     </p>
   </div>
@@ -15,20 +15,20 @@
     {% endif %}
   </div>
 
-  {% if user.is_authenticated %}
-  <div class="comment-actions">
-    <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
-    <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
-    <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
-    <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
-    <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
-    {% if comment.user == user %}
-      <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="{{ comment.id }}">Edit</button>
-      <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="{{ comment.id }}">Delete</button>
-    {% else %}
-      <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="{{ comment.id }}">Report</button>
-    {% endif %}
-  </div>
+  {% if user.is_authenticated and not comment.deleted %}
+    <div class="comment-actions">
+      <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
+      <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvotes.count }}</span>
+      <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
+      <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvotes.count }}</span>
+      <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
+      {% if comment.user == user %}
+        <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="{{ comment.id }}">Edit</button>
+        <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="{{ comment.id }}">Delete</button>
+      {% else %}
+        <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="{{ comment.id }}">Report</button>
+      {% endif %}
+    </div>
   {% endif %}
 
   {% if comment.replies.all %}

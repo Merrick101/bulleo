@@ -61,14 +61,15 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="replies")
 
-    # Voting System
+    # Voting System (we rely on the many-to-many relationships)
     upvotes = models.ManyToManyField(User, related_name="upvoted_comments", blank=True)
     downvotes = models.ManyToManyField(User, related_name="downvoted_comments", blank=True)
-    upvote_count = models.PositiveIntegerField(default=0)
-    downvote_count = models.PositiveIntegerField(default=0)
 
     # Report field: marks a comment as reported/harmful.
     reported = models.BooleanField(default=False)
+
+    # Deleted flag (optional but useful)
+    deleted = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['created_at']
@@ -80,16 +81,12 @@ class Comment(models.Model):
         if not self.has_upvoted(user):
             self.upvotes.add(user)
             self.downvotes.remove(user)
-            self.upvote_count += 1
-            self.downvote_count = max(0, self.downvote_count - 1)
             self.save()
 
     def downvote(self, user):
         if not self.has_downvoted(user):
             self.downvotes.add(user)
             self.upvotes.remove(user)
-            self.downvote_count += 1
-            self.upvote_count = max(0, self.upvote_count - 1)
             self.save()
 
     def has_upvoted(self, user):
@@ -102,8 +99,10 @@ class Comment(models.Model):
         return self.parent is not None
 
     def delete(self, *args, **kwargs):
+        # Mark the comment as deleted
         self.content = "[Deleted]"
         self.user = None
+        self.deleted = True
         self.save()
 
     def __str__(self):
