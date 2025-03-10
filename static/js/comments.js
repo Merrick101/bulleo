@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const articleDetail = document.querySelector('.article-detail');
     const article_id = articleDetail ? articleDetail.getAttribute('data-article-id') : null;
 
-    // Event delegation for vote, reply, report, edit, and delete
+    // Event delegation for vote, reply, report, edit, and delete actions
     const commentsList = document.getElementById("comments-list");
     if (commentsList) {
         commentsList.addEventListener("click", function (event) {
@@ -26,7 +26,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 showReplyForm(parentId);
             } else if (event.target.classList.contains("report-btn")) {
                 const commentId = event.target.dataset.commentId;
-                reportComment(commentId, event.target);
+                if (confirm("Are you sure you want to report this comment?")) {
+                    reportComment(commentId, event.target);
+                }
             } else if (event.target.classList.contains("edit-btn")) {
                 const commentId = event.target.dataset.commentId;
                 showEditForm(commentId);
@@ -112,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             if (data.success) {
                 renderNewComment(data);
-                // Automatically close the reply box after submission
+                // Automatically close the reply box after submission:
                 const parentComment = document.querySelector(`#comment-${parentId}`);
                 if (parentComment) {
                     const replyContainer = parentComment.querySelector(".replies");
@@ -132,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .finally(() => {
             submitButton.disabled = false;
         });
-    }    
+    }
 
     // 3) Report
     function reportComment(commentId, button) {
@@ -255,8 +257,22 @@ document.addEventListener("DOMContentLoaded", function () {
         if (commentCount) {
             const currentCount = parseInt(commentCount.textContent, 10);
             if (currentCount > 0) {
-                commentCount.textContent = currentCount - 1;
+                const newCount = currentCount - 1;
+                commentCount.textContent = newCount;
+                if (newCount === 0) {
+                    insertNoCommentsMsg();
+                }
             }
+        }
+    }
+
+    function insertNoCommentsMsg() {
+        const commentList = document.getElementById("comments-list");
+        if (commentList) {
+            const msg = document.createElement("p");
+            msg.id = "no-comments-msg";
+            msg.textContent = "No comments yet. Be the first to comment!";
+            commentList.appendChild(msg);
         }
     }
 
@@ -266,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return cookie ? cookie.split("=")[1] : "";
     }
 
-    // 8) Main Comment Form Submission
+    // 8) Main Comment Form Submission via AJAX
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
         commentForm.addEventListener("submit", function (e) {
@@ -320,19 +336,18 @@ document.addEventListener("DOMContentLoaded", function () {
         updateIndentation(); // update indentation after adding new comment
     }
 
-    // 10) Update indentation dynamically
+    // 10) Update indentation dynamically based on data-level
     function updateIndentation() {
-        // Find all comment elements with a data-level attribute
-        const commentElements = document.querySelectorAll('[data-level]');
+        const commentElements = document.querySelectorAll("[data-level]");
         commentElements.forEach(function (elem) {
-            const level = elem.getAttribute('data-level');
-            // Remove any existing indentation classes that follow the pattern
+            const level = elem.getAttribute("data-level");
+            // Remove any existing indentation classes that start with "comment-indent-"
             elem.classList.forEach(function(className) {
                 if (className.startsWith("comment-indent-")) {
                     elem.classList.remove(className);
                 }
             });
-            // Add the appropriate indentation class based on the data-level value
+            // Add the appropriate indentation class
             elem.classList.add("comment-indent-" + level);
         });
     }
