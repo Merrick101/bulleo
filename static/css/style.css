@@ -174,7 +174,22 @@ body {
   margin-bottom: 10px;
 }
 
+/* Unique Comment Indentation Styles */
+.comment-indent-0 {
+  margin-left: 0px;
+}
+.comment-indent-20 {
+  margin-left: 20px;
+}
+.comment-indent-40 {
+  margin-left: 40px;
+}
+.comment-indent-60 {
+  margin-left: 60px;
+}
+
 /* User Profile Styling */
+
 /* General Styles */
 .profile-card {
   display: flex;

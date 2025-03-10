@@ -1,0 +1,31 @@
+{% load i18n static %}
+{% with indent_class="comment-indent-"|add:level|default:"0" %}
+<div class="comment mb-3 {{ indent_class }}" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}">
+  <div class="comment-header">
+    <p>
+      <strong>{{ comment.user.username }}</strong>
+      <small>{{ comment.created_at|date:"F d, Y H:i" }}</small>
+    </p>
+  </div>
+  <div class="comment-body">
+    <p>{{ comment.content }}</p>
+  </div>
+  {% if user.is_authenticated %}
+  <div class="comment-actions">
+    <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
+    <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvote_count }}</span>
+    <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
+    <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvote_count }}</span>
+    <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
+  </div>
+  {% endif %}
+  <!-- Render replies recursively -->
+  <div class="replies">
+    {% for reply in comment.replies.all %}
+      {% with new_level=level|default:"0"|add:"20" %}
+        {% include "news/_comment.html" with comment=reply level=new_level %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+</div>
+{% endwith %}
