@@ -194,31 +194,29 @@ def delete_comment(request, comment_id):
 
 @login_required
 def reply_to_comment(request, article_id, parent_comment_id):
-    """
-    Handle replies to comments by linking a new comment to the parent.
-    """
     parent_comment = get_object_or_404(Comment, id=parent_comment_id)
     if request.method == "POST":
         content = request.POST.get("content", "").strip()
         if not content:
             return JsonResponse({"success": False, "error": "Reply content cannot be empty."}, status=400)
+
         new_comment = Comment.objects.create(
             user=request.user,
             article_id=article_id,
             content=content,
             parent=parent_comment
         )
-        response_data = {
+
+        return JsonResponse({
             'success': True,
-            'message': 'Reply submitted successfully!',
             'comment_id': new_comment.id,
             'content': new_comment.content,
             'created_at': new_comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'parent_comment_id': parent_comment_id,
+            'parent_level': request.POST.get("parent_level", 0),
             'username': new_comment.user.username,
-        }
-        return JsonResponse(response_data)
-    return JsonResponse({'success': False, 'message': 'Failed to submit reply.'}, status=400)
+        })
+    return JsonResponse({'success': False, 'error': 'Failed to submit reply.'}, status=400)
 
 
 @login_required

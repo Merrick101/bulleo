@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const formData = new FormData(form);
         formData.append("parent_comment_id", parentId);
     
-        fetch(`/news/article/${article_id}/comment/${parentId}/reply/`, {
+        fetch(`/news/article/${article_id}/comment/${parentId}/reply/`, {  // ✅ Ensure `article_id` is included
             method: "POST",
             body: formData,
             headers: {
@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .finally(() => {
             submitButton.disabled = false;
         });
-    }    
+    }          
 
     // 3) Report
     function reportComment(commentId, button) {
@@ -320,7 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     
         const newCommentHTML = `
-            <div class="comment mb-3" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}" data-level="${data.parent_comment_id ? 1 : 0}">
+            <div class="comment mb-3" id="comment-${data.comment_id}" data-comment-id="${data.comment_id}" data-level="${data.parent_comment_id ? parseInt(data.parent_level) + 1 : 0}">
                 <div class="comment-header">
                     <p>
                         <strong>${data.username}</strong> 
@@ -336,18 +336,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
                     <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
                     <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
-                    <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="${data.comment_id}">Edit</button>
-                    <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">Delete</button>
                 </div>
                 <div class="replies"></div> <!-- Replies go here -->
             </div>
         `;
     
         if (data.parent_comment_id) {
-            // Find the parent comment and append reply inside its .replies container
-            const parentComment = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
+            const parentComment = document.querySelector(`#comment-${data.parent_comment_id}`);
+    
             if (parentComment) {
-                parentComment.insertAdjacentHTML("beforeend", newCommentHTML);
+                let replyContainer = parentComment.querySelector(".replies");
+                
+                // If .replies doesn't exist, create it
+                if (!replyContainer) {
+                    replyContainer = document.createElement("div");
+                    replyContainer.classList.add("replies");
+                    parentComment.appendChild(replyContainer);
+                }
+                
+                replyContainer.insertAdjacentHTML("beforeend", newCommentHTML);
             } else {
                 console.error("Parent comment not found in DOM.");
             }
@@ -357,7 +364,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     
         updateIndentation();  // Ensure indentation updates correctly
-    }
+    }       
     
     // 10) Update indentation dynamically based on data-level
     function updateIndentation() {
