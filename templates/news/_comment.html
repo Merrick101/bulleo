@@ -1,21 +1,23 @@
 {% with indent_value=level|default:"0" %}
 <div class="comment mb-3" id="comment-{{ comment.id }}" data-comment-id="{{ comment.id }}" data-level="{{ indent_value }}">
+  {% if not comment.deleted %}
+    <!-- Normal comment rendering -->
 
-  <div class="comment-header">
-    <p>
-      <strong>{% if comment.deleted %}Deleted{% else %}{{ comment.user.username }}{% endif %}</strong>
-      <small>{{ comment.created_at|date:"F d, Y H:i" }}</small>
-    </p>
-  </div>
+    <div class="comment-header">
+      <p>
+        <strong>{{ comment.user.username }}</strong>
+        <small>{{ comment.created_at|date:"F d, Y H:i" }}</small>
+      </p>
+    </div>
 
-  <div class="comment-body">
-    <p>{{ comment.content }}</p>
-    {% if level and level != "0" and not comment.parent %}
-      <div class="deleted-parent-msg">Original comment deleted</div>
-    {% endif %}
-  </div>
+    <div class="comment-body">
+      <p>{{ comment.content }}</p>
+      {% if level and level != "0" and not comment.parent %}
+        <div class="deleted-parent-msg">Original comment deleted</div>
+      {% endif %}
+    </div>
 
-  {% if user.is_authenticated and not comment.deleted %}
+    {% if user.is_authenticated %}
     <div class="comment-actions">
       <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
       <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvotes.count }}</span>
@@ -29,16 +31,29 @@
         <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="{{ comment.id }}">Report</button>
       {% endif %}
     </div>
-  {% endif %}
+    {% endif %}
 
-  {% if comment.replies.all %}
-    <button class="btn btn-link toggle-replies">Show Replies</button>
-    <div class="replies" style="display: none;">
-      {% for reply in comment.replies.all %}
-        {% with new_level=indent_value|add:"1" %}
-          {% include "news/_comment.html" with comment=reply level=new_level %}
-        {% endwith %}
-      {% endfor %}
+    <!-- Show replies if there are any -->
+    {% if comment.replies.all %}
+      <button class="btn btn-link toggle-replies">Show Replies</button>
+      <div class="replies" style="display: none;">
+        {% for reply in comment.replies.all %}
+          {% with new_level=indent_value|add:"1" %}
+            {% include "news/_comment.html" with comment=reply level=new_level %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% else %}
+    <!-- For deleted comments, display "[Deleted]" message and hide actions -->
+    <div class="comment-header">
+      <p>
+        <strong>Deleted</strong>
+        <small>{{ comment.created_at|date:"F d, Y H:i" }}</small>
+      </p>
+    </div>
+    <div class="comment-body">
+      <p>[Deleted]</p>
     </div>
   {% endif %}
 </div>
