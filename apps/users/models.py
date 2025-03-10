@@ -66,7 +66,13 @@ class Comment(models.Model):
     upvotes = models.ManyToManyField(User, related_name="upvoted_comments", blank=True)
     downvotes = models.ManyToManyField(User, related_name="downvoted_comments", blank=True)
 
+    class Meta:
+        ordering = ['created_at']
+
     # Helper Functions
+    def get_replies(self):
+        return self.replies.all()
+
     def upvote_count(self):
         return self.upvotes.count()
 
