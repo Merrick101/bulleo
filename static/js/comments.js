@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const articleDetail = document.querySelector('.article-detail');
     const article_id = articleDetail ? articleDetail.getAttribute('data-article-id') : null;
 
-    // Use event delegation on the comments list to handle vote and reply actions.
+    // Use event delegation on the comments list to handle vote, reply, and report actions.
     const commentsList = document.getElementById("comments-list");
     if (commentsList) {
         commentsList.addEventListener("click", function (event) {
@@ -24,6 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (event.target.classList.contains("reply-btn")) {
                 const parentId = event.target.dataset.parentId;
                 showReplyForm(parentId);  // Show reply form for the comment
+            } else if (event.target.classList.contains("report-btn")) {
+                const commentId = event.target.dataset.commentId;
+                reportComment(commentId, event.target);
             }
         });
     }
@@ -33,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const parentComment = document.querySelector(`#comment-${parentId}`);
         if (!parentComment) return;
 
-        // Define the reply form HTML (no inline styling here; styling should be in CSS)
+        // Define the reply form HTML.
         const replyFormHTML = `
             <form class="reply-form">
                 <textarea name="content" rows="3" placeholder="Write a reply..." required></textarea>
@@ -41,8 +44,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button type="button" class="btn btn-secondary cancel-reply">Cancel</button>
             </form>
         `;
-
-        // Locate or create a container for the reply form inside the parent comment.
         let replyContainer = parentComment.querySelector(".replies");
         if (!replyContainer) {
             replyContainer = document.createElement("div");
@@ -58,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
             submitReply(replyForm, parentId);
         });
 
-        // Attach event listener for canceling the reply.
+        // Attach event listener for cancel reply.
         const cancelButton = replyContainer.querySelector(".cancel-reply");
         cancelButton.addEventListener("click", function () {
             replyContainer.innerHTML = '';
@@ -69,11 +70,10 @@ document.addEventListener("DOMContentLoaded", function () {
     function submitReply(form, parentId) {
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
-
         const formData = new FormData(form);
         formData.append("parent_comment_id", parentId);
-
-        fetch(`/news/comment/${article_id}/reply/`, {  // Ensure this endpoint matches your Django URL
+        
+        fetch(`/news/article/${article_id}/comment/${parentId}/reply/`, {
             method: "POST",
             body: formData,
             headers: {
@@ -102,29 +102,48 @@ document.addEventListener("DOMContentLoaded", function () {
     // AJAX for comment voting (upvote/downvote).
     function voteComment(commentId, action, button) {
         const csrfToken = getCSRFToken();
-
         fetch(`/news/comment/${commentId}/vote/${action}/`, {
             method: "POST",
             headers: {
                 "X-CSRFToken": csrfToken,
-                "X-Requested-With": "XMLHttpRequest",
+                "X-Requested-With": "XMLHttpRequest"
             },
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update vote counts dynamically.
                 const upvoteElem = document.querySelector(`#upvote-count-${commentId}`);
                 const downvoteElem = document.querySelector(`#downvote-count-${commentId}`);
                 if (upvoteElem) upvoteElem.textContent = data.upvotes;
                 if (downvoteElem) downvoteElem.textContent = data.downvotes;
-                // Optionally, disable or toggle vote buttons.
                 button.disabled = true;
             } else {
                 console.error("Failed to vote");
             }
         })
         .catch(err => console.error("Error with voting:", err));
+    }
+
+    // AJAX for reporting a comment.
+    function reportComment(commentId, button) {
+        const csrfToken = getCSRFToken();
+        fetch(`/news/comment/${commentId}/report/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken,
+                "X-Requested-With": "XMLHttpRequest"
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Comment reported.");
+                button.disabled = true;
+            } else {
+                alert("Failed to report the comment.");
+            }
+        })
+        .catch(err => console.error("Error reporting comment:", err));
     }
 
     // Helper function: Update the overall comment count.
@@ -146,15 +165,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
         commentForm.addEventListener("submit", function (e) {
-            e.preventDefault();  // Prevent page reload.
+            e.preventDefault();
             const formData = new FormData(commentForm);
-
             fetch(commentForm.action, {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': getCSRFToken()
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": getCSRFToken()
                 }
             })
             .then(response => response.json())
@@ -171,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Render new comment after successful submission.
+    // Render a new comment after successful submission.
     function renderNewComment(data) {
         const commentList = document.getElementById("comments-list");
         const newCommentHTML = `
@@ -183,6 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
                 <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
                 <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
+                <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="${data.comment_id}">Report</button>
             </div>
         `;
         commentList.insertAdjacentHTML("beforeend", newCommentHTML);
