@@ -90,11 +90,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!replyContainer) {
             replyContainer = document.createElement("div");
             replyContainer.classList.add("replies");
-            // When showing the reply form, we want the container visible so the form appears
+            // Set the container visible by default (show all replies)
             replyContainer.style.display = "block";
             parentComment.appendChild(replyContainer);
         } else {
-            // When opening the reply form, force the container visible
+            // Ensure it's visible
             replyContainer.style.display = "block";
         }
         replyContainer.innerHTML = replyFormHTML;
@@ -107,14 +107,13 @@ document.addEventListener("DOMContentLoaded", function () {
     
         const cancelButton = replyContainer.querySelector(".cancel-reply");
         cancelButton.addEventListener("click", function () {
-            // Clear the reply form and then hide the container again
+            // Clear the reply form, but leave existing replies visible.
             replyContainer.innerHTML = "";
-            // Reapply the default hidden state and update the toggle button
-            replyContainer.style.display = "none";
+            // Ensure toggle is updated.
             ensureToggleForParent(parentComment);
         });
     }
-
+    
     function submitReply(form, parentId) {
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
@@ -133,26 +132,8 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Render the new reply (it will be appended into the parent's .replies container)
-                renderNewComment(data);
-    
-                // After rendering, clear the reply form
-                const parentComment = document.querySelector(`#comment-${parentId}`);
-                if (parentComment) {
-                    const replyContainer = parentComment.querySelector(".replies");
-                    if (replyContainer) {
-                        replyContainer.innerHTML = "";
-                        // Set default state: hide the replies container so that the toggle applies
-                        replyContainer.style.display = "none";
-                    }
-                    // Ensure the parent's toggle is present and updated
-                    ensureToggleForParent(parentComment);
-                }
-    
-                // Update comment count if provided by the server
-                if (data.comment_count !== undefined) {
-                    document.getElementById("comment-count").textContent = data.comment_count;
-                }
+                // Force a full page reload after a reply is submitted successfully
+                window.location.reload();
             } else {
                 alert("Failed to submit reply.");
             }
@@ -161,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .finally(() => {
             submitButton.disabled = false;
         });
-    }
+    }      
 
     // ------------------------------------------------------
     // 6) Ensure Parent Has a Toggle Button
@@ -170,27 +151,25 @@ document.addEventListener("DOMContentLoaded", function () {
         let repliesContainer = parentCommentDiv.querySelector(".replies");
         if (!repliesContainer) return;
     
-        // Ensure the container is hidden by default
-        if (!repliesContainer.style.display || repliesContainer.style.display === "block") {
-            repliesContainer.style.display = "none";
-        }
+        // Since we want replies visible by default, force display to block.
+        repliesContainer.style.display = "block";
     
-        // Check if there is at least one child comment
+        // Check if there is at least one child comment in the container.
         const childComments = repliesContainer.querySelectorAll(".comment");
         if (childComments.length > 0) {
             let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
             if (!toggleBtn) {
-                // Insert toggle button before the replies container
-                const toggleHTML = `<button class="btn btn-link toggle-replies">Show More Replies</button>`;
+                // Insert a toggle button above the replies container
+                const toggleHTML = `<button class="btn btn-link toggle-replies">Hide Replies</button>`;
                 repliesContainer.insertAdjacentHTML("beforebegin", toggleHTML);
             } else {
-                // Update the toggle button text based on container state
-                toggleBtn.textContent = (repliesContainer.style.display === "none" || repliesContainer.style.display === "")
-                    ? "Show More Replies"
-                    : "Hide Replies";
+                // Update the toggle text based on container state:
+                toggleBtn.textContent = (repliesContainer.style.display === "block")
+                    ? "Hide Replies"
+                    : "Show More Replies";
             }
         } else {
-            // If no child comments, remove any existing toggle button
+            // No child comments: remove toggle if it exists
             let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
             if (toggleBtn) {
                 toggleBtn.remove();
@@ -437,14 +416,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const repliesContainer = button.nextElementSibling;
         if (!repliesContainer) return;
     
-        if (repliesContainer.style.display === "none" || repliesContainer.style.display === "") {
+        if (repliesContainer.style.display === "none") {
             repliesContainer.style.display = "block";
             button.textContent = "Hide Replies";
         } else {
             repliesContainer.style.display = "none";
             button.textContent = "Show More Replies";
         }
-    }   
+    } 
     // ------------------------------------------------------
     // 13) Indentation
     // ------------------------------------------------------

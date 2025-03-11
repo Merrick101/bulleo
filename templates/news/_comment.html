@@ -2,6 +2,7 @@
      id="comment-{{ comment.id }}" 
      data-comment-id="{{ comment.id }}"
      data-level="{% if comment.parent %}1{% else %}0{% endif %}">
+  
   {% if not comment.deleted %}
     <!-- Normal comment rendering -->
     <div class="comment-header">
@@ -34,8 +35,8 @@
     <!-- Show replies if there are any -->
     {% with replies=comment.replies.all %}
       {% if replies %}
-        <button class="btn btn-link toggle-replies">Show Replies</button>
-        <div class="replies" style="display: none;">
+        <button class="btn btn-link toggle-replies">Hide Replies</button>
+        <div class="replies" style="display: block;">  <!-- Replies visible by default -->
           {% for reply in replies %}
             {% include "news/_comment.html" with comment=reply %}
           {% endfor %}

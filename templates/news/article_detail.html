@@ -26,7 +26,6 @@
         <form id="comment-form" method="POST" action="{% url 'news:post_comment' article.id %}" class="mb-4">
           {% csrf_token %}
           <p>
-            <label for="id_content">Content:</label>
             <textarea name="content" id="id_content" cols="40" rows="3" placeholder="Write a comment..." maxlength="1000" required></textarea>
           </p>
           <input type="hidden" name="parent_comment_id" id="id_parent_comment_id">
