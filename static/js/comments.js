@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("comments.js loaded successfully!");
 
-    // ------------------
+    // ------------------------------------------------------
     // 1) Sorting
-    // ------------------
+    // ------------------------------------------------------
     const sortDropdown = document.getElementById("sort-comments");
     let sortOrder = "newest";  // default
     if (sortDropdown) {
@@ -13,16 +13,16 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ------------------
+    // ------------------------------------------------------
     // 2) Global Setup
-    // ------------------
+    // ------------------------------------------------------
     const articleDetail = document.querySelector(".article-detail");
     const article_id = articleDetail ? articleDetail.getAttribute("data-article-id") : null;
     const commentsList = document.getElementById("comments-list");
 
-    // ------------------
+    // ------------------------------------------------------
     // 3) Event Delegation
-    // ------------------
+    // ------------------------------------------------------
     if (commentsList) {
         commentsList.addEventListener("click", function (event) {
             const target = event.target;
@@ -46,9 +46,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ------------------
-    // 4) Vote
-    // ------------------
+    // ------------------------------------------------------
+    // 4) Voting
+    // ------------------------------------------------------
     function voteComment(commentId, action) {
         fetch(`/news/comment/${commentId}/vote/${action}/`, {
             method: "POST",
@@ -71,13 +71,14 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.error("Error with voting:", err));
     }
 
-    // ------------------
+    // ------------------------------------------------------
     // 5) Reply
-    // ------------------
+    // ------------------------------------------------------
     function showReplyForm(parentId) {
         const parentComment = document.querySelector(`#comment-${parentId}`);
         if (!parentComment) return;
 
+        // Build a simple inline form for replying
         const replyFormHTML = `
             <form class="reply-form">
                 <textarea name="content" rows="3" placeholder="Write a reply..." required></textarea>
@@ -86,6 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </form>
         `;
 
+        // If there's no .replies container, create one
         let replyContainer = parentComment.querySelector(".replies");
         if (!replyContainer) {
             replyContainer = document.createElement("div");
@@ -124,20 +126,24 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Render the new reply
+                // 1) Render the new reply
                 renderNewComment(data);
 
-                // Clear the reply form and force container visibility
+                // 2) Clear the reply form
                 const parentComment = document.querySelector(`#comment-${parentId}`);
                 if (parentComment) {
                     const replyContainer = parentComment.querySelector(".replies");
                     if (replyContainer) {
                         replyContainer.innerHTML = "";
+                        // Make sure the container is visible
                         replyContainer.style.display = "block";
                     }
+
+                    // 3) If the parent had no toggle button before, add one
+                    addToggleIfNeeded(parentComment);
                 }
 
-                // Update the comment count from server if provided
+                // 4) Update the comment count from server
                 if (data.comment_count !== undefined) {
                     document.getElementById("comment-count").textContent = data.comment_count;
                 }
@@ -151,9 +157,28 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ------------------
-    // 6) Report
-    // ------------------
+    // ------------------------------------------------------
+    // 6) Add Toggle Button if Parent Had None
+    // ------------------------------------------------------
+    function addToggleIfNeeded(parentCommentDiv) {
+        // Check if there's already a .toggle-replies button
+        let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
+        let repliesContainer = parentCommentDiv.querySelector(".replies");
+
+        // If no toggle is found and we have a replies container, we create one
+        if (!toggleBtn && repliesContainer) {
+            // Insert the button before the replies container, or wherever you prefer
+            const toggleHTML = `<button class="btn btn-link toggle-replies">Show Replies</button>`;
+            repliesContainer.insertAdjacentHTML("beforebegin", toggleHTML);
+
+            // By default, the container is hidden until toggled
+            repliesContainer.style.display = "block";
+        }
+    }
+
+    // ------------------------------------------------------
+    // 7) Report
+    // ------------------------------------------------------
     function reportComment(commentId, button) {
         fetch(`/news/comment/${commentId}/report/`, {
             method: "POST",
@@ -174,9 +199,9 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.error("Error reporting comment:", err));
     }
 
-    // ------------------
-    // 7) Edit
-    // ------------------
+    // ------------------------------------------------------
+    // 8) Edit
+    // ------------------------------------------------------
     function showEditForm(commentId) {
         const commentDiv = document.querySelector(`#comment-${commentId}`);
         if (!commentDiv) return;
@@ -239,9 +264,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ------------------
-    // 8) Delete
-    // ------------------
+    // ------------------------------------------------------
+    // 9) Delete
+    // ------------------------------------------------------
     function deleteComment(commentId) {
         fetch(`/news/comment/${commentId}/delete/`, {
             method: "POST",
@@ -296,9 +321,9 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.error("Error deleting comment:", err));
     }
 
-    // ------------------
-    // 9) Main Comment Form Submission
-    // ------------------
+    // ------------------------------------------------------
+    // 10) Main Comment Form
+    // ------------------------------------------------------
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
         commentForm.addEventListener("submit", function(e) {
@@ -332,9 +357,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ------------------
-    // 10) Render New Comment
-    // ------------------
+    // ------------------------------------------------------
+    // 11) Render New Comment
+    // ------------------------------------------------------
     function renderNewComment(data) {
         const noCommentsMsg = document.getElementById("no-comments-msg");
         if (noCommentsMsg) noCommentsMsg.remove();
@@ -343,10 +368,8 @@ document.addEventListener("DOMContentLoaded", function () {
         let actionsHTML = `
             <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
             <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
-
             <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
             <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
-
             <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
         `;
         if (data.is_owner) {
@@ -360,38 +383,39 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }
 
+        // Build the comment's HTML
         const newCommentHTML = `
             <div class="comment mb-3"
                  id="comment-${data.comment_id}"
                  data-comment-id="${data.comment_id}"
                  data-level="${data.parent_comment_id ? 1 : 0}">
-                 
                 <div class="comment-header">
                     <p>
                         <strong>${data.username}</strong>
                         <small>${data.created_at}</small>
                     </p>
                 </div>
-
                 <div class="comment-body">
                     <p>${data.content}</p>
                 </div>
-
                 <div class="comment-actions">
                     ${actionsHTML}
                 </div>
-
                 <div class="replies"></div>
             </div>
         `;
 
+        // Insert the new comment
         if (data.parent_comment_id) {
             const parentRepliesContainer = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
             if (parentRepliesContainer) {
-                parentRepliesContainer.style.display = "block";  // force visibility for new replies
+                // Show the container
+                parentRepliesContainer.style.display = "block";
+                // Insert the reply at the bottom
                 parentRepliesContainer.insertAdjacentHTML("beforeend", newCommentHTML);
             }
         } else {
+            // For top-level comments, place it at the top if sortOrder is "newest"
             if (sortOrder === "newest") {
                 commentsList.insertAdjacentHTML("afterbegin", newCommentHTML);
             } else {
@@ -399,23 +423,41 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
+        // Apply indentation
         updateIndentation();
     }
 
-    // ------------------
-    // 11) Indentation
-    // ------------------
+    // ------------------------------------------------------
+    // 12) Toggle Replies
+    // ------------------------------------------------------
+    function toggleReplies(button) {
+        const repliesContainer = button.nextElementSibling;
+        if (!repliesContainer) return;
+
+        if (repliesContainer.style.display === "none" || repliesContainer.style.display === "") {
+            repliesContainer.style.display = "block";
+            button.textContent = "Hide Replies";
+        } else {
+            repliesContainer.style.display = "none";
+            button.textContent = "Show Replies";
+        }
+    }
+
+    // ------------------------------------------------------
+    // 13) Indentation
+    // ------------------------------------------------------
     function updateIndentation() {
         const comments = document.querySelectorAll("#comments-list .comment");
         comments.forEach(comment => {
             const level = parseInt(comment.getAttribute("data-level")) || 0;
+            // Increase margin for replies
             comment.style.marginLeft = (level * 20) + "px";
         });
     }
 
-    // ------------------
-    // 12) CSRF Token Helper
-    // ------------------
+    // ------------------------------------------------------
+    // 14) CSRF Token Helper
+    // ------------------------------------------------------
     function getCSRFToken() {
         const cookie = document.cookie.split("; ").find(row => row.startsWith("csrftoken="));
         return cookie ? cookie.split("=")[1] : "";
