@@ -63,7 +63,7 @@
       <div class="my-comment-toggle">
         <button class="btn btn-link toggle-replies">Hide Replies</button>
       </div>
-      <div class="replies" style="display: block;">
+      <div class="replies">
         {% for reply in replies %}
           {% include "news/_comment.html" with comment=reply %}
         {% endfor %}

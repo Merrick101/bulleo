@@ -176,6 +176,14 @@ body {
 
 /* Comment Section Styles */
 
+.my-sort-select {
+  margin-bottom: 1.7rem;
+}
+
+.my-comment-submit {
+  margin-right: 0.6rem;
+}
+
 .my-comment-container {
   border: 1px solid #ddd;
   padding: 0.75rem;       /* Adjust overall padding */
@@ -231,6 +239,9 @@ body {
   margin-bottom: 0.25rem;  /* optional gap below toggle row */
 }
 
+.replies {
+  display: block;
+}
 
 /* Top-level comments have the default styling */
 .comment {

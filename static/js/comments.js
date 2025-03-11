@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const commentDiv = document.querySelector(`#comment-${commentId}`);
         if (!commentDiv) return;
 
-        const contentParagraph = commentDiv.querySelector(".comment-body p");
+        const contentParagraph = commentDiv.querySelector(".my-comment-body p");
         if (!contentParagraph) return;
 
         const oldContent = contentParagraph.textContent.trim();
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(data => {
             if (data.success) {
                 const commentDiv = document.querySelector(`#comment-${data.comment_id}`);
-                const contentParagraph = commentDiv.querySelector(".comment-body p");
+                const contentParagraph = commentDiv.querySelector(".my-comment-body p");
                 if (contentParagraph) {
                     contentParagraph.textContent = data.updated_content;
                 }
@@ -282,25 +282,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 const commentDiv = document.getElementById(`comment-${data.comment_id}`);
                 if (commentDiv) {
                     commentDiv.classList.add("deleted-comment");
-                    const header = commentDiv.querySelector(".comment-header");
-                    if (header) {
-                        header.innerHTML = `
+                    const topRow = commentDiv.querySelector(".my-comment-top");
+                    if (topRow) {
+                        topRow.innerHTML = `
                             <p>
                                 <strong>Deleted</strong>
                                 <small>${new Date().toLocaleString()}</small>
                             </p>
                         `;
                     }
-                    const body = commentDiv.querySelector(".comment-body");
-                    if (body) {
-                        body.innerHTML = `
+                    const bodyRow = commentDiv.querySelector(".my-comment-body");
+                    if (bodyRow) {
+                        bodyRow.innerHTML = `
                             <p class="deleted-content">[Deleted]</p>
                             <small class="deleted-note">Actions disabled for deleted comments</small>
                         `;
                     }
-                    const actions = commentDiv.querySelector(".comment-actions");
-                    if (actions) {
-                        actions.remove();
+                    const actionsRow = commentDiv.querySelector(".my-comment-actions");
+                    if (actionsRow) {
+                        actionsRow.remove();
                     }
                 }
                 if (data.comment_count !== undefined) {
@@ -353,6 +353,33 @@ document.addEventListener("DOMContentLoaded", function () {
         const noCommentsMsg = document.getElementById("no-comments-msg");
         if (noCommentsMsg) noCommentsMsg.remove();
 
+        let dropdownHTML = "";
+        if (data.is_authenticated) {
+            dropdownHTML = `
+                <div class="dropdown my-comment-more-actions">
+                <button class="btn btn-link dropdown-toggle my-ellipsis-btn" 
+                        type="button" 
+                        id="dropdownMenuButton-${data.comment_id}" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false">
+                    …
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-${data.comment_id}">
+                    ${
+                    data.is_owner
+                        ? `
+                        <li><a class="dropdown-item edit-btn" data-comment-id="${data.comment_id}" href="#">Edit</a></li>
+                        <li><a class="dropdown-item delete-btn" data-comment-id="${data.comment_id}" href="#">Delete</a></li>
+                        `
+                        : `
+                        <li><a class="dropdown-item report-btn" data-comment-id="${data.comment_id}" href="#">Report</a></li>
+                        `
+                    }
+                </ul>
+                </div>
+            `;
+        }
+        
         let actionsHTML = `
             <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
             <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
@@ -371,49 +398,87 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }
 
+        // Build the main HTML for the new comment (4-row layout)
         const newCommentHTML = `
-            <div class="comment mb-3"
-                 id="comment-${data.comment_id}"
-                 data-comment-id="${data.comment_id}"
-                 data-level="${data.parent_comment_id ? 1 : 0}">
-                <div class="comment-header">
-                    <p>
-                        <strong>${data.username}</strong>
-                        <small>${data.created_at}</small>
-                    </p>
+            <div class="comment mb-3 my-comment" 
+                id="comment-${data.comment_id}" 
+                data-comment-id="${data.comment_id}"
+                data-level="${data.parent_comment_id ? 1 : 0}">
+            
+            <!-- Row 1: Top (User Info & More Actions) -->
+            <div class="my-comment-top d-flex justify-content-between align-items-center">
+                <div class="my-comment-user-info">
+                <strong>${data.username}</strong>
+                <span class="comment-separator"> · </span>
+                <span class="my-comment-date">${data.created_at}</span>
                 </div>
-                <div class="comment-body">
-                    <p>${data.content}</p>
-                </div>
-                <div class="comment-actions">
-                    ${actionsHTML}
-                </div>
-                <div class="replies" style="display: block;"></div>
+                ${dropdownHTML}
             </div>
-        `;
 
-        if (data.parent_comment_id) {
-            const parentRepliesContainer = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
-            if (parentRepliesContainer) {
-                parentRepliesContainer.insertAdjacentHTML("beforeend", newCommentHTML);
-                ensureToggleForParent(document.querySelector(`#comment-${data.parent_comment_id}`));
-            }
-        } else {
-            if (sortOrder === "newest") {
-                commentsList.insertAdjacentHTML("afterbegin", newCommentHTML);
-            } else {
-                commentsList.insertAdjacentHTML("beforeend", newCommentHTML);
-            }
+            <!-- Row 2: Comment Body -->
+            <div class="my-comment-body">
+                <p>${data.content}</p>
+            </div>
+
+            <!-- Row 3: Voting & Reply Buttons -->
+            ${
+                data.is_authenticated
+                ? `
+                    <div class="my-comment-actions d-flex align-items-center">
+                    <div class="my-vote-section me-3">
+                        <button class="btn btn-sm btn-outline-success vote-btn" 
+                                data-action="upvote" 
+                                data-comment-id="${data.comment_id}">👍</button>
+                        <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
+                        <button class="btn btn-sm btn-outline-danger vote-btn" 
+                                data-action="downvote" 
+                                data-comment-id="${data.comment_id}">👎</button>
+                        <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
+                    </div>
+                    <div class="my-reply-section">
+                        <button class="btn btn-sm btn-outline-primary reply-btn" 
+                                data-parent-id="${data.comment_id}">Reply</button>
+                    </div>
+                    </div>
+                `
+                : ``
         }
 
-        updateIndentation();
+        <!-- Row 4: Toggle Replies & Replies Container -->
+        <div class="my-comment-toggle">
+            <button class="btn btn-link toggle-replies">Hide Replies</button>
+        </div>
+        <div class="replies"></div>
+        </div>
+    `;
+
+    // Insert the new comment into the DOM
+    const parentRepliesContainer = data.parent_comment_id
+        ? document.querySelector(`#comment-${data.parent_comment_id} .replies`)
+        : document.getElementById("comments-list");
+
+    if (parentRepliesContainer) {
+        // Insert at the top if newest sort, else append
+        if (data.parent_comment_id) {
+        parentRepliesContainer.insertAdjacentHTML("beforeend", newCommentHTML);
+        } else {
+        if (sortOrder === "newest") {
+            parentRepliesContainer.insertAdjacentHTML("afterbegin", newCommentHTML);
+        } else {
+            parentRepliesContainer.insertAdjacentHTML("beforeend", newCommentHTML);
+        }
+        }
+    }
+
+    // Re-apply indentation logic
+    updateIndentation();
     }
 
     // ------------------------------------------------------
     // 12) Toggle Replies
     // ------------------------------------------------------
     function toggleReplies(button) {
-        const repliesContainer = button.nextElementSibling;
+        const repliesContainer = button.parentElement.nextElementSibling;
         if (!repliesContainer) return;
     
         if (repliesContainer.style.display === "none") {
