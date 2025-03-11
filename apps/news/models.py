@@ -49,16 +49,15 @@ class Article(models.Model):
         return f"{self.title} ({self.published_at.strftime('%Y-%m-%d')})"
 
     def save(self, *args, **kwargs):
-        # Ensure that slug is generated from title if it's not already set
+        # Generate a slug from the title if not set
         if not self.slug:
             self.slug = slugify(self.title)
 
-        # Ensure uniqueness of the slug
+        # Ensure uniqueness of the slug by excluding the current instance (if it exists)
         original_slug = self.slug
         counter = 1
-        while Article.objects.filter(slug=self.slug).exists():
+        while Article.objects.filter(slug=self.slug).exclude(id=self.id).exists():
             self.slug = f"{original_slug}-{counter}"
             counter += 1
 
-        # Save the object with the unique slug
         super().save(*args, **kwargs)

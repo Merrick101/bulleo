@@ -169,7 +169,8 @@ def post_comment(request, article_id):
                 'username': comment.user.username,
                 'content': comment.content,
                 'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-                'parent_comment_id': parent_comment_id
+                'parent_comment_id': parent_comment_id,
+                'is_owner': True  # New comment is always owned by the posting user
             })
         else:
             return JsonResponse({"success": False, "errors": form.errors}, status=400)
