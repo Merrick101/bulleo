@@ -133,35 +133,27 @@ def vote_comment(request, comment_id, action):
 
 @login_required
 def post_comment(request, article_id):
-    """
-    Handle posting a new comment or reply using CommentForm for validation.
-    """
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = form.save(commit=False)
-            # Set the article and user for the comment now
             comment.article_id = article_id
             comment.user = request.user
 
             parent_comment_id = form.cleaned_data.get("parent_comment_id")
             if parent_comment_id:
                 parent_comment = get_object_or_404(Comment, id=parent_comment_id)
-                # Validate that the parent comment belongs to the same article
                 if parent_comment.article_id != article_id:
-                    return JsonResponse({
-                        "success": False,
-                        "error": "Parent comment must belong to the same article."
-                    }, status=400)
-                # Optionally block replies to deleted comments
+                    return JsonResponse({"success": False, "error": "Parent comment must belong to the same article."}, status=400)
                 if parent_comment.deleted:
-                    return JsonResponse({
-                        "success": False,
-                        "error": "Cannot reply to a deleted comment."
-                    }, status=400)
+                    return JsonResponse({"success": False, "error": "Cannot reply to a deleted comment."}, status=400)
                 comment.parent = parent_comment
 
             comment.save()
+
+            # Compute the updated comment count (recursively count all top-level comments and their replies)
+            top_level_comments = comment.article.comments.filter(parent__isnull=True)
+            comment_count = count_all_comments(top_level_comments)
 
             return JsonResponse({
                 'success': True,
@@ -170,7 +162,8 @@ def post_comment(request, article_id):
                 'content': comment.content,
                 'created_at': comment.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'parent_comment_id': parent_comment_id,
-                'is_owner': True  # New comment is always owned by the posting user
+                'is_owner': True,
+                'comment_count': comment_count
             })
         else:
             return JsonResponse({"success": False, "errors": form.errors}, status=400)
@@ -205,21 +198,25 @@ def edit_comment(request, comment_id):
 
 @login_required
 def delete_comment(request, comment_id):
-    """
-    Mark a comment as deleted.
-    """
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
     if request.method == "POST":
-        comment.delete()  # This calls the custom delete() method that marks the comment as deleted.
-        return JsonResponse({"success": True, "comment_id": comment.id, "deleted": True})
+        comment.delete()
+
+        # Recompute total comment count for the article
+        top_level_comments = comment.article.comments.filter(parent__isnull=True)
+        comment_count = count_all_comments(top_level_comments)
+
+        return JsonResponse({
+            "success": True,
+            "comment_id": comment.id,
+            "deleted": True,
+            "comment_count": comment_count
+        })
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
 @login_required
 def reply_to_comment(request, article_id, parent_comment_id):
-    """
-    Handle replying to an existing comment.
-    """
     parent_comment = get_object_or_404(Comment, id=parent_comment_id)
     if parent_comment.deleted:
         return JsonResponse({"success": False, "error": "Cannot reply to a deleted comment."}, status=400)
@@ -236,6 +233,10 @@ def reply_to_comment(request, article_id, parent_comment_id):
             parent=parent_comment
         )
 
+        # Compute the updated comment count using the helper function
+        top_level_comments = new_comment.article.comments.filter(parent__isnull=True)
+        comment_count = count_all_comments(top_level_comments)
+
         return JsonResponse({
             'success': True,
             'comment_id': new_comment.id,
@@ -244,7 +245,8 @@ def reply_to_comment(request, article_id, parent_comment_id):
             'parent_comment_id': parent_comment_id,
             'parent_level': request.POST.get("parent_level", 0),
             'username': new_comment.user.username,
-            'is_owner': request.user == new_comment.user
+            'is_owner': (request.user == new_comment.user),
+            'comment_count': comment_count
         })
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 

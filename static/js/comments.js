@@ -127,18 +127,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Render the new reply
                 renderNewComment(data);
 
-                // Clear the form
+                // Clear the reply form and force container visibility
                 const parentComment = document.querySelector(`#comment-${parentId}`);
                 if (parentComment) {
                     const replyContainer = parentComment.querySelector(".replies");
                     if (replyContainer) {
                         replyContainer.innerHTML = "";
-                        // Make sure the replies container is visible
                         replyContainer.style.display = "block";
                     }
                 }
 
-                // Update the comment count from server
+                // Update the comment count from server if provided
                 if (data.comment_count !== undefined) {
                     document.getElementById("comment-count").textContent = data.comment_count;
                 }
@@ -256,10 +255,10 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.success) {
                 const commentDiv = document.getElementById(`comment-${data.comment_id}`);
                 if (commentDiv) {
-                    // Mark as deleted but keep replies
+                    // Mark as deleted but keep nested replies
                     commentDiv.classList.add("deleted-comment");
 
-                    // Update header
+                    // Update header to show "Deleted" and a timestamp
                     const header = commentDiv.querySelector(".comment-header");
                     if (header) {
                         header.innerHTML = `
@@ -270,7 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         `;
                     }
 
-                    // Update body
+                    // Update body with deletion notice
                     const body = commentDiv.querySelector(".comment-body");
                     if (body) {
                         body.innerHTML = `
@@ -279,14 +278,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         `;
                     }
 
-                    // Remove the action buttons
+                    // Remove action buttons
                     const actions = commentDiv.querySelector(".comment-actions");
                     if (actions) {
                         actions.remove();
                     }
                 }
 
-                // Update the comment count from server if provided
+                // Update comment count if provided by the server
                 if (data.comment_count !== undefined) {
                     document.getElementById("comment-count").textContent = data.comment_count;
                 }
@@ -298,7 +297,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ------------------
-    // 9) Main Comment Form
+    // 9) Main Comment Form Submission
     // ------------------
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
@@ -317,11 +316,11 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Render the new comment
+                    // Render the new top-level comment
                     renderNewComment(data);
                     commentForm.reset();
 
-                    // Update count from server
+                    // Update comment count from the server
                     if (data.comment_count !== undefined) {
                         document.getElementById("comment-count").textContent = data.comment_count;
                     }
@@ -340,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const noCommentsMsg = document.getElementById("no-comments-msg");
         if (noCommentsMsg) noCommentsMsg.remove();
 
-        // Build the action buttons based on ownership
+        // Build action buttons based on ownership
         let actionsHTML = `
             <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
             <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
@@ -361,7 +360,6 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }
 
-        // Build the HTML for the new comment
         const newCommentHTML = `
             <div class="comment mb-3"
                  id="comment-${data.comment_id}"
@@ -387,17 +385,13 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
 
-        // If this is a reply, place it under the parent's .replies container
         if (data.parent_comment_id) {
             const parentRepliesContainer = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
             if (parentRepliesContainer) {
-                // Force visibility
-                parentRepliesContainer.style.display = "block";
-                // We typically append replies at the bottom
+                parentRepliesContainer.style.display = "block";  // force visibility for new replies
                 parentRepliesContainer.insertAdjacentHTML("beforeend", newCommentHTML);
             }
         } else {
-            // For a top-level comment, insert it at the top if sortOrder is "newest"
             if (sortOrder === "newest") {
                 commentsList.insertAdjacentHTML("afterbegin", newCommentHTML);
             } else {
@@ -405,7 +399,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Apply indentation logic
         updateIndentation();
     }
 
@@ -416,13 +409,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const comments = document.querySelectorAll("#comments-list .comment");
         comments.forEach(comment => {
             const level = parseInt(comment.getAttribute("data-level")) || 0;
-            // Increase margin for replies
             comment.style.marginLeft = (level * 20) + "px";
         });
     }
 
     // ------------------
-    // 12) CSRF Token
+    // 12) CSRF Token Helper
     // ------------------
     function getCSRFToken() {
         const cookie = document.cookie.split("; ").find(row => row.startsWith("csrftoken="));

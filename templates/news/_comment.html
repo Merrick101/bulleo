@@ -1,61 +1,58 @@
-<div class="comment mb-3 
-     {% if comment.deleted %}deleted-comment{% endif %}" 
-     id="comment-{{ comment.id }}"
+<div class="comment mb-3 {% if comment.deleted %}deleted-comment{% endif %} {% if comment.parent %}reply{% endif %}" 
+     id="comment-{{ comment.id }}" 
      data-comment-id="{{ comment.id }}"
      data-level="{% if comment.parent %}1{% else %}0{% endif %}">
-
-  <!-- Comment Header -->
-  <div class="comment-header">
-    {% if comment.deleted %}
-      <p>
-        <strong>Deleted</strong>
-        <small>{{ comment.created_at|date:"F d, Y H:i" }}</small>
-      </p>
-    {% else %}
+  {% if not comment.deleted %}
+    <!-- Normal comment rendering -->
+    <div class="comment-header">
       <p>
         <strong>{{ comment.user.username }}</strong>
         <small>{{ comment.created_at|date:"F d, Y H:i" }}</small>
       </p>
-    {% endif %}
-  </div>
+    </div>
 
-  <!-- Comment Body -->
-  <div class="comment-body">
-    {% if comment.deleted %}
+    <div class="comment-body">
+      <p>{{ comment.content }}</p>
+    </div>
+
+    {% if user.is_authenticated %}
+      <div class="comment-actions">
+        <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
+        <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvotes.count }}</span>
+        <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
+        <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvotes.count }}</span>
+        <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
+        {% if comment.user == user %}
+          <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="{{ comment.id }}">Edit</button>
+          <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="{{ comment.id }}">Delete</button>
+        {% else %}
+          <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="{{ comment.id }}">Report</button>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <!-- Show replies if there are any -->
+    {% with replies=comment.replies.all %}
+      {% if replies %}
+        <button class="btn btn-link toggle-replies">Show Replies</button>
+        <div class="replies" style="display: none;">
+          {% for reply in replies %}
+            {% include "news/_comment.html" with comment=reply %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  {% else %}
+    <!-- Deleted comment styling -->
+    <div class="comment-header deleted-header">
+      <p>
+        <strong>Deleted</strong>
+        <small>{{ comment.created_at|date:"F d, Y H:i" }}</small>
+      </p>
+    </div>
+    <div class="comment-body">
       <p class="deleted-content">[Deleted]</p>
       <small class="deleted-note">Actions disabled for deleted comments</small>
-    {% else %}
-      <p>{{ comment.content }}</p>
-    {% endif %}
-  </div>
-
-  <!-- Comment Actions (shown only if authenticated and not deleted) -->
-  {% if user.is_authenticated and not comment.deleted %}
-    <div class="comment-actions">
-      <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="{{ comment.id }}">👍</button>
-      <span class="upvote-count" id="upvote-count-{{ comment.id }}">{{ comment.upvotes.count }}</span>
-
-      <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="{{ comment.id }}">👎</button>
-      <span class="downvote-count" id="downvote-count-{{ comment.id }}">{{ comment.downvotes.count }}</span>
-
-      <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="{{ comment.id }}">Reply</button>
-
-      {% if comment.user == user %}
-        <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="{{ comment.id }}">Edit</button>
-        <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="{{ comment.id }}">Delete</button>
-      {% else %}
-        <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="{{ comment.id }}">Report</button>
-      {% endif %}
-    </div>
-  {% endif %}
-
-  <!-- Replies: always shown, even if the parent is deleted -->
-  {% if comment.replies.exists %}
-    <button class="btn btn-link toggle-replies">Show Replies</button>
-    <div class="replies" style="display: none;">
-      {% for reply in comment.replies.all %}
-        {% include "news/_comment.html" with comment=reply %}
-      {% endfor %}
     </div>
   {% endif %}
 </div>
