@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ------------------------------------------------------
-    // 4) Vote
+    // 4) Voting
     // ------------------------------------------------------
     function voteComment(commentId, action) {
         fetch(`/news/comment/${commentId}/vote/${action}/`, {
@@ -90,7 +90,12 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!replyContainer) {
             replyContainer = document.createElement("div");
             replyContainer.classList.add("replies");
+            // Force replies container to be visible by default
+            replyContainer.style.display = "block";
             parentComment.appendChild(replyContainer);
+        } else {
+            // Always set container to visible by default
+            replyContainer.style.display = "block";
         }
         replyContainer.innerHTML = replyFormHTML;
 
@@ -124,23 +129,22 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // 1) Render the new reply
+                // Render the new reply
                 renderNewComment(data);
 
-                // 2) Clear the reply form
+                // Clear the reply form and ensure the container remains visible
                 const parentComment = document.querySelector(`#comment-${parentId}`);
                 if (parentComment) {
                     const replyContainer = parentComment.querySelector(".replies");
                     if (replyContainer) {
                         replyContainer.innerHTML = "";
-                        // Make sure the container is visible so the new reply is shown
                         replyContainer.style.display = "block";
                     }
-                    // 3) Add or update the parent's toggle if needed
+                    // Ensure the parent has a toggle if needed
                     ensureToggleForParent(parentComment);
                 }
 
-                // 4) Update the comment count from the server
+                // Update comment count from server
                 if (data.comment_count !== undefined) {
                     document.getElementById("comment-count").textContent = data.comment_count;
                 }
@@ -155,27 +159,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ------------------------------------------------------
-    // 6) Ensure Parent Has a Toggle
+    // 6) Ensure Parent Has a Toggle Button
     // ------------------------------------------------------
     function ensureToggleForParent(parentCommentDiv) {
-        // The parent comment's .replies container
-        const repliesContainer = parentCommentDiv.querySelector(".replies");
+        // Get the replies container
+        let repliesContainer = parentCommentDiv.querySelector(".replies");
         if (!repliesContainer) return;
 
-        // If there's at least one .comment inside .replies, we want a toggle
-        const childComments = repliesContainer.querySelectorAll(".comment");
+        // Check if there is at least one child comment in the container
+        let childComments = repliesContainer.querySelectorAll(".comment");
         if (childComments.length > 0) {
-            // Check if there's already a toggle
+            // Check if a toggle button exists; if not, insert one
             let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
             if (!toggleBtn) {
-                // Insert a toggle button that says "Hide Replies"
-                // because we are forcing the container to be visible now
+                // Insert toggle button before the replies container
                 const toggleHTML = `<button class="btn btn-link toggle-replies">Hide Replies</button>`;
                 repliesContainer.insertAdjacentHTML("beforebegin", toggleHTML);
             } else {
-                // If a toggle already exists, ensure it says "Hide Replies" 
-                // because we are showing them after adding a new reply
-                toggleBtn.textContent = "Hide Replies";
+                // If toggle exists, update its text based on container state
+                toggleBtn.textContent = (repliesContainer.style.display === "none") ? "Show Replies" : "Hide Replies";
             }
         }
     }
@@ -284,10 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.success) {
                 const commentDiv = document.getElementById(`comment-${data.comment_id}`);
                 if (commentDiv) {
-                    // Mark as deleted but keep nested replies
                     commentDiv.classList.add("deleted-comment");
-
-                    // Update header to show "Deleted" and a timestamp
                     const header = commentDiv.querySelector(".comment-header");
                     if (header) {
                         header.innerHTML = `
@@ -297,8 +296,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             </p>
                         `;
                     }
-
-                    // Update body with deletion notice
                     const body = commentDiv.querySelector(".comment-body");
                     if (body) {
                         body.innerHTML = `
@@ -306,15 +303,11 @@ document.addEventListener("DOMContentLoaded", function () {
                             <small class="deleted-note">Actions disabled for deleted comments</small>
                         `;
                     }
-
-                    // Remove action buttons
                     const actions = commentDiv.querySelector(".comment-actions");
                     if (actions) {
                         actions.remove();
                     }
                 }
-
-                // Update comment count if provided by the server
                 if (data.comment_count !== undefined) {
                     document.getElementById("comment-count").textContent = data.comment_count;
                 }
@@ -326,7 +319,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ------------------------------------------------------
-    // 10) Main Comment Form
+    // 10) Main Comment Form Submission
     // ------------------------------------------------------
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
@@ -345,11 +338,8 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Render the new top-level comment
                     renderNewComment(data);
                     commentForm.reset();
-
-                    // Update comment count from the server
                     if (data.comment_count !== undefined) {
                         document.getElementById("comment-count").textContent = data.comment_count;
                     }
@@ -368,7 +358,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const noCommentsMsg = document.getElementById("no-comments-msg");
         if (noCommentsMsg) noCommentsMsg.remove();
 
-        // Build action buttons based on ownership
         let actionsHTML = `
             <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
             <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
@@ -404,20 +393,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="comment-actions">
                     ${actionsHTML}
                 </div>
-                <div class="replies"></div>
+                <div class="replies" style="display: block;"></div>
             </div>
         `;
 
         if (data.parent_comment_id) {
             const parentRepliesContainer = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
             if (parentRepliesContainer) {
-                // Show the container
-                parentRepliesContainer.style.display = "block";
                 parentRepliesContainer.insertAdjacentHTML("beforeend", newCommentHTML);
-
-                // Also ensure the parent has a toggle
-                const parentDiv = document.querySelector(`#comment-${data.parent_comment_id}`);
-                if (parentDiv) ensureToggleForParent(parentDiv);
+                ensureToggleForParent(document.querySelector(`#comment-${data.parent_comment_id}`));
             }
         } else {
             if (sortOrder === "newest") {
