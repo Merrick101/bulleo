@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.error("Error with voting:", err));
     }
 
-    // 2) Reply
+    // 2) Show Reply
     function showReplyForm(parentId) {
         const parentComment = document.querySelector(`#comment-${parentId}`);
         if (!parentComment) return;
@@ -99,6 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }    
 
+    // 3) Submit Reply
     function submitReply(form, parentId) {
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
@@ -125,6 +126,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     const replyContainer = parentComment.querySelector(".replies");
                     if (replyContainer) {
                         replyContainer.innerHTML = '';
+                        // Force the replies container to be visible immediately
+                        replyContainer.style.display = "block";
                     }
                 }
     
@@ -139,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }    
 
-    // 3) Report
+    // 4) Report Comment
     function reportComment(commentId, button) {
         fetch(`/news/comment/${commentId}/report/`, {
             method: "POST",
@@ -160,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(err => console.error("Error reporting comment:", err));
     }
 
-    // 4) Edit
+    // 5) Show Edit
     function showEditForm(commentId) {
         const commentDiv = document.querySelector(`#comment-${commentId}`);
         if (!commentDiv) return;
@@ -190,6 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // 6) Submit Edit
     function submitEditForm(commentId, form) {
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
@@ -221,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // 5) Delete
+    // 7) Delete Comment
     function deleteComment(commentId) {
         fetch(`/news/comment/${commentId}/delete/`, {
             method: "POST",
@@ -235,13 +239,35 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.success) {
                 const commentDiv = document.getElementById(`comment-${data.comment_id}`);
                 if (commentDiv) {
-                    commentDiv.querySelector(".comment-body").innerHTML = "<p>[Deleted]</p>";
+                    // Mark comment as deleted without removing nested replies
+                    commentDiv.classList.add("deleted-comment");
+                    const header = commentDiv.querySelector(".comment-header");
+                    if (header) {
+                        // Optionally, use data.updated_at if provided by your backend, or display current time
+                        header.innerHTML = `<p><strong>Deleted</strong> <small>${new Date().toLocaleString()}</small></p>`;
+                    }
+                    const body = commentDiv.querySelector(".comment-body");
+                    if (body) {
+                        body.innerHTML = `<p class="deleted-content">[Deleted]</p><small class="deleted-note">Actions disabled for deleted comments</small>`;
+                    }
+                    // Remove action buttons so no further interactions occur, but keep replies intact
+                    const actions = commentDiv.querySelector(".comment-actions");
+                    if (actions) {
+                        actions.remove();
+                    }
                 }
             } else {
                 alert("Failed to delete the comment.");
             }
         })
         .catch(err => console.error("Error deleting comment:", err));
+    }
+    
+    function updateCommentCount() {
+        const commentsList = document.getElementById("comments-list");
+        // Count all elements with class 'comment' (ensure this selector is specific to comments only)
+        const commentElements = commentsList.querySelectorAll(".comment");
+        document.getElementById("comment-count").textContent = commentElements.length;
     }    
 
     // Toggle Replies Visibility
@@ -290,11 +316,30 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Render new comment after successful submission
+    // 8) Render New Comment
     function renderNewComment(data) {
         const noCommentsMsg = document.getElementById("no-comments-msg");
         if (noCommentsMsg) {
             noCommentsMsg.remove();
+        }
+    
+        // Build actions HTML based on ownership
+        let actionsHTML = `
+            <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
+            <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
+            <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
+            <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
+            <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
+        `;
+        if (data.is_owner) {
+            actionsHTML += `
+                <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="${data.comment_id}">Edit</button>
+                <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">Delete</button>
+            `;
+        } else {
+            actionsHTML += `
+                <button class="btn btn-sm btn-outline-danger report-btn" data-comment-id="${data.comment_id}">Report</button>
+            `;
         }
     
         const newCommentHTML = `
@@ -309,27 +354,33 @@ document.addEventListener("DOMContentLoaded", function () {
                     <p>${data.content}</p>
                 </div>
                 <div class="comment-actions">
-                    <button class="btn btn-sm btn-outline-success vote-btn" data-action="upvote" data-comment-id="${data.comment_id}">👍</button>
-                    <span class="upvote-count" id="upvote-count-${data.comment_id}">0</span>
-                    <button class="btn btn-sm btn-outline-danger vote-btn" data-action="downvote" data-comment-id="${data.comment_id}">👎</button>
-                    <span class="downvote-count" id="downvote-count-${data.comment_id}">0</span>
-                    <button class="btn btn-sm btn-outline-primary reply-btn" data-parent-id="${data.comment_id}">Reply</button>
-                    <button class="btn btn-sm btn-outline-warning edit-btn" data-comment-id="${data.comment_id}">Edit</button>
-                    <button class="btn btn-sm btn-outline-danger delete-btn" data-comment-id="${data.comment_id}">Delete</button>
+                    ${actionsHTML}
                 </div>
                 <div class="replies"></div> <!-- Replies go here -->
             </div>
         `;
     
         if (data.parent_comment_id) {
-            const parentComment = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
-            if (parentComment) {
-                parentComment.insertAdjacentHTML("beforeend", newCommentHTML);
+            const parentRepliesContainer = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
+            if (parentRepliesContainer) {
+                parentRepliesContainer.insertAdjacentHTML("beforeend", newCommentHTML);
+                // Force the replies container to be visible immediately
+                parentRepliesContainer.style.display = "block";
             }
         } else {
             document.getElementById("comments-list").insertAdjacentHTML("beforeend", newCommentHTML);
         }
     
         updateIndentation();
+    }
+
+    // New: updateIndentation function to adjust nested comments
+    function updateIndentation() {
+        const comments = document.querySelectorAll("#comments-list .comment");
+        comments.forEach(comment => {
+            const level = parseInt(comment.getAttribute("data-level")) || 0;
+            // For example, add a 20px left margin for each level
+            comment.style.marginLeft = (level * 20) + "px";
+        });
     }
 });

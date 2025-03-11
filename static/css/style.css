@@ -174,27 +174,37 @@ body {
   margin-bottom: 10px;
 }
 
-/* Comment Styles */
-.comment .replies {
-  background-color: #f9f9f9; /* Light background for replies */
-  padding: 5px;
-  margin-top: 10px;
+/* Comment Section Styles */
+
+/* Top-level comments have the default styling */
+.comment {
+  background-color: #ffffff; /* White background for normal comments */
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 1em;
 }
 
-.comment-actions {
-  margin-top: 10px;
+/* Replies: fixed indentation and slightly darker background */
+.comment.reply {
+  margin-left: 2em; /* All replies indented at the same level */
+  background-color: #f8f8f8; /* Slightly darker background for replies */
 }
 
-.comment-actions button {
-  margin-right: 5px;
+/* Optional: Style for deleted comments */
+.deleted-comment {
+  opacity: 0.8;
+  font-style: italic;
+  color: #888;
 }
 
-/* Show/Hide Button for Replies */
-.toggle-replies {
-  background-color: transparent;
-  color: #007bff;
-  border: none;
-  cursor: pointer;
+/* Additional styling for deleted headers and notes */
+.deleted-header {
+  background-color: #ffe6e6; /* light red/pink background */
+}
+
+.deleted-note {
+  font-size: 0.8em;
+  color: #a00;
 }
 
 .toggle-replies:hover {
