@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container mt-4">
-  <div class="article-detail" data-article-id="{{ article.id }}">
+  <div class="article-detail my-article-detail" data-article-id="{{ article.id }}">
     <h1>{{ article.title }}</h1>
     <p class="text-muted">
       Source: {{ article.source }} |
@@ -15,7 +15,7 @@
     </div>
 
     <!-- Comment Section -->
-    <div class="comment-section mt-5">
+    <div class="comment-section my-comment-section mt-5">
       <h3>Comment Section</h3>
       
       <!-- Feedback message container for comment submissions -->
@@ -23,7 +23,7 @@
       
       <!-- Comment Form -->
       {% if user.is_authenticated %}
-        <form id="comment-form" method="POST" action="{% url 'news:post_comment' article.id %}" class="mb-4">
+        <form id="comment-form" method="POST" action="{% url 'news:post_comment' article.id %}" class="mb-4 my-comment-form">
           {% csrf_token %}
           <p>
             <textarea name="content" id="id_content" cols="40" rows="3" placeholder="Write a comment..." maxlength="1000" required></textarea>
@@ -31,19 +31,19 @@
           <input type="hidden" name="parent_comment_id" id="id_parent_comment_id">
           <!-- Container for displaying form errors -->
           <div class="form-errors"></div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-          <button type="reset" class="btn btn-secondary">Reset</button>
+          <button type="submit" class="btn btn-primary my-comment-submit">Submit</button>
+          <button type="reset" class="btn btn-secondary my-comment-reset">Reset</button>
         </form>
       {% else %}
         <p><a href="{% url 'login' %}">Log in</a> to post a comment.</p>
       {% endif %}
       
       <!-- Comment Count & Sorting Options -->
-      <div class="d-flex justify-content-between align-items-center mt-4">
+      <div class="d-flex justify-content-between align-items-center mt-4 my-comment-sort">
         <h4>Comments (<span id="comment-count">{{ comment_count }}</span>)</h4>
         <div>
           <label for="sort-comments">Sort By:</label>
-          <select id="sort-comments" class="form-select">
+          <select id="sort-comments" class="form-select my-sort-select">
             <option value="newest" {% if sort_order == "newest" %}selected{% endif %}>Newest</option>
             <option value="oldest" {% if sort_order == "oldest" %}selected{% endif %}>Oldest</option>
             <option value="most_upvoted" {% if sort_order == "most_upvoted" %}selected{% endif %}>Most Upvoted</option>
@@ -52,7 +52,7 @@
       </div>
       
       <!-- Comments List -->
-      <div id="comments-list">
+      <div id="comments-list" class="my-comments-list">
         {% for comment in comments %}
           {% include "news/_comment.html" with comment=comment %}
         {% empty %}

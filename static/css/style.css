@@ -176,6 +176,62 @@ body {
 
 /* Comment Section Styles */
 
+.my-comment-container {
+  border: 1px solid #ddd;
+  padding: 0.75rem;       /* Adjust overall padding */
+  margin-bottom: 1rem;    /* Space below each comment box */
+  background-color: #fff; /* If you want a white background */
+}
+
+/* Row 1: Top row */
+.my-comment-top {
+  /* Move this row up or down by adjusting margin. 
+     If you want it "higher," reduce the top margin. */
+  margin-bottom: 0.5rem;
+  margin-top: -0.5rem;
+  align-items: flex-start;
+}
+
+.my-comment-top.d-flex {
+  align-items: baseline;
+}
+
+.comment-separator {
+  font-size: 1.2rem;
+}
+
+.my-ellipsis-btn {
+  background-color: transparent;
+  border: none;
+  color: #333;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 1.3rem;
+}
+
+.my-ellipsis-btn::after {
+  display: none;
+}
+
+/* Row 2: Comment Body */
+.my-comment-body {
+  margin-bottom: 1.7rem;  /* space below the comment text */
+  line-height: 1.4;        /* improve readability of text */
+}
+
+/* Row 3: Vote & Reply */
+.my-comment-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Row 4: Toggle */
+.my-comment-toggle {
+  margin-top: 0.25rem;     /* small gap above toggle row */
+  margin-bottom: 0.25rem;  /* optional gap below toggle row */
+}
+
+
 /* Top-level comments have the default styling */
 .comment {
   background-color: #ffffff; /* White background for normal comments */
