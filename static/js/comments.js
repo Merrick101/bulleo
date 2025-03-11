@@ -90,11 +90,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!replyContainer) {
             replyContainer = document.createElement("div");
             replyContainer.classList.add("replies");
-            // When showing the reply form, we want it visible
+            // When showing the reply form, we want the container visible so the form appears
             replyContainer.style.display = "block";
             parentComment.appendChild(replyContainer);
         } else {
-            // When opening the reply form, leave the container as is (visible)
+            // When opening the reply form, force the container visible
             replyContainer.style.display = "block";
         }
         replyContainer.innerHTML = replyFormHTML;
@@ -107,10 +107,10 @@ document.addEventListener("DOMContentLoaded", function () {
     
         const cancelButton = replyContainer.querySelector(".cancel-reply");
         cancelButton.addEventListener("click", function () {
-            // Simply clear the reply form without hiding the container,
-            // so that if there are existing replies, they remain visible.
+            // Clear the reply form and then hide the container again
             replyContainer.innerHTML = "";
-            // Then update the toggle if needed.
+            // Reapply the default hidden state and update the toggle button
+            replyContainer.style.display = "none";
             ensureToggleForParent(parentComment);
         });
     }
@@ -133,23 +133,23 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Render the new reply (it will be appended to the parent's .replies container)
+                // Render the new reply (it will be appended into the parent's .replies container)
                 renderNewComment(data);
     
-                // Clear the reply form but leave the replies container visible
+                // After rendering, clear the reply form
                 const parentComment = document.querySelector(`#comment-${parentId}`);
                 if (parentComment) {
                     const replyContainer = parentComment.querySelector(".replies");
                     if (replyContainer) {
                         replyContainer.innerHTML = "";
-                        // Keep the container visible so the new reply shows
-                        replyContainer.style.display = "block";
+                        // Set default state: hide the replies container so that the toggle applies
+                        replyContainer.style.display = "none";
                     }
-                    // Ensure the parent has a toggle button, and update its text accordingly
+                    // Ensure the parent's toggle is present and updated
                     ensureToggleForParent(parentComment);
                 }
     
-                // Update the comment count from the server if provided
+                // Update comment count if provided by the server
                 if (data.comment_count !== undefined) {
                     document.getElementById("comment-count").textContent = data.comment_count;
                 }
@@ -170,22 +170,27 @@ document.addEventListener("DOMContentLoaded", function () {
         let repliesContainer = parentCommentDiv.querySelector(".replies");
         if (!repliesContainer) return;
     
-        // Check if there is at least one child comment in the container
+        // Ensure the container is hidden by default
+        if (!repliesContainer.style.display || repliesContainer.style.display === "block") {
+            repliesContainer.style.display = "none";
+        }
+    
+        // Check if there is at least one child comment
         const childComments = repliesContainer.querySelectorAll(".comment");
         if (childComments.length > 0) {
             let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
             if (!toggleBtn) {
-                // Insert toggle button above the replies container
-                const toggleHTML = `<button class="btn btn-link toggle-replies">Hide Replies</button>`;
+                // Insert toggle button before the replies container
+                const toggleHTML = `<button class="btn btn-link toggle-replies">Show More Replies</button>`;
                 repliesContainer.insertAdjacentHTML("beforebegin", toggleHTML);
             } else {
-                // Update the toggle text based on current display state
-                toggleBtn.textContent = (repliesContainer.style.display === "none" || repliesContainer.style.display === "") 
-                    ? "Show More Replies" 
+                // Update the toggle button text based on container state
+                toggleBtn.textContent = (repliesContainer.style.display === "none" || repliesContainer.style.display === "")
+                    ? "Show More Replies"
                     : "Hide Replies";
             }
         } else {
-            // No child comments: remove toggle if it exists
+            // If no child comments, remove any existing toggle button
             let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
             if (toggleBtn) {
                 toggleBtn.remove();
@@ -438,9 +443,8 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             repliesContainer.style.display = "none";
             button.textContent = "Show More Replies";
-    
         }
-    }    
+    }   
     // ------------------------------------------------------
     // 13) Indentation
     // ------------------------------------------------------
