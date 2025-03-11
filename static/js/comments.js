@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function showReplyForm(parentId) {
         const parentComment = document.querySelector(`#comment-${parentId}`);
         if (!parentComment) return;
-
+    
         const replyFormHTML = `
             <form class="reply-form">
                 <textarea name="content" rows="3" placeholder="Write a reply..." required></textarea>
@@ -85,39 +85,43 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button type="button" class="btn btn-secondary cancel-reply">Cancel</button>
             </form>
         `;
-
+    
         let replyContainer = parentComment.querySelector(".replies");
         if (!replyContainer) {
             replyContainer = document.createElement("div");
             replyContainer.classList.add("replies");
-            // Force replies container to be visible by default
+            // When showing the reply form, we want it visible
             replyContainer.style.display = "block";
             parentComment.appendChild(replyContainer);
         } else {
-            // Always set container to visible by default
+            // When opening the reply form, leave the container as is (visible)
             replyContainer.style.display = "block";
         }
         replyContainer.innerHTML = replyFormHTML;
-
+    
         const replyForm = replyContainer.querySelector(".reply-form");
         replyForm.addEventListener("submit", function (e) {
             e.preventDefault();
             submitReply(replyForm, parentId);
         });
-
+    
         const cancelButton = replyContainer.querySelector(".cancel-reply");
         cancelButton.addEventListener("click", function () {
+            // Simply clear the reply form without hiding the container,
+            // so that if there are existing replies, they remain visible.
             replyContainer.innerHTML = "";
+            // Then update the toggle if needed.
+            ensureToggleForParent(parentComment);
         });
     }
 
     function submitReply(form, parentId) {
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
-
+    
         const formData = new FormData(form);
         formData.append("parent_comment_id", parentId);
-
+    
         fetch(`/news/article/${article_id}/comment/${parentId}/reply/`, {
             method: "POST",
             body: formData,
@@ -129,22 +133,23 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                // Render the new reply
+                // Render the new reply (it will be appended to the parent's .replies container)
                 renderNewComment(data);
-
-                // Clear the reply form and ensure the container remains visible
+    
+                // Clear the reply form but leave the replies container visible
                 const parentComment = document.querySelector(`#comment-${parentId}`);
                 if (parentComment) {
                     const replyContainer = parentComment.querySelector(".replies");
                     if (replyContainer) {
                         replyContainer.innerHTML = "";
+                        // Keep the container visible so the new reply shows
                         replyContainer.style.display = "block";
                     }
-                    // Ensure the parent has a toggle if needed
+                    // Ensure the parent has a toggle button, and update its text accordingly
                     ensureToggleForParent(parentComment);
                 }
-
-                // Update comment count from server
+    
+                // Update the comment count from the server if provided
                 if (data.comment_count !== undefined) {
                     document.getElementById("comment-count").textContent = data.comment_count;
                 }
@@ -162,22 +167,28 @@ document.addEventListener("DOMContentLoaded", function () {
     // 6) Ensure Parent Has a Toggle Button
     // ------------------------------------------------------
     function ensureToggleForParent(parentCommentDiv) {
-        // Get the replies container
         let repliesContainer = parentCommentDiv.querySelector(".replies");
         if (!repliesContainer) return;
-
+    
         // Check if there is at least one child comment in the container
-        let childComments = repliesContainer.querySelectorAll(".comment");
+        const childComments = repliesContainer.querySelectorAll(".comment");
         if (childComments.length > 0) {
-            // Check if a toggle button exists; if not, insert one
             let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
             if (!toggleBtn) {
-                // Insert toggle button before the replies container
+                // Insert toggle button above the replies container
                 const toggleHTML = `<button class="btn btn-link toggle-replies">Hide Replies</button>`;
                 repliesContainer.insertAdjacentHTML("beforebegin", toggleHTML);
             } else {
-                // If toggle exists, update its text based on container state
-                toggleBtn.textContent = (repliesContainer.style.display === "none") ? "Show Replies" : "Hide Replies";
+                // Update the toggle text based on current display state
+                toggleBtn.textContent = (repliesContainer.style.display === "none" || repliesContainer.style.display === "") 
+                    ? "Show More Replies" 
+                    : "Hide Replies";
+            }
+        } else {
+            // No child comments: remove toggle if it exists
+            let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
+            if (toggleBtn) {
+                toggleBtn.remove();
             }
         }
     }
@@ -420,16 +431,16 @@ document.addEventListener("DOMContentLoaded", function () {
     function toggleReplies(button) {
         const repliesContainer = button.nextElementSibling;
         if (!repliesContainer) return;
-
+    
         if (repliesContainer.style.display === "none" || repliesContainer.style.display === "") {
             repliesContainer.style.display = "block";
             button.textContent = "Hide Replies";
         } else {
             repliesContainer.style.display = "none";
-            button.textContent = "Show Replies";
+            button.textContent = "Show More Replies";
+    
         }
-    }
-
+    }    
     // ------------------------------------------------------
     // 13) Indentation
     // ------------------------------------------------------
