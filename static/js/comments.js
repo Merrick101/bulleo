@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ------------------------------------------------------
-    // 4) Voting
+    // 4) Vote
     // ------------------------------------------------------
     function voteComment(commentId, action) {
         fetch(`/news/comment/${commentId}/vote/${action}/`, {
@@ -78,7 +78,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const parentComment = document.querySelector(`#comment-${parentId}`);
         if (!parentComment) return;
 
-        // Build a simple inline form for replying
         const replyFormHTML = `
             <form class="reply-form">
                 <textarea name="content" rows="3" placeholder="Write a reply..." required></textarea>
@@ -87,7 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
             </form>
         `;
 
-        // If there's no .replies container, create one
         let replyContainer = parentComment.querySelector(".replies");
         if (!replyContainer) {
             replyContainer = document.createElement("div");
@@ -104,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const cancelButton = replyContainer.querySelector(".cancel-reply");
         cancelButton.addEventListener("click", function () {
-            replyContainer.innerHTML = "";  // remove the reply form
+            replyContainer.innerHTML = "";
         });
     }
 
@@ -135,15 +133,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     const replyContainer = parentComment.querySelector(".replies");
                     if (replyContainer) {
                         replyContainer.innerHTML = "";
-                        // Make sure the container is visible
+                        // Make sure the container is visible so the new reply is shown
                         replyContainer.style.display = "block";
                     }
-
-                    // 3) If the parent had no toggle button before, add one
-                    addToggleIfNeeded(parentComment);
+                    // 3) Add or update the parent's toggle if needed
+                    ensureToggleForParent(parentComment);
                 }
 
-                // 4) Update the comment count from server
+                // 4) Update the comment count from the server
                 if (data.comment_count !== undefined) {
                     document.getElementById("comment-count").textContent = data.comment_count;
                 }
@@ -158,21 +155,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ------------------------------------------------------
-    // 6) Add Toggle Button if Parent Had None
+    // 6) Ensure Parent Has a Toggle
     // ------------------------------------------------------
-    function addToggleIfNeeded(parentCommentDiv) {
-        // Check if there's already a .toggle-replies button
-        let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
-        let repliesContainer = parentCommentDiv.querySelector(".replies");
+    function ensureToggleForParent(parentCommentDiv) {
+        // The parent comment's .replies container
+        const repliesContainer = parentCommentDiv.querySelector(".replies");
+        if (!repliesContainer) return;
 
-        // If no toggle is found and we have a replies container, we create one
-        if (!toggleBtn && repliesContainer) {
-            // Insert the button before the replies container, or wherever you prefer
-            const toggleHTML = `<button class="btn btn-link toggle-replies">Show Replies</button>`;
-            repliesContainer.insertAdjacentHTML("beforebegin", toggleHTML);
-
-            // By default, the container is hidden until toggled
-            repliesContainer.style.display = "block";
+        // If there's at least one .comment inside .replies, we want a toggle
+        const childComments = repliesContainer.querySelectorAll(".comment");
+        if (childComments.length > 0) {
+            // Check if there's already a toggle
+            let toggleBtn = parentCommentDiv.querySelector(".toggle-replies");
+            if (!toggleBtn) {
+                // Insert a toggle button that says "Hide Replies"
+                // because we are forcing the container to be visible now
+                const toggleHTML = `<button class="btn btn-link toggle-replies">Hide Replies</button>`;
+                repliesContainer.insertAdjacentHTML("beforebegin", toggleHTML);
+            } else {
+                // If a toggle already exists, ensure it says "Hide Replies" 
+                // because we are showing them after adding a new reply
+                toggleBtn.textContent = "Hide Replies";
+            }
         }
     }
 
@@ -383,7 +387,6 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
         }
 
-        // Build the comment's HTML
         const newCommentHTML = `
             <div class="comment mb-3"
                  id="comment-${data.comment_id}"
@@ -405,17 +408,18 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
 
-        // Insert the new comment
         if (data.parent_comment_id) {
             const parentRepliesContainer = document.querySelector(`#comment-${data.parent_comment_id} .replies`);
             if (parentRepliesContainer) {
                 // Show the container
                 parentRepliesContainer.style.display = "block";
-                // Insert the reply at the bottom
                 parentRepliesContainer.insertAdjacentHTML("beforeend", newCommentHTML);
+
+                // Also ensure the parent has a toggle
+                const parentDiv = document.querySelector(`#comment-${data.parent_comment_id}`);
+                if (parentDiv) ensureToggleForParent(parentDiv);
             }
         } else {
-            // For top-level comments, place it at the top if sortOrder is "newest"
             if (sortOrder === "newest") {
                 commentsList.insertAdjacentHTML("afterbegin", newCommentHTML);
             } else {
@@ -423,7 +427,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // Apply indentation
         updateIndentation();
     }
 
@@ -450,7 +453,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const comments = document.querySelectorAll("#comments-list .comment");
         comments.forEach(comment => {
             const level = parseInt(comment.getAttribute("data-level")) || 0;
-            // Increase margin for replies
             comment.style.marginLeft = (level * 20) + "px";
         });
     }
