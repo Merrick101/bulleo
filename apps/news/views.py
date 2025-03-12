@@ -8,36 +8,57 @@ from apps.users.forms import CommentForm
 from apps.users.models import Comment
 
 
-def homepage(request):
+def chunked_queryset(queryset, chunk_size=4):
     """
-    Render the homepage with three main sections:
-      1. Trending Articles
-      2. Latest Articles
-      3. Picked for You (User's Preferred Categories)
+    Splits a QuerySet or list into lists of size `chunk_size`.
+    Returns a generator of sub-lists.
     """
+    items = list(queryset)
+    for i in range(0, len(items), chunk_size):
+        yield items[i:i+chunk_size]
 
-    # Trending: Example logic - sort by total comment count descending
+
+def homepage(request):
+    # 1. Trending Articles (site-wide)
     trending_articles = (
         Article.objects
         .annotate(comment_count=Count('comments'))
-        .order_by('-comment_count')[:10]
+        .order_by('-comment_count')[:8]
     )
+    trending_chunks = list(chunked_queryset(trending_articles, 4))
 
-    # Latest: Just sort by published date descending
-    latest_articles = Article.objects.order_by('-published_at')[:10]
+    # 2. Latest Articles (site-wide)
+    latest_articles = Article.objects.order_by('-published_at')[:12]
+    latest_chunks = list(chunked_queryset(latest_articles, 4))
 
-    # Picked for You: For authenticated users, gather articles in each preferred category
+    # 3. Picked for You (per category) => two sub-sections: "Trending in X" & "Latest in X"
     picked_articles_by_category = {}
     if request.user.is_authenticated:
         user_categories = request.user.profile.preferred_categories.all()
         for cat in user_categories:
-            # Example: get up to 6 latest articles in that category
-            articles_in_cat = cat.articles.all().order_by('-published_at')[:6]
-            picked_articles_by_category[cat] = articles_in_cat
+            # a) Trending in this category
+            cat_trending = (
+                cat.articles.all()
+                .annotate(comment_count=Count('comments'))
+                .order_by('-comment_count')[:8]
+            )
+            cat_trending_chunks = list(chunked_queryset(cat_trending, 4))
+
+            # b) Latest in this category
+            cat_latest = (
+                cat.articles.all()
+                .order_by('-published_at')[:12]
+            )
+            cat_latest_chunks = list(chunked_queryset(cat_latest, 4))
+
+            picked_articles_by_category[cat] = {
+                'trending': cat_trending_chunks,
+                'latest': cat_latest_chunks,
+            }
 
     context = {
-        'trending_articles': trending_articles,
-        'latest_articles': latest_articles,
+        'trending_chunks': trending_chunks,
+        'latest_chunks': latest_chunks,
         'picked_articles_by_category': picked_articles_by_category,
     }
     return render(request, 'news/homepage.html', context)
