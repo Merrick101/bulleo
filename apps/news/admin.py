@@ -3,13 +3,15 @@ from django.utils.html import format_html
 from .models import Article
 
 
-# Register your models here.
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'published_at', 'display_image')
+    list_display = ('title', 'published_at', 'source', 'category', 'display_image')
+    list_filter = ('published_at', 'source', 'category')  # Filters in the sidebar
+    search_fields = ('title', 'content', 'summary')        # Search capability
+    date_hierarchy = 'published_at'                        # Quick date navigation
 
     def display_image(self, obj):
         if obj.image_url:
-            return format_html(f'<img src="{obj.image_url}" width="100" height="60" />')
+            return format_html('<img src="{}" width="100" height="60" />', obj.image_url)
         return "No Image"
 
     display_image.short_description = "Article Image"
