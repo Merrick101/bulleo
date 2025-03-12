@@ -8,7 +8,7 @@ from apps.users.forms import CommentForm
 from apps.users.models import Comment
 
 
-def chunked_queryset(queryset, chunk_size=4):
+def chunked_queryset(queryset, chunk_size=3):
     """
     Splits a QuerySet or list into lists of size `chunk_size`.
     Returns a generator of sub-lists.
@@ -25,11 +25,11 @@ def homepage(request):
         .annotate(comment_count=Count('comments'))
         .order_by('-comment_count')[:8]
     )
-    trending_chunks = list(chunked_queryset(trending_articles, 4))
+    trending_chunks = list(chunked_queryset(trending_articles, 3))
 
     # 2. Latest Articles (site-wide)
     latest_articles = Article.objects.order_by('-published_at')[:12]
-    latest_chunks = list(chunked_queryset(latest_articles, 4))
+    latest_chunks = list(chunked_queryset(latest_articles, 3))
 
     # 3. Picked for You (per category) => two sub-sections: "Trending in X" & "Latest in X"
     picked_articles_by_category = {}
@@ -42,14 +42,14 @@ def homepage(request):
                 .annotate(comment_count=Count('comments'))
                 .order_by('-comment_count')[:8]
             )
-            cat_trending_chunks = list(chunked_queryset(cat_trending, 4))
+            cat_trending_chunks = list(chunked_queryset(cat_trending, 3))
 
             # b) Latest in this category
             cat_latest = (
                 cat.articles.all()
                 .order_by('-published_at')[:12]
             )
-            cat_latest_chunks = list(chunked_queryset(cat_latest, 4))
+            cat_latest_chunks = list(chunked_queryset(cat_latest, 3))
 
             picked_articles_by_category[cat] = {
                 'trending': cat_trending_chunks,
