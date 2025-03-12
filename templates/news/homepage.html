@@ -36,7 +36,7 @@
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         {% for article in trending_articles %}
           <div class="col">
-            <div class="card bulleo-home-article-card">
+            <div class="card bulleo-home-article-card h-100">
               {% if article.image_url %}
                 <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
               {% endif %}
@@ -79,7 +79,7 @@
       <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         {% for article in latest_articles %}
           <div class="col">
-            <div class="card bulleo-home-article-card">
+            <div class="card bulleo-home-article-card h-100">
               {% if article.image_url %}
                 <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
               {% endif %}
@@ -126,7 +126,7 @@
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
               {% for article in cat_articles %}
                 <div class="col">
-                  <div class="card bulleo-home-article-card">
+                  <div class="card h-100 bulleo-home-article-card">
                     {% if article.image_url %}
                       <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
                     {% endif %}

@@ -193,16 +193,36 @@ body {
   border: 1px solid #ddd;
 }
 
+.bulleo-home-article-card .card-body {
+  display: block;
+  width: 100%;
+}
+
 .bulleo-home-article-title {
   font-weight: 600;
+  font-size: 1.3rem;
+  line-clamp: 3;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.bulleo-home-article-summary {
+  font-size: 1rem;
+  line-clamp: 4;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
 }
 
 .bulleo-home-article-meta {
   font-size: 0.85rem;
-}
-
-.bulleo-home-article-summary {
-  font-size: 0.9rem;
 }
 
 .bulleo-home-article-footer {
