@@ -1,3 +1,17 @@
+// Define the function at top-level so it can be imported
+export function toggleReplies(button) {
+    const repliesContainer = button.parentElement.nextElementSibling;
+    if (!repliesContainer) return;
+  
+    if (repliesContainer.style.display === "none") {
+      repliesContainer.style.display = "block";
+      button.textContent = "Hide Replies";
+    } else {
+      repliesContainer.style.display = "none";
+      button.textContent = "Show More Replies";
+    }
+  }
+
 document.addEventListener("DOMContentLoaded", function () {
     console.log("comments.js loaded successfully!");
 
