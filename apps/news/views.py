@@ -110,10 +110,15 @@ def article_detail(request, article_id):
     """
     article = get_object_or_404(Article, id=article_id)
 
-    # Increment the view count using an F expression for safety with concurrent updates
-    article.views = F('views') + 1
-    article.save(update_fields=['views'])
-    article.refresh_from_db()  # To get the updated value in the instance
+    # Create a unique key for this article in the session
+    session_key = f'viewed_article_{article.id}'
+    if not request.session.get(session_key, False):
+        # Increment view count only if not viewed in this session
+        article.views = F('views') + 1
+        article.save(update_fields=['views'])
+        article.refresh_from_db()
+        # Mark this article as viewed in the session
+        request.session[session_key] = True
 
     sort_order = request.GET.get("sort", "newest")
     comments = article.comments.filter(parent__isnull=True)
