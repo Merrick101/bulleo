@@ -1,10 +1,169 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Homepage{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1>Welcome to Bulleo</h1>
-        <p>Your personalized news aggregator.</p>
+<div class="container my-4 bulleo-home-container">
+
+  <!-- Main Header / Intro -->
+  <h1 class="mb-3 bulleo-home-title">Welcome to Bulleo</h1>
+  <p class="bulleo-home-subtitle">Your personalized news aggregator.</p>
+
+  <!-- Sub-Navbar or quick links to jump to each section -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light my-3 bulleo-home-subnav">
+    <div class="container-fluid">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link bulleo-home-link" href="#bulleo-home-trending">Trending News</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link bulleo-home-link" href="#bulleo-home-latest">Latest News</a>
+        </li>
+        {% if user.is_authenticated and picked_articles_by_category %}
+          <li class="nav-item">
+            <a class="nav-link bulleo-home-link" href="#bulleo-home-picked">Picked for You</a>
+          </li>
+        {% endif %}
+      </ul>
     </div>
+  </nav>
+
+  <!-- Trending News Section -->
+  <section id="bulleo-home-trending" class="my-5 bulleo-home-section">
+    <h2 class="bulleo-home-section-title">Trending News</h2>
+    {% if trending_articles %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for article in trending_articles %}
+          <div class="col">
+            <div class="card bulleo-home-article-card">
+              {% if article.image_url %}
+                <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
+              {% endif %}
+              <div class="card-body">
+                <h5 class="card-title bulleo-home-article-title">
+                  {{ article.title|truncatechars:60 }}
+                </h5>
+                <p class="card-text text-muted bulleo-home-article-meta">
+                  {% if article.source %}{{ article.source.name }} | {% endif %}
+                  {{ article.published_at|date:"M d, Y H:i" }}
+                </p>
+                <p class="card-text bulleo-home-article-summary">
+                  {{ article.summary|truncatewords:20 }}
+                </p>
+                <a href="{% url 'news:article_detail' article.id %}" class="btn btn-sm btn-primary">
+                  Read More
+                </a>
+              </div>
+              <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
+                <span class="text-muted">
+                  {{ article.views }} views
+                </span>
+                <span class="text-muted">
+                  {{ article.comments.count }} comments
+                </span>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No trending articles available.</p>
+    {% endif %}
+  </section>
+
+  <!-- Latest News Section -->
+  <section id="bulleo-home-latest" class="my-5 bulleo-home-section">
+    <h2 class="bulleo-home-section-title">Latest News</h2>
+    {% if latest_articles %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for article in latest_articles %}
+          <div class="col">
+            <div class="card bulleo-home-article-card">
+              {% if article.image_url %}
+                <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
+              {% endif %}
+              <div class="card-body">
+                <h5 class="card-title bulleo-home-article-title">
+                  {{ article.title|truncatechars:60 }}
+                </h5>
+                <p class="card-text text-muted bulleo-home-article-meta">
+                  {% if article.source %}{{ article.source.name }} | {% endif %}
+                  {{ article.published_at|date:"M d, Y H:i" }}
+                </p>
+                <p class="card-text bulleo-home-article-summary">
+                  {{ article.summary|truncatewords:20 }}
+                </p>
+                <a href="{% url 'news:article_detail' article.id %}" class="btn btn-sm btn-primary">
+                  Read More
+                </a>
+              </div>
+              <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
+                <span class="text-muted">
+                  {{ article.views }} views
+                </span>
+                <span class="text-muted">
+                  {{ article.comments.count }} comments
+                </span>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>No latest articles available.</p>
+    {% endif %}
+  </section>
+
+  <!-- Picked for You Section -->
+  {% if user.is_authenticated and picked_articles_by_category %}
+    <section id="bulleo-home-picked" class="my-5 bulleo-home-section">
+      <h2 class="bulleo-home-section-title">Picked for You</h2>
+      {% for category, cat_articles in picked_articles_by_category.items %}
+        <div class="mb-4">
+          <h3 class="bulleo-home-category-title">{{ category.name }}</h3>
+          {% if cat_articles %}
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+              {% for article in cat_articles %}
+                <div class="col">
+                  <div class="card bulleo-home-article-card">
+                    {% if article.image_url %}
+                      <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
+                    {% endif %}
+                    <div class="card-body">
+                      <h5 class="card-title bulleo-home-article-title">
+                        {{ article.title|truncatechars:60 }}
+                      </h5>
+                      <p class="card-text text-muted bulleo-home-article-meta">
+                        {% if article.source %}{{ article.source.name }} | {% endif %}
+                        {{ article.published_at|date:"M d, Y H:i" }}
+                      </p>
+                      <p class="card-text bulleo-home-article-summary">
+                        {{ article.summary|truncatewords:20 }}
+                      </p>
+                      <a href="{% url 'news:article_detail' article.id %}" class="btn btn-sm btn-primary">
+                        Read More
+                      </a>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
+                      <span class="text-muted">
+                        {{ article.views }} views
+                      </span>
+                      <span class="text-muted">
+                        {{ article.comments.count }} comments
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p>No articles found in {{ category.name }}.</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+
+</div>
 {% endblock %}

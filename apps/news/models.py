@@ -25,6 +25,8 @@ class Article(models.Model):
     url = models.URLField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
 
+    views = models.PositiveIntegerField(default=0)
+
     # Link to article source and category
     source = models.ForeignKey(
         'news.NewsSource',

@@ -150,6 +150,66 @@ body {
   border-color: #004085;
 }
 
+/* Home Page Styling */
+
+.bulleo-home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.bulleo-home-title {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.bulleo-home-subtitle {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.bulleo-home-subnav {
+  border-radius: 4px;
+}
+
+.bulleo-home-section {
+  margin-bottom: 60px;
+  padding-bottom: 20px;
+  /* A subtle border to visually divide sections */
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.bulleo-home-section-title {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.bulleo-home-category-title {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.bulleo-home-article-card {
+  border: 1px solid #ddd;
+}
+
+.bulleo-home-article-title {
+  font-weight: 600;
+}
+
+.bulleo-home-article-meta {
+  font-size: 0.85rem;
+}
+
+.bulleo-home-article-summary {
+  font-size: 0.9rem;
+}
+
+.bulleo-home-article-footer {
+  background-color: #f8f9fa;
+  font-size: 0.85rem;
+}
+
 /* Category Selection Styling */
 .category-card {
   cursor: pointer;

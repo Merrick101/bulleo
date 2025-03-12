@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 from django.contrib.auth.decorators import login_required
 from .models import Article
 from apps.users.forms import CommentForm
@@ -10,10 +10,37 @@ from apps.users.models import Comment
 
 def homepage(request):
     """
-    Render the homepage with the latest 10 articles.
+    Render the homepage with three main sections:
+      1. Trending Articles
+      2. Latest Articles
+      3. Picked for You (User's Preferred Categories)
     """
-    articles = Article.objects.all().order_by('-published_at')[:10]
-    return render(request, 'news/homepage.html', {'articles': articles})
+
+    # Trending: Example logic - sort by total comment count descending
+    trending_articles = (
+        Article.objects
+        .annotate(comment_count=Count('comments'))
+        .order_by('-comment_count')[:10]
+    )
+
+    # Latest: Just sort by published date descending
+    latest_articles = Article.objects.order_by('-published_at')[:10]
+
+    # Picked for You: For authenticated users, gather articles in each preferred category
+    picked_articles_by_category = {}
+    if request.user.is_authenticated:
+        user_categories = request.user.profile.preferred_categories.all()
+        for cat in user_categories:
+            # Example: get up to 6 latest articles in that category
+            articles_in_cat = cat.articles.all().order_by('-published_at')[:6]
+            picked_articles_by_category[cat] = articles_in_cat
+
+    context = {
+        'trending_articles': trending_articles,
+        'latest_articles': latest_articles,
+        'picked_articles_by_category': picked_articles_by_category,
+    }
+    return render(request, 'news/homepage.html', context)
 
 
 def search_articles(request):
@@ -82,6 +109,12 @@ def article_detail(request, article_id):
     Sorting is applied based on the GET parameter 'sort'.
     """
     article = get_object_or_404(Article, id=article_id)
+
+    # Increment the view count using an F expression for safety with concurrent updates
+    article.views = F('views') + 1
+    article.save(update_fields=['views'])
+    article.refresh_from_db()  # To get the updated value in the instance
+
     sort_order = request.GET.get("sort", "newest")
     comments = article.comments.filter(parent__isnull=True)
 
