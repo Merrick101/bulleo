@@ -72,7 +72,7 @@
                 <i class="fas fa-bell"></i>
                 <span class="badge bg-danger"></span>
               </button>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+              <ul class="notifications-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
                 <li>
                   <div class="dropdown-item d-flex align-items-center justify-content-between">
                     <span>{% trans "Notifications" %}</span>
@@ -86,12 +86,11 @@
                     </div>
                   </div>
                 </li>
-                <li><a class="dropdown-item" href="#">Notification 1</a></li>
-                <li><a class="dropdown-item" href="#">Notification 2</a></li>
-                <li><a class="dropdown-item" href="#">Notification 3</a></li>
+                <li><a class="notifications-dropdown-item dropdown-item" href="#">Notification 1</a></li>
+                <li><a class="notifications-dropdown-item dropdown-item" href="#">Notification 2</a></li>
+                <li><a class="notifications-dropdown-item dropdown-item" href="#">Notification 3</a></li>
               </ul>
             </div>
-
 
             <!-- Profile Dropdown -->
             <div class="dropdown">
@@ -116,7 +115,6 @@
       {% block sub_navbar %}
       <nav class="sub-navbar">
         <div class="container">
-          <!-- Default links that appear if child templates don't override -->
           <ul class="nav nav-pills justify-content-center mb-0">
             <li class="nav-item">
               <a class="nav-link" href="#bulleo-home-trending">Trending News</a>
