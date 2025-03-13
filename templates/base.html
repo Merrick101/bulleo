@@ -16,7 +16,11 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap"
+    rel="stylesheet">
 
   <!-- Font Awesome Icons -->
   <script src="https://kit.fontawesome.com/e293581b17.js" crossorigin="anonymous"></script>
@@ -40,9 +44,20 @@
           <!-- Search Container (Icon + Expanding Input) -->
           <div class="position-relative d-flex align-items-center" id="searchContainer">
             <i class="fas fa-search search-icon" id="searchToggle"></i>
-            <form class="search-form d-none" action="{% url 'news:search_results' %}" method="get" id="searchForm">
+            <form
+              class="search-form d-none"
+              action="{% url 'news:search_results' %}"
+              method="get"
+              id="searchForm"
+            >
               <div class="input-group">
-                <input class="form-control" type="search" name="q" placeholder="Search for news..." aria-label="Search" />
+                <input
+                  class="form-control"
+                  type="search"
+                  name="q"
+                  placeholder="Search for news..."
+                  aria-label="Search"
+                />
                 <button class="btn btn-outline-secondary" type="submit">
                   <i class="fas fa-search"></i>
                 </button>
@@ -53,15 +68,23 @@
             </form>
           </div>
         </div>
+
         <!-- Center Section: Logo -->
         <div class="navbar-center flex-grow-1 text-center">
           <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
         </div>
+
         <!-- Right Side: Auth Buttons / Profile -->
         <div class="auth-buttons">
           {% if user.is_authenticated %}
             <div class="dropdown">
-              <button class="btn btn-outline-dark dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <button
+                class="btn btn-outline-dark dropdown-toggle"
+                type="button"
+                id="profileDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 <i class="fas fa-user"></i> {{ user.username }}
               </button>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
@@ -77,30 +100,46 @@
           {% endif %}
         </div>
       </div>
+
       <!-- Second Row: Sub-Navigation (Section Links) -->
-      <div class="sub-navbar w-100">
-        <ul class="nav nav-pills justify-content-center mb-0">
-          <li class="nav-item">
-            <a class="nav-link" href="#bulleo-home-trending">Trending News</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#bulleo-home-latest">Latest News</a>
-          </li>
-          {% if user.is_authenticated and picked_articles_by_category %}
+      {% block sub_navbar %}
+      <nav class="sub-navbar">
+        <div class="container">
+          <!-- Default links that appear if child templates don't override -->
+          <ul class="nav nav-pills justify-content-center mb-0">
+            <li class="nav-item">
+              <a class="nav-link" href="#bulleo-home-trending">Trending News</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#bulleo-home-latest">Latest News</a>
+            </li>
+            {% if user.is_authenticated and picked_articles_by_category %}
             <li class="nav-item">
               <a class="nav-link" href="#bulleo-home-picked">Picked for You</a>
             </li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+      {% endblock sub_navbar %}
+    </div> <!-- End of container-fluid -->
   </nav>
 
   <!-- Offcanvas Main Menu -->
-  <div class="offcanvas offcanvas-start" tabindex="-1" id="mainMenuOffcanvas" aria-labelledby="mainMenuLabel">
+  <div
+    class="offcanvas offcanvas-start"
+    tabindex="-1"
+    id="mainMenuOffcanvas"
+    aria-labelledby="mainMenuLabel"
+  >
     <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="mainMenuLabel">Main Menu</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <button
+        type="button"
+        class="btn-close text-reset"
+        data-bs-dismiss="offcanvas"
+        aria-label="Close"
+      ></button>
     </div>
     <div class="offcanvas-body">
       <ul class="list-unstyled">

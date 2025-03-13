@@ -2,6 +2,45 @@
 {% load static %}
 {% load i18n %}
 
+{% block sub_navbar %}
+<nav class="sub-navbar">
+  <div class="container">
+    <ul class="nav nav-pills justify-content-center mb-0">
+      <li class="nav-item">
+        <a class="nav-link" href="?category=world-news{% if query %}&q={{ query }}{% endif %}">
+          <i class="fas fa-globe fa-2x me-3"></i>World News
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?category=politics{% if query %}&q={{ query }}{% endif %}">
+          <i class="fas fa-gavel fa-2x me-3"></i>Politics
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?category=business{% if query %}&q={{ query }}{% endif %}">
+          <i class="fas fa-briefcase fa-2x me-3"></i>Business
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?category=technology{% if query %}&q={{ query }}{% endif %}">
+          <i class="fas fa-microchip fa-2x me-3"></i>Technology
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?category=sports{% if query %}&q={{ query }}{% endif %}">
+          <i class="fas fa-futbol fa-2x me-3"></i>Sports
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="?category=entertainment{% if query %}&q={{ query }}{% endif %}">
+          <i class="fas fa-film fa-2x me-3"></i>Entertainment
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
+{% endblock sub_navbar %}
+
 {% block content %}
 <div class="container my-4">
   <h2 class="mb-4">
@@ -35,34 +74,55 @@
       {% trans "Total Number of Results" %}: <strong>{{ page_obj.paginator.count }}</strong>
     </p>
     
-    <!-- Optional: Sorting/Filtering UI (if needed) -->
+    <!-- Sorting/Filtering UI -->
     <div class="mb-3">
       <strong>{% trans "Sort By:" %}</strong>
-      <a href="#" class="btn btn-sm btn-outline-dark me-2">{% trans "Most Relevant" %}</a>
-      <a href="#" class="btn btn-sm btn-outline-dark me-2">{% trans "Most Recent" %}</a>
-      <a href="#" class="btn btn-sm btn-outline-dark me-2">{% trans "Oldest" %}</a>
-      <a href="#" class="btn btn-sm btn-outline-dark me-2">{% trans "Category" %}</a>
-      <a href="#" class="btn btn-sm btn-outline-dark me-2">{% trans "Source" %}</a>
+      <a href="?sort=most_relevant{% if query %}&q={{ query }}{% endif %}" 
+         class="btn btn-sm {% if sort == 'most_relevant' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
+        {% trans "Most Relevant" %}
+      </a>
+      <a href="?sort=most_recent{% if query %}&q={{ query }}{% endif %}" 
+         class="btn btn-sm {% if sort == 'most_recent' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
+        {% trans "Most Recent" %}
+      </a>
+      <a href="?sort=oldest{% if query %}&q={{ query }}{% endif %}" 
+         class="btn btn-sm {% if sort == 'oldest' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
+        {% trans "Oldest" %}
+      </a>
+      <a href="?sort=category{% if query %}&q={{ query }}{% endif %}" 
+         class="btn btn-sm {% if sort == 'category' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
+        {% trans "Category" %}
+      </a>
+      <a href="?sort=source{% if query %}&q={{ query }}{% endif %}" 
+         class="btn btn-sm {% if sort == 'source' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
+        {% trans "Source" %}
+      </a>
     </div>
     
     <!-- Grid of Search Results -->
     <div class="row row-cols-1 row-cols-md-3 g-4">
       {% for article in articles %}
         <div class="col">
-          <div class="card h-100">
+          <div class="card h-100 bulleo-home-article-card d-flex flex-column">
             {% if article.image_url %}
               <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
             {% else %}
               <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="Placeholder Image">
             {% endif %}
-            <div class="card-body">
-              <h5 class="card-title">{{ article.title }}</h5>
-              <p class="card-text text-muted mb-2">
-                {{ article.summary|truncatechars:100 }}
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title bulleo-home-article-title">{{ article.title|truncatechars:60 }}</h5>
+              <p class="card-text text-muted bulleo-home-article-meta">
+                {% if article.source %}{{ article.source.name }} | {% endif %}
+                {{ article.published_at|date:"M d, Y H:i" }}
               </p>
-              <a href="{% url 'news:article_detail' article.id %}" class="btn btn-primary">
+              <p class="card-text bulleo-home-article-summary">{{ article.summary|truncatewords:20 }}</p>
+              <a href="{% url 'news:article_detail' article.id %}" class="btn btn-primary read-more-btn mt-auto">
                 {% trans "Read More" %}
               </a>
+            </div>
+            <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
+              <span class="text-muted">{{ article.views }} views</span>
+              <span class="text-muted">{{ article.comments.count }} comments</span>
             </div>
           </div>
         </div>
@@ -90,7 +150,11 @@
               {% if page_obj.number == num %}
                 <li class="page-item active"><span class="page-link">{{ num }}</span></li>
               {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}">{{ num }}</a></li>
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}">
+                    {{ num }}
+                  </a>
+                </li>
               {% endif %}
             {% endfor %}
 
