@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from apps.users.models import Category
@@ -54,15 +55,14 @@ class Article(models.Model):
         return f"{self.title} ({self.published_at.strftime('%Y-%m-%d')})"
 
     def save(self, *args, **kwargs):
-        # Generate a slug from the title if not set
         if not self.slug:
             self.slug = slugify(self.title)
-
-        # Ensure uniqueness of the slug by excluding the current instance (if it exists)
         original_slug = self.slug
         counter = 1
         while Article.objects.filter(slug=self.slug).exclude(id=self.id).exists():
             self.slug = f"{original_slug}-{counter}"
             counter += 1
-
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("news:article_detail", kwargs={"article_id": self.id})
