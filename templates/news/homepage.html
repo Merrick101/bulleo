@@ -194,11 +194,11 @@
                                 {{ article.published_at|date:"M d, Y H:i" }}
                               </p>
                               <p class="card-text bulleo-home-article-summary">{{ article.summary|truncatewords:20 }}</p>
+                              <a href="{% url 'news:article_detail' article.id %}" class="btn btn-sm btn-primary read-more-btn mt-auto">Read More</a>
                             </div>
                             <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
                               <span class="text-muted">{{ article.views }} views</span>
                               <span class="text-muted">{{ article.comments.count }} comments</span>
-                              <a href="{% url 'news:article_detail' article.id %}" class="btn btn-sm btn-primary read-more-btn">Read More</a>
                             </div>
                           </div>
                         </div>
