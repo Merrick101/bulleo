@@ -168,8 +168,51 @@ h1, h2, h3, h4, h5, h6 {
   margin-left: 0.25rem;
 }
 
+/* Notifications Dropdown Styling */
+
+.notifications-dropdown-menu {
+  min-width: 250px;
+  min-height: 250px;
+}
+
+.notifications-dropdown-menu .form-check .form-switch {
+  border-bottom: 1px solid #f7f2d7;
+}
+
+.notifications-menu-title {
+  color: #f7f2d7;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.75rem 1rem;
+}
+
+.me-2, .ms-2 {
+  color: #f7f2d7 !important;
+}
+
+/* Disable hover for notifications label and on/off text */
+.notifications-dropdown-menu .dropdown-item:hover {
+  background-color: transparent !important;
+  color: inherit !important;
+  cursor: default;
+}
+
 .notifications-dropdown-menu .notifications-dropdown-item {
   padding: 0.75rem 1rem;
+}
+
+.notifications-dropdown-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: #f7f2d7 !important;
+}
+
+.dropdown-menu a.notifications-dropdown-list-item:hover {
+  background-color: #f7f2d7 !important;
+  color: #0D0D0D !important;
+  cursor: pointer !important;
 }
 
 /* Authentication Icons */

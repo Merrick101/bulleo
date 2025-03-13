@@ -74,21 +74,27 @@
               </button>
               <ul class="notifications-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
                 <li>
-                  <div class="dropdown-item d-flex align-items-center justify-content-between">
-                    <span>{% trans "Notifications" %}</span>
-                    <div class="form-check form-switch m-0">
-                      <input 
-                        class="form-check-input" 
-                        type="checkbox" 
-                        id="notificationsToggle" 
-                        {% if user.profile.notifications_enabled %}checked{% endif %}
-                      >
+                  <div class="dropdown-item text-center">
+                    <!-- Main label -->
+                    <p class="mb-1 fw-bold notifications-menu-title">{% trans "Notifications" %}</p>
+                    <!-- Toggle row -->
+                    <div class="d-flex align-items-center justify-content-center">
+                      <span class="me-2">{% trans "Off" %}</span>
+                      <div class="form-check form-switch m-0">
+                        <input 
+                          class="form-check-input" 
+                          type="checkbox" 
+                          id="notificationsToggle"
+                          {% if user.profile.notifications_enabled %}checked{% endif %}
+                        >
+                      </div>
+                      <span class="ms-2">{% trans "On" %}</span>
                     </div>
                   </div>
-                </li>
-                <li><a class="notifications-dropdown-item dropdown-item" href="#">Notification 1</a></li>
-                <li><a class="notifications-dropdown-item dropdown-item" href="#">Notification 2</a></li>
-                <li><a class="notifications-dropdown-item dropdown-item" href="#">Notification 3</a></li>
+                </li>                
+                <li><a class="notifications-dropdown-list-item dropdown-item" href="#">Notification 1</a></li>
+                <li><a class="notifications-dropdown-list-item dropdown-item" href="#">Notification 2</a></li>
+                <li><a class="notifications-dropdown-list-item dropdown-item" href="#">Notification 3</a></li>
               </ul>
             </div>
 
