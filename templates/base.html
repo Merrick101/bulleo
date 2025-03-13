@@ -44,20 +44,9 @@
           <!-- Search Container (Icon + Expanding Input) -->
           <div class="position-relative d-flex align-items-center" id="searchContainer">
             <i class="fas fa-search search-icon" id="searchToggle"></i>
-            <form
-              class="search-form d-none"
-              action="{% url 'news:search_results' %}"
-              method="get"
-              id="searchForm"
-            >
+            <form class="search-form d-none" action="{% url 'news:search_results' %}" method="get" id="searchForm">
               <div class="input-group">
-                <input
-                  class="form-control"
-                  type="search"
-                  name="q"
-                  placeholder="Search for news..."
-                  aria-label="Search"
-                />
+                <input class="form-control" type="search" name="q" placeholder="Search for news..." aria-label="Search" />
                 <button class="btn btn-outline-secondary" type="submit">
                   <i class="fas fa-search"></i>
                 </button>
@@ -74,17 +63,26 @@
           <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
         </div>
 
-        <!-- Right Side: Auth Buttons / Profile -->
-        <div class="auth-buttons">
+        <!-- Right Side: Notifications and Auth Buttons / Profile -->
+        <div class="auth-buttons d-flex align-items-center">
           {% if user.is_authenticated %}
+            <!-- Notifications Dropdown -->
+            <div class="dropdown me-2">
+              <button class="btn btn-outline-light dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-bell"></i>
+                <!-- Hardcoded badge count; update dynamically as needed -->
+                <span class="badge bg-danger"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                <li><a class="dropdown-item" href="#">Notification 1</a></li>
+                <li><a class="dropdown-item" href="#">Notification 2</a></li>
+                <li><a class="dropdown-item" href="#">Notification 3</a></li>
+              </ul>
+            </div>
+
+            <!-- Profile Dropdown -->
             <div class="dropdown">
-              <button
-                class="btn btn-outline-light dropdown-toggle"
-                type="button"
-                id="profileDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
+              <button class="btn btn-outline-light dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-user"></i> {{ user.username }}
               </button>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
@@ -126,20 +124,10 @@
   </nav>
 
   <!-- Offcanvas Main Menu -->
-  <div
-    class="offcanvas offcanvas-start"
-    tabindex="-1"
-    id="mainMenuOffcanvas"
-    aria-labelledby="mainMenuLabel"
-  >
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="mainMenuOffcanvas" aria-labelledby="mainMenuLabel">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="mainMenuLabel">Main Menu</h5>
-      <button
-        type="button"
-        class="btn-close text-reset"
-        data-bs-dismiss="offcanvas"
-        aria-label="Close"
-      ></button>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
       <ul class="list-unstyled">
@@ -170,6 +158,5 @@
   <script src="{% static 'js/navbar.js' %}"></script>
   <!-- Article Interactions JS -->
   <script src="{% static 'js/article-interactions.js' %}"></script>
-
 </body>
 </html>

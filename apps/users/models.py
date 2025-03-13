@@ -43,6 +43,7 @@ class Profile(models.Model):
         null=True
     )
     preferred_categories = models.ManyToManyField(Category, blank=True)
+    notifications_enabled = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
