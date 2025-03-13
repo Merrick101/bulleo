@@ -70,15 +70,28 @@
             <div class="dropdown me-2">
               <button class="btn btn-outline-light dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-bell"></i>
-                <!-- Hardcoded badge count; update dynamically as needed -->
                 <span class="badge bg-danger"></span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                <li>
+                  <div class="dropdown-item d-flex align-items-center justify-content-between">
+                    <span>{% trans "Notifications" %}</span>
+                    <div class="form-check form-switch m-0">
+                      <input 
+                        class="form-check-input" 
+                        type="checkbox" 
+                        id="notificationsToggle" 
+                        {% if user.profile.notifications_enabled %}checked{% endif %}
+                      >
+                    </div>
+                  </div>
+                </li>
                 <li><a class="dropdown-item" href="#">Notification 1</a></li>
                 <li><a class="dropdown-item" href="#">Notification 2</a></li>
                 <li><a class="dropdown-item" href="#">Notification 3</a></li>
               </ul>
             </div>
+
 
             <!-- Profile Dropdown -->
             <div class="dropdown">
@@ -158,5 +171,7 @@
   <script src="{% static 'js/navbar.js' %}"></script>
   <!-- Article Interactions JS -->
   <script src="{% static 'js/article-interactions.js' %}"></script>
+  <!-- Notifications JS -->
+  <script src="{% static 'js/notifications.js' %}"></script>
 </body>
 </html>
