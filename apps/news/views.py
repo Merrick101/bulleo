@@ -116,6 +116,32 @@ def search_articles(request):
     return render(request, "news/search_results.html", context)
 
 
+@login_required
+def toggle_like(request, article_id):
+    article = get_object_or_404(Article, id=article_id)
+    user = request.user
+    if user in article.likes.all():
+        article.likes.remove(user)
+        liked = False
+    else:
+        article.likes.add(user)
+        liked = True
+    return JsonResponse({'liked': liked, 'likes_count': article.likes.count()})
+
+
+@login_required
+def toggle_save(request, article_id):
+    article = get_object_or_404(Article, id=article_id)
+    user = request.user
+    if user in article.saves.all():
+        article.saves.remove(user)
+        saved = False
+    else:
+        article.saves.add(user)
+        saved = True
+    return JsonResponse({'saved': saved, 'saves_count': article.saves.count()})
+
+
 def get_sorted_comments(article, sort_order):
     comments = article.comments.filter(parent__isnull=True)
     if sort_order == "most_upvoted":
