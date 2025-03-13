@@ -126,7 +126,7 @@ def toggle_like(request, article_id):
     else:
         article.likes.add(user)
         liked = True
-    return JsonResponse({'liked': liked, 'likes_count': article.likes.count()})
+    return JsonResponse({'success': True, 'liked': liked, 'likes_count': article.likes.count()})
 
 
 @login_required
@@ -139,7 +139,7 @@ def toggle_save(request, article_id):
     else:
         article.saves.add(user)
         saved = True
-    return JsonResponse({'saved': saved, 'saves_count': article.saves.count()})
+    return JsonResponse({'success': True, 'saved': saved, 'saves_count': article.saves.count()})
 
 
 def get_sorted_comments(article, sort_order):

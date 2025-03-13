@@ -291,6 +291,15 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.85rem;
 }
 
+.bulleo-home-article-footer .like-btn, .save-btn {
+  text-decoration: none;
+  color: #212529BF;
+}
+
+.bulleo-home-article-footer .like-btn i, .save-btn i {
+  margin-right: 0.1rem;
+}
+
 #bulleo-home-picked .bulleo-home-subsection-title {
   margin-top: 2.5rem;
 }

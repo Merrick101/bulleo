@@ -46,7 +46,7 @@
   <h2 class="mb-4">
     {% trans "Search Results for" %} "<strong>{{ query|default_if_none:"" }}</strong>"
   </h2>
-  
+
   {% if page_obj.paginator.count == 0 %}
     <div class="alert alert-warning" role="alert">
       <i class="fas fa-exclamation-triangle me-2"></i>
@@ -57,10 +57,10 @@
         {% trans "Refine Your Search" %}
       </a>
       <form action="{% url 'news:search_results' %}" method="get" class="d-flex">
-        <input 
-          class="form-control me-2" 
-          type="search" 
-          name="q" 
+        <input
+          class="form-control me-2"
+          type="search"
+          name="q"
           placeholder="{% trans 'Search again...' %}"
           aria-label="Search"
         />
@@ -73,32 +73,32 @@
     <p class="text-muted">
       {% trans "Total Number of Results" %}: <strong>{{ page_obj.paginator.count }}</strong>
     </p>
-    
+
     <!-- Sorting/Filtering UI -->
     <div class="mb-3">
       <strong>{% trans "Sort By:" %}</strong>
-      <a href="?sort=most_relevant{% if query %}&q={{ query }}{% endif %}" 
+      <a href="?sort=most_relevant{% if query %}&q={{ query }}{% endif %}"
          class="btn btn-sm {% if sort == 'most_relevant' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
         {% trans "Most Relevant" %}
       </a>
-      <a href="?sort=most_recent{% if query %}&q={{ query }}{% endif %}" 
+      <a href="?sort=most_recent{% if query %}&q={{ query }}{% endif %}"
          class="btn btn-sm {% if sort == 'most_recent' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
         {% trans "Most Recent" %}
       </a>
-      <a href="?sort=oldest{% if query %}&q={{ query }}{% endif %}" 
+      <a href="?sort=oldest{% if query %}&q={{ query }}{% endif %}"
          class="btn btn-sm {% if sort == 'oldest' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
         {% trans "Oldest" %}
       </a>
-      <a href="?sort=category{% if query %}&q={{ query }}{% endif %}" 
+      <a href="?sort=category{% if query %}&q={{ query }}{% endif %}"
          class="btn btn-sm {% if sort == 'category' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
         {% trans "Category" %}
       </a>
-      <a href="?sort=source{% if query %}&q={{ query }}{% endif %}" 
+      <a href="?sort=source{% if query %}&q={{ query }}{% endif %}"
          class="btn btn-sm {% if sort == 'source' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
         {% trans "Source" %}
       </a>
     </div>
-    
+
     <!-- Grid of Search Results -->
     <div class="row row-cols-1 row-cols-md-3 g-4">
       {% for article in articles %}
@@ -110,25 +110,40 @@
               <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="Placeholder Image">
             {% endif %}
             <div class="card-body d-flex flex-column">
-              <h5 class="card-title bulleo-home-article-title">{{ article.title|truncatechars:60 }}</h5>
+              <h5 class="card-title bulleo-home-article-title">
+                {{ article.title|truncatechars:60 }}
+              </h5>
               <p class="card-text text-muted bulleo-home-article-meta">
                 {% if article.source %}{{ article.source.name }} | {% endif %}
                 {{ article.published_at|date:"M d, Y H:i" }}
               </p>
-              <p class="card-text bulleo-home-article-summary">{{ article.summary|truncatewords:20 }}</p>
-              <a href="{% url 'news:article_detail' article.id %}" class="btn btn-primary read-more-btn mt-auto">
+              <p class="card-text bulleo-home-article-summary">
+                {{ article.summary|truncatewords:20 }}
+              </p>
+              <a href="{% url 'news:article_detail' article.id %}"
+                 class="btn btn-primary read-more-btn mt-auto">
                 {% trans "Read More" %}
               </a>
             </div>
             <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
-              <span class="text-muted">{{ article.views }} views</span>
-              <span class="text-muted">{{ article.comments.count }} comments</span>
+              <div>
+                <span class="text-muted"><i class="fas fa-eye me-1"></i>{{ article.views }} views</span>
+                <span class="text-muted ms-3"><i class="fas fa-comments me-1"></i>{{ article.comments.count }} comments</span>
+              </div>
+              <div>
+                <a href="#" class="like-btn me-3" data-article-id="{{ article.id }}">
+                  <i class="fas fa-thumbs-up"></i> {{ article.likes.count }}
+                </a>
+                <a href="#" class="save-btn" data-article-id="{{ article.id }}">
+                  <i class="fas fa-bookmark"></i> {{ article.saves.count }}
+                </a>
+              </div>
             </div>
           </div>
         </div>
       {% endfor %}
     </div>
-    
+
     <!-- Pagination Controls -->
     {% if is_paginated %}
       <div class="mt-4 d-flex justify-content-center">
@@ -136,7 +151,9 @@
           <ul class="pagination">
             {% if page_obj.has_previous %}
               <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}" aria-label="Previous">
+                <a class="page-link"
+                   href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
+                   aria-label="Previous">
                   <span aria-hidden="true">&laquo;</span>
                 </a>
               </li>
@@ -151,7 +168,8 @@
                 <li class="page-item active"><span class="page-link">{{ num }}</span></li>
               {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                 <li class="page-item">
-                  <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}">
+                  <a class="page-link"
+                     href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}">
                     {{ num }}
                   </a>
                 </li>
@@ -160,7 +178,9 @@
 
             {% if page_obj.has_next %}
               <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}" aria-label="Next">
+                <a class="page-link"
+                   href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
+                   aria-label="Next">
                   <span aria-hidden="true">&raquo;</span>
                 </a>
               </li>
