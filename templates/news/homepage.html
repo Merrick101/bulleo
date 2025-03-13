@@ -117,13 +117,13 @@
   <!-- Picked for You Section -->
   {% if user.is_authenticated and picked_articles_by_category %}
     <section id="bulleo-home-picked" class="my-5 bulleo-home-section">
-      <h2 class="bulleo-home-section-title">Picked for You</h2>
+      <!-- <h2 class="bulleo-home-section-title">Picked for You</h2> -->
       {% for category, cat_data in picked_articles_by_category.items %}
         <div class="mb-5">
-          <h3 class="bulleo-home-category-title">{{ category.name }}</h3>
+          <!-- <h3 class="bulleo-home-category-title">{{ category.name }}</h3> -->
 
           <!-- Trending in Category Carousel -->
-          <h4 class="bulleo-home-subsection-title">Trending in {{ category.name }}</h4>
+          <h3 class="bulleo-home-subsection-title">Trending in {{ category.name }}</h3>
           {% if cat_data.trending %}
           <div class="bulleo-carousel-wrapper">
             <div id="catTrendingCarousel-{{ category.slug }}" class="carousel slide mb-3" data-bs-ride="carousel">
@@ -173,7 +173,7 @@
           {% endif %}
 
           <!-- Latest in Category Carousel -->
-          <h4 class="bulleo-home-subsection-title">Latest in {{ category.name }}</h4>
+          <h3 class="bulleo-home-subsection-title">Latest in {{ category.name }}</h3>
           {% if cat_data.latest %}
           <div class="bulleo-carousel-wrapper">
             <div id="catLatestCarousel-{{ category.slug }}" class="carousel slide" data-bs-ride="carousel">

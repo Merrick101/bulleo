@@ -287,6 +287,10 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.85rem;
 }
 
+#bulleo-home-picked .bulleo-home-subsection-title {
+  margin-top: 2.5rem;
+}
+
 /* Category Selection Styling */
 .category-card {
   cursor: pointer;
