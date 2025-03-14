@@ -33,8 +33,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'crispy_forms',
     'crispy_bootstrap5',
-    'apps.users',
-    'apps.news',
+    'apps.users.apps.UsersConfig',
+    'apps.news.apps.NewsConfig',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +62,7 @@ TEMPLATES = [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
+                "core.context_processors.notifications_processor",
                 "django.contrib.messages.context_processors.messages",
             ],
         },

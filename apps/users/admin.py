@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Profile, Comment
+from .models import Profile, Comment, Notification
 
 
 # Register Profile with more fields in list_display
@@ -56,3 +56,11 @@ class CommentAdmin(admin.ModelAdmin):
             return obj.parent.content[:50]  # Display the first 50 characters of the parent content
         return None
     parent.admin_order_field = 'parent'  # Make parent sortable
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'message', 'read', 'created_at')
+    list_filter = ('read', 'created_at')
+    search_fields = ('message', 'user__username')
+    ordering = ('-created_at',)
