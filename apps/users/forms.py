@@ -26,6 +26,10 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ["bio", "preferred_categories"]
+        widgets = {
+            'bio': forms.Textarea(attrs={'class': 'profile-form-input bio-input', 'rows': 4}),
+            'preferred_categories': forms.SelectMultiple(attrs={'class': 'profile-form-input categories-select'}),
+        }
 
 
 class NewsPreferencesForm(forms.ModelForm):
