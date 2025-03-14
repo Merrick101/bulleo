@@ -3,6 +3,26 @@
 
 {% block title %}Homepage{% endblock %}
 
+{% block sub_navbar %}
+<nav class="sub-navbar">
+  <div class="container">
+    <ul class="nav nav-pills justify-content-center mb-0">
+      <li class="nav-item">
+        <a class="nav-link" href="#bulleo-home-trending">Trending News</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#bulleo-home-latest">Latest News</a>
+      </li>
+      {% if user.is_authenticated and picked_articles_by_category %}
+      <li class="nav-item">
+        <a class="nav-link" href="#bulleo-home-picked">Picked for You</a>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>
+{% endblock sub_navbar %}
+
 {% block content %}
 <div class="container my-4 bulleo-home-container">
 

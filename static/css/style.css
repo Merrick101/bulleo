@@ -362,7 +362,7 @@ h1, h2, h3, h4, h5, h6 {
 .bulleo-home-article-card .card-body {
   display: flex !important;
   flex-direction: column;
-  width: 100%;
+  width: 100%;;
 }
 
 .bulleo-home-article-card {
@@ -472,13 +472,11 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #ddd;
   padding: 0.75rem;       /* Adjust overall padding */
   margin-bottom: 1rem;    /* Space below each comment box */
-  background-color: #fff; /* If you want a white background */
+  background-color: #fff;
 }
 
 /* Row 1: Top row */
 .my-comment-top {
-  /* Move this row up or down by adjusting margin. 
-     If you want it "higher," reduce the top margin. */
   margin-bottom: 0.5rem;
   margin-top: -0.5rem;
   align-items: flex-start;
