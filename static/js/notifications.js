@@ -29,6 +29,70 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+  // Event listener for marking a single notification as read
+  document.querySelectorAll('.mark-read-btn').forEach(function(button) {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      const notificationId = this.dataset.notificationId;
+      const url = `/users/notifications/${notificationId}/read/`;
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showToast("Notification marked as read");
+          // Optionally hide the mark-read button after marking as read
+          this.style.display = 'none';
+        } else {
+          console.error("Error marking notification as read:", data.error);
+          showToast("Error marking notification as read");
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        showToast("Error marking notification as read");
+      });
+    });
+  });
+
+  // Event listener for marking all notifications as read
+  const markAllReadBtn = document.getElementById('markAllReadBtn');
+  if (markAllReadBtn) {
+    markAllReadBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const url = '/users/notifications/mark_all_read/';
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken'),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({})
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showToast("All notifications marked as read");
+          // Optionally, hide all individual mark-read buttons
+          document.querySelectorAll('.mark-read-btn').forEach(btn => btn.style.display = 'none');
+        } else {
+          console.error("Error marking all notifications as read:", data.error);
+          showToast("Error marking all notifications as read");
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        showToast("Error marking all notifications as read");
+      });
+    });
+  }
 });
 
 // Helper: Get a cookie by name

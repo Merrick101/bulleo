@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 import json
-from .models import Profile, Category
+from .models import Profile, Category, Notification
 from .forms import ProfileForm
 
 User = get_user_model()
@@ -74,6 +74,20 @@ def toggle_notifications(request):
         profile.save()
         return JsonResponse({"success": True, "notifications_enabled": profile.notifications_enabled})
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
+
+
+@login_required
+def mark_notification_read(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.read = True
+    notification.save()
+    return JsonResponse({'success': True})
+
+
+@login_required
+def mark_all_notifications_read(request):
+    request.user.notifications.filter(read=False).update(read=True)
+    return JsonResponse({'success': True})
 
 
 def test_onboarding(request):

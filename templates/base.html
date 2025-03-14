@@ -70,7 +70,9 @@
             <div class="dropdown me-2">
               <button class="btn btn-outline-light dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-bell"></i>
-                <span class="badge bg-danger"></span>
+                {% if notifications %}
+                  <span class="badge bg-danger">{{ notifications|length }}</span>
+                {% endif %}
               </button>
               <ul class="notifications-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
                 <li>
@@ -90,11 +92,24 @@
                       </div>
                       <span class="ms-2">{% trans "On" %}</span>
                     </div>
+                    <!-- Button to mark all as read -->
+                    <button id="markAllReadBtn" class="btn btn-sm btn-link">{% trans "Mark all as read" %}</button>
                   </div>
-                </li>                
-                <li><a class="notifications-dropdown-list-item dropdown-item" href="#">Notification 1</a></li>
-                <li><a class="notifications-dropdown-list-item dropdown-item" href="#">Notification 2</a></li>
-                <li><a class="notifications-dropdown-list-item dropdown-item" href="#">Notification 3</a></li>
+                </li>
+                {% if notifications %}
+                  {% for notification in notifications %}
+                    <li>
+                      <a class="notifications-dropdown-list-item dropdown-item" href="{{ notification.link }}" data-notification-id="{{ notification.id }}">
+                        {{ notification.message }}
+                        {% if not notification.read %}
+                          <button class="btn btn-sm btn-outline-primary mark-read-btn" data-notification-id="{{ notification.id }}">{% trans "Mark read" %}</button>
+                        {% endif %}
+                      </a>
+                    </li>
+                  {% endfor %}
+                {% else %}
+                  <li><span class="dropdown-item text-muted">{% trans "No new notifications" %}</span></li>
+                {% endif %}
               </ul>
             </div>
 
