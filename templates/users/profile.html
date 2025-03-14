@@ -5,7 +5,6 @@
 {% block content %}
 <div class="container mt-5 profile-page-container">
     <h2 class="mb-4">{% trans "Profile Settings" %}</h2>
-
     <div class="row">
         <!-- Profile Info Section (Left Side) -->
         <div class="col-md-4 mb-4">
@@ -27,13 +26,7 @@
                             {% csrf_token %}
                             <div class="mb-3">
                                 <label class="form-label" for="profile-picture-upload">{% trans "Change Profile Picture" %}</label>
-                                <input 
-                                    type="file" 
-                                    class="form-control profile-picture-input" 
-                                    name="profile_picture" 
-                                    accept="image/*" 
-                                    id="profile-picture-upload"
-                                >
+                                <input type="file" class="form-control profile-picture-input" name="profile_picture" accept="image/*" id="profile-picture-upload">
                             </div>
                             <button type="submit" class="btn btn-primary" id="upload-picture-btn">
                                 {% trans "Upload Picture" %}
@@ -44,18 +37,17 @@
             </div>
         </div>
 
-        <!-- Collapsible Menu Section (Right Side) -->
+        <!-- Profile Settings Section (Right Side) -->
         <div class="col-md-8">
-            <div class="accordion" id="profileAccordion">
-                
-                <!-- Edit Account Details Section -->
+            <!-- Accordion for Edit Account Details -->
+            <div class="accordion mb-3" id="accordionEditAccount">
                 <div class="accordion-item" id="edit-account-section">
-                    <h2 class="accordion-header" id="headingAccount">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAccount" aria-expanded="true" aria-controls="collapseAccount">
+                    <h2 class="accordion-header" id="headingEditAccount">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEditAccount" aria-expanded="false" aria-controls="collapseEditAccount">
                             {% trans "Edit Account Details" %}
                         </button>
                     </h2>
-                    <div id="collapseAccount" class="accordion-collapse collapse show" aria-labelledby="headingAccount" data-bs-parent="#profileAccordion">
+                    <div id="collapseEditAccount" class="accordion-collapse collapse" aria-labelledby="headingEditAccount">
                         <div class="accordion-body">
                             <!-- Username Update Mini-Form -->
                             <form method="POST" id="update-username-form" action="{% url 'users:update_username' %}">
@@ -63,9 +55,12 @@
                                 <input type="hidden" name="form_type" value="account_username">
                                 <div class="mb-3">
                                     <label for="username_field" class="form-label">{% trans "Username" %}</label>
-                                    <input type="text" class="form-control profile-username-update-input" id="username_field" name="username" value="{{ profile.user.username }}" placeholder="Enter new username">
+                                    <input type="text" class="form-control profile-username-update-input" id="username_field" name="username" 
+                                        value="{{ profile.user.username }}" placeholder="Enter new username" 
+                                        data-original-value="{{ profile.user.username }}">
                                 </div>
                                 <button type="submit" class="btn btn-primary profile-username-save-btn">{% trans "Save Username" %}</button>
+                                <button type="button" class="btn btn-secondary discard-username-btn">Discard Changes</button>
                                 <div id="username-feedback"></div>
                             </form>
 
@@ -75,9 +70,12 @@
                                 <input type="hidden" name="form_type" value="account_email">
                                 <div class="mb-3">
                                     <label for="email_field" class="form-label">{% trans "Email" %}</label>
-                                    <input type="email" class="form-control profile-email-update-input" id="email_field" name="email" value="{{ profile.user.email }}" placeholder="Enter new email">
+                                    <input type="email" class="form-control profile-email-update-input" id="email_field" name="email" 
+                                        value="{{ profile.user.email }}" placeholder="Enter new email" 
+                                        data-original-value="{{ profile.user.email }}">
                                 </div>
                                 <button type="submit" class="btn btn-primary profile-email-save-btn">{% trans "Save Email" %}</button>
+                                <button type="button" class="btn btn-secondary discard-email-btn">Discard Changes</button>
                                 <div id="email-feedback"></div>
                             </form>
 
@@ -99,227 +97,192 @@
                                 </div>
                                 <p class="text-muted">Leave password fields blank if you do not wish to change your password.</p>
                                 <button type="submit" class="btn btn-primary profile-password-save-btn">{% trans "Save Password" %}</button>
+                                <button type="button" class="btn btn-secondary discard-password-btn">Clear Password Fields</button>
                                 <div id="password-feedback"></div>
                             </form>
-
-                            <!-- Notification Preferences Update Mini-Form -->
-                            <form method="POST" id="update-notifications-form" action="{% url 'users:update_notifications' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="form_type" value="account_notifications">
-                                <div class="mb-3">
-                                    <label class="form-label" for="notification_preferences_field">{% trans "Notifications" %}</label>
-                                    <label class="switch ms-2">
-                                        <input type="checkbox" name="notification_preferences" id="notification_preferences_field" {% if profile.notifications_enabled %} checked {% endif %}>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                                <button type="submit" class="btn btn-primary profile-notifications-save-btn">{% trans "Save Notifications" %}</button>
-                                <div id="notifications-feedback"></div>
-                            </form>
-
-                            <!-- Global Reset Button -->
-                            <button type="button" class="btn btn-warning profile-reset-all-btn" id="reset-account-changes-btn">{% trans "Reset to Default" %}</button>
                         </div>
                     </div>
                 </div>
+            </div>
 
-
-                <!-- News Feed Preferences Section -->
+            <!-- Accordion for News Feed Preferences -->
+            <div class="accordion mb-3" id="accordionNewsFeed">
                 <div class="accordion-item" id="news-feed-preferences-section">
-                    <h2 class="accordion-header" id="headingNewsFeed">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNewsFeed" aria-expanded="false" aria-controls="collapseNewsFeed">
-                            {% trans "News Feed Preferences" %}
-                        </button>
-                    </h2>
-                    <div id="collapseNewsFeed" class="accordion-collapse collapse" aria-labelledby="headingNewsFeed" data-bs-parent="#profileAccordion">
-                        <div class="accordion-body">
-                            <form method="POST" id="news-feed-preferences-form">
-                                {% csrf_token %}
-                                <!-- Hidden field to identify this form -->
-                                <input type="hidden" name="form_type" value="preferences">
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">{% trans "Preferred Categories" %}</label><br>
-                                    <!-- Using context variable 'preferred_category_names' to check selections -->
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="world_news" id="world_news" {% if 'World News' in preferred_category_names %} checked {% endif %}>
-                                        <label class="form-check-label" for="world_news"><i class="fas fa-globe"></i> {% trans "World News" %}</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="politics" id="politics" {% if 'Politics' in preferred_category_names %} checked {% endif %}>
-                                        <label class="form-check-label" for="politics"><i class="fas fa-flag"></i> {% trans "Politics" %}</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="business" id="business" {% if 'Business' in preferred_category_names %} checked {% endif %}>
-                                        <label class="form-check-label" for="business"><i class="fas fa-briefcase"></i> {% trans "Business" %}</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="technology" id="technology" {% if 'Technology' in preferred_category_names %} checked {% endif %}>
-                                        <label class="form-check-label" for="technology"><i class="fas fa-laptop"></i> {% trans "Technology" %}</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="sports" id="sports" {% if 'Sports' in preferred_category_names %} checked {% endif %}>
-                                        <label class="form-check-label" for="sports"><i class="fas fa-basketball-ball"></i> {% trans "Sports" %}</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="entertainment" id="entertainment" {% if 'Entertainment' in preferred_category_names %} checked {% endif %}>
-                                        <label class="form-check-label" for="entertainment"><i class="fas fa-tv"></i> {% trans "Entertainment" %}</label>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex gap-2 mt-3">
-                                    <button type="submit" class="btn btn-primary" id="save-preferences-btn">{% trans "Save Preferences" %}</button>
-                                    <button type="button" class="btn btn-warning" id="reset-preferences-btn">{% trans "Reset to Default" %}</button>
-                                    <button type="button" class="btn btn-secondary" id="cancel-preferences-btn">{% trans "Cancel Changes" %}</button>
-                                </div>
-                            </form>
+                <h2 class="accordion-header" id="headingNewsFeed">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNewsFeed" aria-expanded="false" aria-controls="collapseNewsFeed">
+                    {% trans "News Feed Preferences" %}
+                    </button>
+                </h2>
+                <div id="collapseNewsFeed" class="accordion-collapse collapse" aria-labelledby="headingNewsFeed">
+                    <div class="accordion-body">
+                    <form method="POST" id="news-feed-preferences-form" action="{% url 'users:preferences_update' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_type" value="preferences">
+                        <div class="mb-3">
+                        <label class="form-label">{% trans "Preferred Categories" %}</label><br>
+                        {% for category in categories %}
+                        <div class="form-check">
+                            <input class="form-check-input" 
+                                type="checkbox" 
+                                name="preferred_categories" 
+                                id="category_{{ category.id }}" 
+                                value="{{ category.id }}"
+                                {% if category.name in preferred_category_names %} checked {% endif %}>
+                            <label class="form-check-label" for="category_{{ category.id }}">
+                            {% if category.name == "World News" %}
+                                <i class="fas fa-globe"></i>
+                            {% elif category.name == "Politics" %}
+                                <i class="fas fa-gavel"></i>
+                            {% elif category.name == "Business" %}
+                                <i class="fas fa-briefcase"></i>
+                            {% elif category.name == "Technology" %}
+                                <i class="fas fa-microchip"></i>
+                            {% elif category.name == "Sports" %}
+                                <i class="fas fa-futbol"></i>
+                            {% elif category.name == "Entertainment" %}
+                                <i class="fas fa-film"></i>
+                            {% else %}
+                                <i class="fas fa-question-circle"></i>
+                            {% endif %}
+                            {{ category.name }}
+                            </label>
                         </div>
+                        {% endfor %}
+                        </div>
+                        <div id="preferences-feedback"></div>
+                        <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary" id="save-preferences-btn">{% trans "Save Preferences" %}</button>
+                        <button type="button" class="btn btn-warning" id="reset-preferences-btn">{% trans "Reset to Default" %}</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-preferences-btn">{% trans "Cancel Changes" %}</button>
+                        </div>
+                    </form>
                     </div>
                 </div>
+                </div>
+            </div>  
 
-                <!-- Saved for Later Section -->
+            <!-- Accordion for Saved for Later -->
+            <div class="accordion mb-3" id="accordionSavedForLater">
                 <div class="accordion-item" id="saved-for-later-section">
                     <h2 class="accordion-header" id="headingSaved">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSaved" aria-expanded="false" aria-controls="collapseSaved">
                             {% trans "Saved for Later" %}
                         </button>
                     </h2>
-                    <div id="collapseSaved" class="accordion-collapse collapse" aria-labelledby="headingSaved" data-bs-parent="#profileAccordion">
+                    <div id="collapseSaved" class="accordion-collapse collapse" aria-labelledby="headingSaved">
                         <div class="accordion-body">
                             <ul id="saved-articles-list" class="list-unstyled">
                                 {% for article in saved_articles %}
                                     <li class="d-flex align-items-center mb-2">
-                                        <img 
-                                            src="{{ article.thumbnail.url }}" 
-                                            alt="Article Thumbnail" 
-                                            style="width: 50px; height: 50px; object-fit: cover;" 
-                                            class="me-2"
-                                        >
+                                        <img src="{{ article.thumbnail.url }}" alt="Article Thumbnail" style="width: 50px; height: 50px; object-fit: cover;" class="me-2">
                                         <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                                        <button class="btn btn-sm btn-danger ms-auto" id="remove-saved-{{ article.id }}">
-                                            {% trans "Remove" %}
-                                        </button>
+                                        <button class="btn btn-sm btn-danger ms-auto" id="remove-saved-{{ article.id }}">{% trans "Remove" %}</button>
                                     </li>
                                 {% empty %}
                                     <p class="text-muted">{% trans "No saved articles." %}</p>
                                 {% endfor %}
                             </ul>
                             <button class="btn btn-danger" id="clear-saved-articles-btn">{% trans "Clear All" %}</button>
-                        </div>
-                    </div>
-                </div>
+                        </div><!-- End accordion-body for Saved for Later -->
+                    </div><!-- End collapseSaved -->
+                </div><!-- End saved-for-later-section -->
+            </div><!-- End accordion for Saved for Later -->
 
-                <!-- Upvoted Articles Section -->
+            <!-- Accordion for Upvoted Articles -->
+            <div class="accordion mb-3" id="accordionUpvotedArticles">
                 <div class="accordion-item" id="upvoted-articles-section">
                     <h2 class="accordion-header" id="headingUpvoted">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpvoted" aria-expanded="false" aria-controls="collapseUpvoted">
                             {% trans "Upvoted Articles" %}
                         </button>
                     </h2>
-                    <div id="collapseUpvoted" class="accordion-collapse collapse" aria-labelledby="headingUpvoted" data-bs-parent="#profileAccordion">
+                    <div id="collapseUpvoted" class="accordion-collapse collapse" aria-labelledby="headingUpvoted">
                         <div class="accordion-body">
                             <ul id="upvoted-articles-list" class="list-unstyled">
                                 {% for article in upvoted_articles %}
                                     <li class="d-flex align-items-center mb-2">
-                                        <img 
-                                            src="{{ article.thumbnail.url }}" 
-                                            alt="Article Thumbnail" 
-                                            style="width: 50px; height: 50px; object-fit: cover;" 
-                                            class="me-2"
-                                        >
+                                        <img src="{{ article.thumbnail.url }}" alt="Article Thumbnail" style="width: 50px; height: 50px; object-fit: cover;" class="me-2">
                                         <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                                        <button class="btn btn-sm btn-danger ms-auto" id="remove-upvote-{{ article.id }}">
-                                            {% trans "Remove" %}
-                                        </button>
+                                        <button class="btn btn-sm btn-danger ms-auto" id="remove-upvote-{{ article.id }}">{% trans "Remove" %}</button>
                                     </li>
                                 {% empty %}
                                     <p class="text-muted">{% trans "No upvoted articles." %}</p>
                                 {% endfor %}
                             </ul>
                             <button class="btn btn-danger" id="clear-upvoted-articles-btn">{% trans "Clear All" %}</button>
-                        </div>
-                    </div>
-                </div>
+                        </div><!-- End accordion-body for Upvoted Articles -->
+                    </div><!-- End collapseUpvoted -->
+                </div><!-- End upvoted-articles-section -->
+            </div><!-- End accordion for Upvoted Articles -->
 
-                <!-- Downvoted Articles Section -->
+            <!-- Accordion for Downvoted Articles -->
+            <div class="accordion mb-3" id="accordionDownvotedArticles">
                 <div class="accordion-item" id="downvoted-articles-section">
                     <h2 class="accordion-header" id="headingDownvoted">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDownvoted" aria-expanded="false" aria-controls="collapseDownvoted">
                             {% trans "Downvoted Articles" %}
                         </button>
                     </h2>
-                    <div id="collapseDownvoted" class="accordion-collapse collapse" aria-labelledby="headingDownvoted" data-bs-parent="#profileAccordion">
+                    <div id="collapseDownvoted" class="accordion-collapse collapse" aria-labelledby="headingDownvoted">
                         <div class="accordion-body">
                             <ul id="downvoted-articles-list" class="list-unstyled">
                                 {% for article in downvoted_articles %}
                                     <li class="d-flex align-items-center mb-2">
-                                        <img 
-                                            src="{{ article.thumbnail.url }}" 
-                                            alt="Article Thumbnail" 
-                                            style="width: 50px; height: 50px; object-fit: cover;" 
-                                            class="me-2"
-                                        >
+                                        <img src="{{ article.thumbnail.url }}" alt="Article Thumbnail" style="width: 50px; height: 50px; object-fit: cover;" class="me-2">
                                         <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                                        <button class="btn btn-sm btn-danger ms-auto" id="remove-downvote-{{ article.id }}">
-                                            {% trans "Remove" %}
-                                        </button>
+                                        <button class="btn btn-sm btn-danger ms-auto" id="remove-downvote-{{ article.id }}">{% trans "Remove" %}</button>
                                     </li>
                                 {% empty %}
                                     <p class="text-muted">{% trans "No downvoted articles." %}</p>
                                 {% endfor %}
                             </ul>
                             <button class="btn btn-danger" id="clear-downvoted-articles-btn">{% trans "Clear All" %}</button>
-                        </div>
-                    </div>
-                </div>
+                        </div><!-- End accordion-body for Downvoted Articles -->
+                    </div><!-- End collapseDownvoted -->
+                </div><!-- End downvoted-articles-section -->
+            </div><!-- End accordion for Downvoted Articles -->
 
-                <!-- Comment History Section -->
+            <!-- Accordion for Comment History -->
+            <div class="accordion mb-3" id="accordionCommentHistory">
                 <div class="accordion-item" id="comment-history-section">
                     <h2 class="accordion-header" id="headingComments">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseComments" aria-expanded="false" aria-controls="collapseComments">
                             {% trans "Comment History" %}
                         </button>
                     </h2>
-                    <div id="collapseComments" class="accordion-collapse collapse" aria-labelledby="headingComments" data-bs-parent="#profileAccordion">
+                    <div id="collapseComments" class="accordion-collapse collapse" aria-labelledby="headingComments">
                         <div class="accordion-body">
                             <ul id="comment-history-list" class="list-unstyled">
                                 {% for comment in comments %}
                                     <li class="mb-3">
                                         <div class="d-flex align-items-center">
-                                            <img 
-                                                src="{{ comment.article.thumbnail.url }}" 
-                                                alt="Article Thumbnail" 
-                                                style="width: 50px; height: 50px; object-fit: cover;" 
-                                                class="me-2"
-                                            >
+                                            <img src="{{ comment.article.thumbnail.url }}" alt="Article Thumbnail" style="width: 50px; height: 50px; object-fit: cover;" class="me-2">
                                             <a href="{{ comment.article.get_absolute_url }}">{{ comment.article.title }}</a>
                                         </div>
                                         <p class="ms-5 mt-2">{{ comment.content }}</p>
                                         <div class="ms-5">
-                                            <button class="btn btn-sm btn-warning" id="edit-comment-{{ comment.id }}">
-                                                {% trans "Edit" %}
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" id="remove-comment-{{ comment.id }}">
-                                                {% trans "Remove" %}
-                                            </button>
+                                            <button class="btn btn-sm btn-warning" id="edit-comment-{{ comment.id }}">{% trans "Edit" %}</button>
+                                            <button class="btn btn-sm btn-danger" id="remove-comment-{{ comment.id }}">{% trans "Remove" %}</button>
                                         </div>
                                     </li>
                                 {% empty %}
                                     <p class="text-muted">{% trans "No comments yet." %}</p>
                                 {% endfor %}
                             </ul>
-                        </div>
-                    </div>
-                </div>
+                        </div><!-- End accordion-body for Comment History -->
+                    </div><!-- End collapseComments -->
+                </div><!-- End comment-history-section -->
+            </div><!-- End accordion for Comment History -->
 
-                <!-- Delete Account Section -->
+            <!-- Accordion for Delete Account -->
+            <div class="accordion mb-3" id="accordionDeleteAccount">
                 <div class="accordion-item" id="delete-account-section">
                     <h2 class="accordion-header" id="headingDelete">
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDelete" aria-expanded="false" aria-controls="collapseDelete">
                             {% trans "Delete Account" %}
                         </button>
                     </h2>
-                    <div id="collapseDelete" class="accordion-collapse collapse" aria-labelledby="headingDelete" data-bs-parent="#profileAccordion">
+                    <div id="collapseDelete" class="accordion-collapse collapse" aria-labelledby="headingDelete">
                         <div class="accordion-body">
                             <p class="text-danger">{% trans "Warning: Deleting your account is irreversible. All data will be lost." %}</p>
                             <form method="POST" id="delete-account-form">
@@ -335,11 +298,11 @@
                                 <button type="submit" class="btn btn-danger" id="confirm-deletion-btn">{% trans "Confirm Account Deletion" %}</button>
                                 <button type="button" class="btn btn-secondary" id="cancel-deletion-btn">{% trans "Cancel" %}</button>
                             </form>
-                        </div>
-                    </div>
-                </div>
+                        </div><!-- End accordion-body for Delete Account -->
+                    </div><!-- End collapseDelete -->
+                </div><!-- End delete-account-section -->
+            </div><!-- End accordion for Delete Account -->
 
-            </div> <!-- End of accordion -->
         </div> <!-- End of col-md-8 -->
     </div> <!-- End of row -->
 </div>

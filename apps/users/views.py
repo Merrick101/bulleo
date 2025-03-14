@@ -16,7 +16,6 @@ def profile_view(request):
     Handles the user profile page.
     """
     profile = get_object_or_404(Profile, user=request.user)
-
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
@@ -29,11 +28,13 @@ def profile_view(request):
         form = ProfileForm(instance=profile)
 
     preferred_category_names = list(profile.preferred_categories.all().values_list('name', flat=True))
+    categories = Category.objects.all()  # Add this line
 
     return render(request, "users/profile.html", {
         "form": form,
         "profile": profile,
         "preferred_category_names": preferred_category_names,
+        "categories": categories,   # And pass it to the template
     })
 
 
@@ -116,7 +117,7 @@ def update_username(request):
             request.user.username = new_username
             try:
                 request.user.save()
-                return JsonResponse({'success': True, 'message': "Username updated successfully!"})
+                return JsonResponse({'success': True, 'message': "Username updated successfully!", 'new_username': request.user.username})
             except Exception as e:
                 return JsonResponse({'success': False, 'error': str(e)})
         else:
@@ -136,16 +137,13 @@ def logout_view(request):
 def onboarding(request):
     """
     Handles category selection during onboarding.
+    Allows users to select any number of categories, or skip.
     """
     if request.method == "POST":
         selected = request.POST.get("categories", "")
         selected_ids = [int(cid) for cid in selected.split(",") if cid]
 
-        if len(selected_ids) < 3:
-            messages.error(request, "Please select at least 3 categories.")
-            return render(request, "onboarding/category_selection.html", {"categories": Category.objects.all()})
-
-        # Save the selected categories to the user's profile
+        # Save the selected categories to the user's profile, even if empty
         profile = request.user.profile
         profile.preferred_categories.set(selected_ids)
         profile.save()
@@ -155,6 +153,22 @@ def onboarding(request):
     else:
         categories = Category.objects.all()
         return render(request, "onboarding/category_selection.html", {"categories": categories})
+
+
+@login_required
+def preferences_update(request):
+    """
+    Updates the user's preferred categories based on the News Feed Preferences form.
+    Accepts AJAX POST requests.
+    """
+    if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        # Get a list of selected category IDs (as strings)
+        selected_ids = request.POST.getlist("preferred_categories")
+        profile = request.user.profile
+        profile.preferred_categories.set(selected_ids)
+        profile.save()
+        return JsonResponse({"success": True, "message": "Preferences updated successfully."})
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
 
 
 @login_required

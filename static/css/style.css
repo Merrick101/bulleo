@@ -432,6 +432,16 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid #ddd;
 }
 
+.category-card .card-body {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  height: 100px;
+  margin-left: 5rem;
+}
+
 .category-card:hover {
   transform: scale(1.02);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
