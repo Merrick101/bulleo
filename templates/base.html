@@ -92,7 +92,7 @@
                       </div>
                       <span class="ms-2">{% trans "On" %}</span>
                     </div>
-                    <!-- Button to mark all as read -->
+                    <!-- Mark all as read button -->
                     <button id="markAllReadBtn" class="btn btn-sm btn-link">{% trans "Mark all as read" %}</button>
                   </div>
                 </li>
@@ -101,9 +101,6 @@
                     <li>
                       <a class="notifications-dropdown-list-item dropdown-item" href="{{ notification.link }}" data-notification-id="{{ notification.id }}">
                         {{ notification.message }}
-                        {% if not notification.read %}
-                          <button class="btn btn-sm btn-outline-primary mark-read-btn" data-notification-id="{{ notification.id }}">{% trans "Mark read" %}</button>
-                        {% endif %}
                       </a>
                     </li>
                   {% endfor %}

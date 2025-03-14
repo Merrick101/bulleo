@@ -77,14 +77,6 @@ def toggle_notifications(request):
 
 
 @login_required
-def mark_notification_read(request, notification_id):
-    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
-    notification.read = True
-    notification.save()
-    return JsonResponse({'success': True})
-
-
-@login_required
 def mark_all_notifications_read(request):
     request.user.notifications.filter(read=False).update(read=True)
     return JsonResponse({'success': True})
