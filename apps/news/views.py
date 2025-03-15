@@ -88,7 +88,7 @@ def contact_view(request):
                 fail_silently=False,
             )
             messages.success(request, "Thank you for your message. We'll get back to you soon.")
-            return redirect('contact')  # Redirect to the same page or a thank you page
+            return redirect('news:contact')  # Redirect to the same page or a thank you page
     else:
         form = ContactForm()
 
