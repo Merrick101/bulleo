@@ -16,27 +16,36 @@ def profile_view(request):
     """
     Handles the user profile page.
     """
-    profile = get_object_or_404(Profile, user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)  # Ensures profile always exists
+    form = ProfileForm(request.POST or None, request.FILES or None, instance=profile)
+
     if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, "Profile updated successfully!")
             return redirect("users:profile")
-        else:
-            messages.error(request, "There was an error updating your profile.")
-    else:
-        form = ProfileForm(instance=profile)
+        messages.error(request, "There was an error updating your profile.")
 
-    preferred_category_names = list(profile.preferred_categories.all().values_list('name', flat=True))
-    categories = Category.objects.all()  # Add this line
+    # Fetch saved (bookmarked) articles
+    saved_articles = request.user.saved_articles.all()
 
-    return render(request, "users/profile.html", {
+    # Fetch upvoted articles
+    upvoted_articles = request.user.liked_articles.all()
+
+    # Fetch user comments with related articles (to display article titles in the profile)
+    comments = Comment.objects.filter(user=request.user).select_related("article")
+
+    context = {
         "form": form,
         "profile": profile,
-        "preferred_category_names": preferred_category_names,
-        "categories": categories,   # And pass it to the template
-    })
+        "saved_articles": saved_articles,
+        "upvoted_articles": upvoted_articles,
+        "comments": comments,
+        "preferred_category_names": list(profile.preferred_categories.values_list('name', flat=True)),
+        "categories": Category.objects.all(),
+    }
+
+    return render(request, "users/profile.html", context)
 
 
 @login_required
@@ -135,20 +144,20 @@ def update_notifications(request):
 
 @login_required
 def remove_saved_article(request):
-    """
-    Removes an article from the user's saved list.
-    """
+    """Removes an article from the user's saved list."""
     if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        article_id = request.POST.get("article_id")
-        article = get_object_or_404(Article, id=article_id)
+        article_id = request.POST.get("id")
+        if not article_id:
+            return JsonResponse({"success": False, "error": "Missing article ID"}, status=400)
 
+        article = get_object_or_404(Article, id=article_id)
         if request.user in article.saves.all():
             article.saves.remove(request.user)
-            return JsonResponse({"success": True, "message": "Article removed from saved."})
-        else:
-            return JsonResponse({"success": False, "error": "Article not found in saved list."})
+            return JsonResponse({"success": True})
 
-    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
+        return JsonResponse({"success": False, "error": "Article was not saved"}, status=400)
+
+    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
 
 @login_required
@@ -157,16 +166,19 @@ def remove_upvoted_article(request):
     Removes an article from the user's upvoted list.
     """
     if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        article_id = request.POST.get("article_id")
+        article_id = request.POST.get("id")
+        if not article_id:
+            return JsonResponse({"success": False, "error": "Missing article ID"}, status=400)
+
         article = get_object_or_404(Article, id=article_id)
 
         if request.user in article.likes.all():
             article.likes.remove(request.user)
-            return JsonResponse({"success": True, "message": "Upvote removed."})
-        else:
-            return JsonResponse({"success": False, "error": "Article not found in upvoted list."})
+            return JsonResponse({"success": True})
 
-    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
+        return JsonResponse({"success": False, "error": "Article was not upvoted"}, status=400)
+
+    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
 
 @login_required
@@ -186,11 +198,10 @@ def remove_comment(request):
 
 @login_required
 def clear_saved_articles(request):
-    """
-    Clears all saved articles for the user.
-    """
+    """Clears all saved articles for the user."""
     if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
         request.user.saved_articles.clear()
+        request.user.save()  # Ensure user data is saved after clearing
         return JsonResponse({"success": True, "message": "All saved articles cleared."})
 
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
@@ -198,11 +209,10 @@ def clear_saved_articles(request):
 
 @login_required
 def clear_upvoted_articles(request):
-    """
-    Clears all upvoted articles for the user.
-    """
+    """Clears all upvoted articles for the user."""
     if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
         request.user.liked_articles.clear()
+        request.user.save()  # Ensure user data is saved after clearing
         return JsonResponse({"success": True, "message": "All upvoted articles cleared."})
 
     return JsonResponse({"success": False, "error": "Invalid request."}, status=400)

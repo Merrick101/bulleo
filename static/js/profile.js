@@ -16,17 +16,56 @@ function getCookie(name) {
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    // --- Profile Picture Preview ---
+    // --- Profile Picture Upload & Preview (AJAX) ---
+    const profilePictureForm = document.getElementById("profile-picture-form");
     const profilePictureInput = document.getElementById("profile-picture-upload");
-    const profilePictureImage = document.getElementById("profile-picture");
-    
-    if (profilePictureInput && profilePictureImage) {
+    const profilePicturePreview = document.getElementById("profile-picture-preview");
+    const uploadStatus = document.getElementById("upload-status");
+
+    if (profilePictureForm && profilePictureInput && profilePicturePreview) {
+        profilePictureForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const file = profilePictureInput.files[0];
+            if (!file) {
+                uploadStatus.innerHTML = '<div class="alert alert-warning">Please select an image.</div>';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("profile_picture", file);
+            formData.append("csrfmiddlewaretoken", getCookie("csrftoken"));
+
+            // Show loading message
+            uploadStatus.innerHTML = '<div class="alert alert-info">Uploading...</div>';
+
+            fetch(profilePictureForm.action, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    profilePicturePreview.src = data.image_url;
+                    uploadStatus.innerHTML = '<div class="alert alert-success">Profile picture updated successfully!</div>';
+                } else {
+                    uploadStatus.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                }
+            })
+            .catch(error => {
+                console.error("Upload error:", error);
+                uploadStatus.innerHTML = '<div class="alert alert-danger">An error occurred. Please try again.</div>';
+            });
+        });
+
+        // Instant preview when selecting a file
         profilePictureInput.addEventListener("change", function () {
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    profilePictureImage.src = e.target.result;
+                    profilePicturePreview.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             }
@@ -34,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // --- AJAX Handlers for "Edit Account Details" Mini-Forms ---
-
     function handleFormSubmit(formId, feedbackId) {
         const form = document.getElementById(formId);
         if (form) {
@@ -107,20 +145,34 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // --- AJAX Handlers for Saved Articles, Upvoted Articles, and Comments ---
-    
     function setupRemoveHandler(selector, endpoint, listId) {
         document.querySelectorAll(selector).forEach(button => {
             button.addEventListener("click", function () {
                 const itemId = this.getAttribute("data-id");
+                if (!itemId) {
+                    console.error("Missing item ID for", selector);
+                    return;
+                }
+                
                 fetch(endpoint, {
                     method: "POST",
                     body: new URLSearchParams({ "id": itemId }),
-                    headers: { "X-CSRFToken": getCookie("csrftoken") }
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         this.closest("li").remove();
+                    } else {
+                        console.error("Error from server:", data.error);
                     }
                 })
                 .catch(error => console.error("Error:", error));
@@ -128,9 +180,10 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    setupRemoveHandler(".remove-saved", "/users/remove-saved-article/", "saved-articles-list");
-    setupRemoveHandler(".remove-upvote", "/users/remove-upvoted-article/", "upvoted-articles-list");
-    setupRemoveHandler(".remove-comment", "/users/remove-comment/", "comment-history-list");
+    setupRemoveHandler(".remove-saved", "/users/remove-saved-article/", "article_id");
+    setupRemoveHandler(".remove-upvote", "/users/remove-upvoted-article/", "article_id");
+    setupRemoveHandler(".remove-comment", "/users/remove-comment/", "comment_id");
+
 
     // --- Clear All Saved/Upvoted Articles ---
     function setupClearAllButton(buttonId, endpoint, listId, emptyMessage) {
@@ -152,8 +205,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    setupClearAllButton("clear-saved", "/users/clear-saved-articles/", "saved-articles-list", "No saved articles.");
-    setupClearAllButton("clear-upvoted", "/users/clear-upvoted-articles/", "upvoted-articles-list", "No upvoted articles.");
+    setupClearAllButton("clear-saved", "/users/clear-saved-articles/", "article_id", "No saved articles.");
+    setupClearAllButton("clear-upvoted", "/users/clear-upvoted-articles/", "article_id", "No upvoted articles.");
 
     // --- Secure Account Deletion Handler ---
     const deleteAccountForm = document.getElementById("delete-account-form");
@@ -180,5 +233,4 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-
 });

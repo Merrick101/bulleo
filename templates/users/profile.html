@@ -53,6 +53,7 @@
                             <form method="POST" id="update-username-form" action="{% url 'users:update_username' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="form_type" value="account_username">
+                                <input type="hidden" name="username" value="{{ profile.user.username }}">
                                 <div class="mb-3">
                                     <label for="username_field" class="form-label">{% trans "Username" %}</label>
                                     <input type="text" class="form-control profile-username-update-input" id="username_field" name="username" 
@@ -85,15 +86,15 @@
                                 <input type="hidden" name="form_type" value="account_password">
                                 <div class="mb-3">
                                     <label for="current_password_field" class="form-label">{% trans "Current Password" %}</label>
-                                    <input type="password" class="form-control profile-current-password-input" id="current_password_field" name="current_password" placeholder="Enter current password">
+                                    <input type="password" class="form-control profile-current-password-input" id="current_password_field" name="current_password" placeholder="Enter current password" autocomplete="current-password">
                                 </div>
                                 <div class="mb-3">
                                     <label for="new_password_field" class="form-label">{% trans "New Password" %}</label>
-                                    <input type="password" class="form-control profile-new-password-input" id="new_password_field" name="new_password" placeholder="Enter new password">
+                                    <input type="password" class="form-control profile-new-password-input" id="new_password_field" name="new_password" placeholder="Enter new password" autocomplete="new-password">
                                 </div>
                                 <div class="mb-3">
                                     <label for="confirm_new_password_field" class="form-label">{% trans "Confirm New Password" %}</label>
-                                    <input type="password" class="form-control profile-confirm-new-password-input" id="confirm_new_password_field" name="confirm_new_password" placeholder="Confirm new password">
+                                    <input type="password" class="form-control profile-confirm-new-password-input" id="confirm_new_password_field" name="confirm_new_password" placeholder="Confirm new password" autocomplete="new-password">
                                 </div>
                                 <p class="text-muted">Leave password fields blank if you do not wish to change your password.</p>
                                 <button type="submit" class="btn btn-primary profile-password-save-btn">{% trans "Save Password" %}</button>
@@ -171,10 +172,11 @@
                     </h2>
                     <div id="collapseSaved" class="accordion-collapse collapse">
                         <div class="accordion-body">
+                            <!-- Saved for Later -->
                             <ul id="saved-articles-list" class="list-unstyled">
                                 {% for article in saved_articles %}
                                     <li class="d-flex align-items-center mb-2">
-                                        <img src="{{ article.thumbnail.url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
                                         <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
                                         <button class="btn btn-sm btn-danger ms-auto remove-saved" data-id="{{ article.id }}">{% trans "Remove" %}</button>
                                     </li>
@@ -198,10 +200,11 @@
                     </h2>
                     <div id="collapseUpvoted" class="accordion-collapse collapse">
                         <div class="accordion-body">
+                            <!-- Upvoted Articles -->
                             <ul id="upvoted-articles-list" class="list-unstyled">
                                 {% for article in upvoted_articles %}
                                     <li class="d-flex align-items-center mb-2">
-                                        <img src="{{ article.thumbnail.url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
                                         <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
                                         <button class="btn btn-sm btn-danger ms-auto remove-upvote" data-id="{{ article.id }}">{% trans "Remove" %}</button>
                                     </li>
@@ -225,11 +228,12 @@
                     </h2>
                     <div id="collapseComments" class="accordion-collapse collapse">
                         <div class="accordion-body">
+                            <!-- Comment History -->
                             <ul id="comment-history-list" class="list-unstyled">
                                 {% for comment in comments %}
                                     <li class="mb-3">
                                         <div class="d-flex align-items-center">
-                                            <img src="{{ comment.article.thumbnail.url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <img src="{{ comment.article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
                                             <a href="{{ comment.article.get_absolute_url }}">{{ comment.article.title }}</a>
                                         </div>
                                         <p class="ms-5 mt-2">{{ comment.content }}</p>
@@ -259,9 +263,10 @@
                             <p class="text-danger">{% trans "Warning: Deleting your account is irreversible. All data will be lost." %}</p>
                             <form method="POST" id="delete-account-form">
                                 {% csrf_token %}
+                                <input type="hidden" name="username" value="{{ profile.user.username }}">
                                 <div class="mb-3">
                                     <label for="password">{% trans "Enter Password" %}</label>
-                                    <input type="password" name="password" id="password" class="form-control" required>
+                                    <input type="password" name="password" id="password" class="form-control" required autocomplete="current-password">
                                 </div>
                                 <button type="submit" class="btn btn-danger">{% trans "Confirm Deletion" %}</button>
                             </form>
@@ -269,10 +274,10 @@
                     </div>
                 </div>
             </div>
-
         </div> <!-- End col-md-8 -->
     </div> <!-- End row -->
 </div>
+
 {% block extra_js %}
 <script src="{% static 'js/profile.js' %}"></script>
 {% endblock extra_js %}
