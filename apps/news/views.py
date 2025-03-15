@@ -5,7 +5,7 @@ from django.db.models import Q, Count, F
 from django.contrib.auth.decorators import login_required
 from .models import Article
 from apps.users.forms import CommentForm
-from apps.users.models import Comment
+from apps.users.models import Comment, Category
 
 
 def chunked_queryset(queryset, chunk_size=3):
@@ -65,14 +65,10 @@ def homepage(request):
 
 
 def search_articles(request):
-    """
-    Search for articles by query, category, and source.
-    Paginate results with 9 articles per page.
-    """
     query = request.GET.get('q', '')
     category_slug = request.GET.get('category', '')
     source_slug = request.GET.get('source', '')
-    sort = request.GET.get('sort', 'most_relevant')  # default sort
+    sort = request.GET.get('sort', 'most_relevant')
 
     articles = Article.objects.all()
 
@@ -83,11 +79,15 @@ def search_articles(request):
 
     if category_slug:
         articles = articles.filter(category__slug=category_slug)
+        category_obj = Category.objects.filter(slug=category_slug).first()
+        category_name = category_obj.name if category_obj else ''
+    else:
+        category_name = ''
 
     if source_slug:
         articles = articles.filter(source__slug=source_slug)
 
-    # Sorting logic
+    # Sorting logic here ...
     if sort == 'most_recent':
         articles = articles.order_by('-published_at')
     elif sort == 'oldest':
@@ -96,9 +96,8 @@ def search_articles(request):
         articles = articles.order_by('category__name')
     elif sort == 'source':
         articles = articles.order_by('source__name')
-    else:  # For 'most_relevant' or default, you could either leave the order as-is
-        # Optionally, you might implement a relevance score if you want.
-        articles = articles.order_by('-id')  # Simple fallback; newest by id
+    else:
+        articles = articles.order_by('-id')
 
     paginator = Paginator(articles, 9)
     page_number = request.GET.get('page')
@@ -110,6 +109,7 @@ def search_articles(request):
         'is_paginated': page_obj.has_other_pages(),
         'query': query,
         'category_slug': category_slug,
+        'category_name': category_name,
         'source_slug': source_slug,
         'sort': sort,
     }
