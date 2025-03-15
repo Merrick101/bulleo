@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
+from cloudinary.models import CloudinaryField
 from django.apps import apps  # Lazy import
 
 User = get_user_model()  # Dynamically load user model
@@ -36,12 +37,7 @@ class Category(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     bio = models.TextField(blank=True, null=True)
-    profile_picture = models.ImageField(
-        upload_to="static/images/profile_pics/",
-        default="profile_pics/default.jpg",
-        blank=True,
-        null=True
-    )
+    profile_picture = CloudinaryField("image", default="placeholder.jpg")  # Cloudinary field
     preferred_categories = models.ManyToManyField(Category, blank=True)
     notifications_enabled = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
