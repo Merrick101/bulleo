@@ -84,6 +84,7 @@
                             <form method="POST" id="update-password-form" action="{% url 'users:update_password' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="form_type" value="account_password">
+                                <input type="hidden" name="username" value="{{ profile.user.username }}">
                                 <div class="mb-3">
                                     <label for="current_password_field" class="form-label">{% trans "Current Password" %}</label>
                                     <input type="password" class="form-control profile-current-password-input" id="current_password_field" name="current_password" placeholder="Enter current password" autocomplete="current-password">
@@ -245,6 +246,9 @@
                                     <p class="text-muted">{% trans "No comments yet." %}</p>
                                 {% endfor %}
                             </ul>
+                            <span id="empty-comments-message" data-message="{% trans 'No comments yet.' %}" style="display: none;"></span>
+                            <!-- Clear All Comments Button -->
+                            <button class="btn btn-danger" id="clear-comments-btn">{% trans "Clear All Comments" %}</button>
                         </div>
                     </div>
                 </div>

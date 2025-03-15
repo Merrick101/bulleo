@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // --- AJAX Handlers for Saved Articles, Upvoted Articles, and Comments ---
-    function setupRemoveHandler(selector, endpoint, listId) {
+    function setupRemoveHandler(selector, endpoint) {
         document.querySelectorAll(selector).forEach(button => {
             button.addEventListener("click", function () {
                 const itemId = this.getAttribute("data-id");
@@ -153,10 +153,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.error("Missing item ID for", selector);
                     return;
                 }
-                
+                // Determine the correct key based on the endpoint
+                const paramKey = endpoint.includes("remove-comment") ? "comment_id" : "id";
                 fetch(endpoint, {
                     method: "POST",
-                    body: new URLSearchParams({ "id": itemId }),
+                    body: new URLSearchParams({ [paramKey]: itemId }),
                     headers: {
                         "X-CSRFToken": getCookie("csrftoken"),
                         "X-Requested-With": "XMLHttpRequest"
@@ -178,7 +179,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .catch(error => console.error("Error:", error));
             });
         });
-    }
+    }    
 
     setupRemoveHandler(".remove-saved", "/users/remove-saved-article/", "article_id");
     setupRemoveHandler(".remove-upvote", "/users/remove-upvoted-article/", "article_id");
@@ -192,7 +193,10 @@ document.addEventListener("DOMContentLoaded", function () {
             button.addEventListener("click", function () {
                 fetch(endpoint, {
                     method: "POST",
-                    headers: { "X-CSRFToken": getCookie("csrftoken") }
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -204,9 +208,35 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
     }
+    
+    setupClearAllButton("clear-saved", "/users/clear-saved-articles/", "saved-articles-list", "No saved articles.");
+    setupClearAllButton("clear-upvoted", "/users/clear-upvoted-articles/", "upvoted-articles-list", "No upvoted articles.");
 
-    setupClearAllButton("clear-saved", "/users/clear-saved-articles/", "article_id", "No saved articles.");
-    setupClearAllButton("clear-upvoted", "/users/clear-upvoted-articles/", "article_id", "No upvoted articles.");
+    // Clear All Comments Handler
+    const clearCommentsButton = document.getElementById("clear-comments-btn");
+    if (clearCommentsButton) {
+        clearCommentsButton.addEventListener("click", function () {
+            fetch("/users/clear-comments/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Retrieve the translated message from the hidden element
+                    const emptyCommentsMessage = document.getElementById("empty-comments-message").getAttribute("data-message");
+                    // Use the retrieved message in the updated HTML
+                    document.getElementById("comment-history-list").innerHTML = `<p class="text-muted">${emptyCommentsMessage}</p>`;
+                } else {
+                    console.error("Error clearing comments:", data.error);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    }
 
     // --- Secure Account Deletion Handler ---
     const deleteAccountForm = document.getElementById("delete-account-form");

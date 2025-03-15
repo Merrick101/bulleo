@@ -18,6 +18,7 @@ urlpatterns = [
     path("remove-comment/", views.remove_comment, name="remove_comment"),
     path("clear-saved-articles/", views.clear_saved_articles, name="clear_saved_articles"),
     path("clear-upvoted-articles/", views.clear_upvoted_articles, name="clear_upvoted_articles"),
+    path("clear-comments/", views.clear_comments, name="clear_comments"),
 
     # Account management
     path("delete-account/", views.delete_account, name="delete_account"),

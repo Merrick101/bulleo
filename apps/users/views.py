@@ -219,6 +219,20 @@ def clear_upvoted_articles(request):
 
 
 @login_required
+def clear_comments(request):
+    """
+    Clears all comments made by the current user.
+    Uses the overridden delete() method on Comment which marks them as deleted.
+    """
+    if request.method == "POST" and request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        user_comments = Comment.objects.filter(user=request.user)
+        for comment in user_comments:
+            comment.delete()  # This will mark the comment as "[Deleted]" per your model override.
+        return JsonResponse({"success": True, "message": "All comments cleared."})
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
+
+
+@login_required
 def delete_account(request):
     """
     Handles secure account deletion.
