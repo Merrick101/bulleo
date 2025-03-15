@@ -8,9 +8,9 @@ from apps.users.models import Category
 
 class ArticleSearchTests(TestCase):
     def setUp(self):
-        # Create categories (ensure Category has a 'slug' field or create one here)
-        self.business_category = Category.objects.create(name="Business", slug="business")
-        self.sports_category = Category.objects.create(name="Sports", slug="sports")
+        # Use get_or_create to avoid duplicates
+        self.business_category, _ = Category.objects.get_or_create(name="Business", slug="business")
+        self.sports_category, _ = Category.objects.get_or_create(name="Sports", slug="sports")
 
         # Create a news source (assume NewsSource has a slug field)
         self.source = NewsSource.objects.create(name="TestSource", slug="testsource")
