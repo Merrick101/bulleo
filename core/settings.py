@@ -158,6 +158,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = "bulleo.news@gmail.com"
+CONTACT_RECIPIENT_EMAIL = "bulleo.news@gmail.com"
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",

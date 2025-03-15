@@ -151,13 +151,18 @@
     <div class="offcanvas-body">
       <ul class="list-unstyled">
         <li>
-          <a href="{% url 'home' %}">
+          <a href="{% url 'news:homepage' %}">
             <i class="fas fa-home me-2"></i>Home
           </a>
         </li>
         <li>
           <a href="{% url 'news:search_results' %}">
             <i class="fas fa-newspaper me-2"></i>All Articles
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'news:contact' %}">
+            <i class="fas fa-envelope me-2"></i>Contact
           </a>
         </li>
       </ul>      
