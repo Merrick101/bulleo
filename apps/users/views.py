@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 import json
 from .models import Profile, Category, Notification, Comment
-from news.models import Article
+from apps.news.models import Article
 from .forms import ProfileForm
 
 User = get_user_model()
