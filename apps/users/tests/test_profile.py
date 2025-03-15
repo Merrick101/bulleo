@@ -1,4 +1,11 @@
-from django.test import TestCase, Client
+import cloudinary
+cloudinary.config(
+    cloud_name='test-cloud',
+    api_key='dummy-key',
+    api_secret='dummy-secret'
+)
+
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from apps.users.models import Profile
@@ -6,6 +13,11 @@ from apps.users.models import Profile
 User = get_user_model()
 
 
+@override_settings(
+    CLOUDINARY_CLOUD_NAME='test-cloud',
+    CLOUDINARY_API_KEY='dummy-key',
+    CLOUDINARY_API_SECRET='dummy-secret'
+)
 class ProfileViewTests(TestCase):
     def setUp(self):
         # Create a test user; the signals will automatically create a Profile.
