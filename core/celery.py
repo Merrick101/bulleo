@@ -9,9 +9,9 @@ app = Celery('core')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-app.conf.broker_url = os.environ.get('REDIS_URL')
+app.conf.broker_url = os.environ.get('CELERY_BROKER_URL')
 
-app.conf.result_backend = os.environ.get('REDIS_URL')
+app.conf.result_backend = os.environ.get('CELERY_RESULT_BACKEND')
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
