@@ -1,23 +1,52 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
 <div class="container mt-4">
   <div class="article-detail my-article-detail" data-article-id="{{ article.id }}">
     <h1>{{ article.title }}</h1>
     <p class="text-muted">
-      Source: {{ article.source }} |
-      Published on: {{ article.published_at|date:"F d, Y" }}
+      Source: 
+      {% if article.source %}
+        {{ article.source.name }}
+      {% else %}
+        Unknown
+      {% endif %}
+      | Published on: {{ article.published_at|date:"F d, Y" }}
     </p>
-    <hr>
-    <div class="article-content">
-      {{ article.content|safe }}
-    </div>
 
+    <!-- Display Summary & Original Link -->
+    {% if article.summary %}
+      <p class="article-summary my-2">{{ article.summary }}</p>
+    {% endif %}
+    <p class="my-2">
+      {% if article.url %}
+        <a href="{{ article.url }}" target="_blank" rel="noopener noreferrer">
+          Read Full Article
+        </a>
+      {% else %}
+        No external link available.
+      {% endif %}
+    </p>
+
+    <!-- Like & Save Buttons for Article Detail (unique classes) -->
+    {% if user.is_authenticated %}
+      <div class="d-flex align-items-center gap-3 my-3">
+        <button class="btn btn-sm btn-outline-primary detail-like-btn" data-article-id="{{ article.id }}">
+          <i class="fas fa-thumbs-up"></i> Like ({{ article.likes.count }})
+        </button>
+        <button class="btn btn-sm btn-outline-secondary detail-save-btn" data-article-id="{{ article.id }}">
+          <i class="fas fa-bookmark"></i> Save ({{ article.saves.count }})
+        </button>
+      </div>
+    {% endif %}
+
+    <hr>
+            
     <!-- Comment Section -->
     <div class="comment-section my-comment-section mt-5">
       <h3>Comment Section</h3>
-      
       <!-- Feedback message container for comment submissions -->
       <div id="feedback-message"></div>
       
@@ -37,7 +66,7 @@
       {% else %}
         <p><a href="{% url 'login' %}">Log in</a> to post a comment.</p>
       {% endif %}
-      
+
       <!-- Comment Count & Sorting Options -->
       <div class="d-flex justify-content-between align-items-center mt-4 my-comment-sort">
         <h4>Comments (<span id="comment-count">{{ comment_count }}</span>)</h4>
@@ -50,7 +79,7 @@
           </select>
         </div>
       </div>
-      
+
       <!-- Comments List -->
       <div id="comments-list" class="my-comments-list">
         {% for comment in comments %}
@@ -63,6 +92,8 @@
   </div>
 </div>
 
-<!-- Include the Comments JS File -->
+<!-- Article Interactions JS File -->
+<script src="{% static 'js/article-interactions.js' %}"></script>
+<!-- Comments JS File -->
 <script src="{% static 'js/comments.js' %}"></script>
 {% endblock content %}
