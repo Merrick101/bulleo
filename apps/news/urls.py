@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     homepage, search_articles, article_detail, vote_comment, post_comment,
-    edit_comment, delete_comment, reply_to_comment, report_comment, toggle_like, toggle_save, contact_view
+    edit_comment, delete_comment, reply_to_comment, report_comment, toggle_like, toggle_save, contact_view, about_view
 )
 
 app_name = "news"
@@ -9,6 +9,7 @@ app_name = "news"
 urlpatterns = [
     path('', homepage, name='homepage'),
     path('contact/', contact_view, name='contact'),
+    path('about/', about_view, name='about'),
     path('search/', search_articles, name='search_results'),
     path('article/<int:article_id>/', article_detail, name='article_detail'),
     path('articles/<int:article_id>/toggle_like/', toggle_like, name='toggle_like'),

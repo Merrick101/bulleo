@@ -136,11 +136,36 @@
     {% block content %}{% endblock %}
   </div>
 
-  <footer class="custom-footer">
-    <div class="container text-center">
-      <p>&copy; 2025 Bulleo. All Rights Reserved.</p>
+  <footer class="custom-footer py-4">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- Left: Copyright -->
+        <div class="col-md-4 text-center text-md-left mb-3 mb-md-0">
+          <p class="mb-0">&copy; 2025 Bulleo. All Rights Reserved.</p>
+        </div>
+        <!-- Center: Social Media Icons -->
+        <div class="col-md-4 text-center mb-3 mb-md-0">
+          <a href="https://facebook.com" target="_blank" class="text-light me-3 social-icon">
+            <i class="fab fa-facebook-f fa-lg"></i>
+          </a>
+          <a href="https://twitter.com" target="_blank" class="text-light me-3 social-icon">
+            <i class="fab fa-twitter fa-lg"></i>
+          </a>
+          <a href="https://instagram.com" target="_blank" class="text-light me-3 social-icon">
+            <i class="fab fa-instagram fa-lg"></i>
+          </a>
+          <a href="https://linkedin.com" target="_blank" class="text-light social-icon">
+            <i class="fab fa-linkedin-in fa-lg"></i>
+          </a>
+        </div>
+        <!-- Right: Extra Links -->
+        <div class="col-md-4 text-center text-md-right">
+          <a href="{% url 'news:about' %}" class="text-light footer-link me-3">{% trans "About" %}</a>
+          <a href="{% url 'news:contact' %}" class="text-light footer-link">{% trans "Contact" %}</a>
+        </div>
+      </div>
     </div>
-  </footer>
+  </footer>  
 
   <!-- Offcanvas Menu -->
   <div class="offcanvas offcanvas-start" tabindex="-1" id="mainMenuOffcanvas" aria-labelledby="mainMenuOffcanvasLabel">
@@ -158,6 +183,11 @@
         <li>
           <a href="{% url 'news:search_results' %}">
             <i class="fas fa-newspaper me-2"></i>All Articles
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'news:about' %}">
+            <i class="fas fa-circle-info"></i>About
           </a>
         </li>
         <li>

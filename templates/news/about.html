@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="mb-4 text-center">{% trans "About Bulleo" %}</h1>
+  
+  <section class="mb-5">
+    <h2 class="mb-3">{% trans "Our Mission" %}</h2>
+    <p>
+      {% trans "Bulleo is dedicated to curating and delivering personalized, up-to-date news from a diverse range of sources. Our goal is to empower users with a seamless, intuitive news experience by offering robust filtering, sorting, and categorization options." %}
+    </p>
+  </section>
+  
+  <section class="mb-5">
+    <h2 class="mb-3">{% trans "What is Bulleo?" %}</h2>
+    <p>
+      {% trans "Bulleo is a real-time news aggregator that collects articles from various trusted sources and presents them based on user preferences. With an easy-to-use interface and dynamic content updates, Bulleo helps users stay informed about the topics that matter most." %}
+    </p>
+  </section>
+  
+  <section>
+    <h2 class="mb-3">{% trans "Looking Ahead" %}</h2>
+    <p>
+      {% trans "Future updates will enhance personalization, and further optimize performance to ensure an even more engaging news experience." %}
+    </p>
+  </section>
+</div>
+{% endblock content %}

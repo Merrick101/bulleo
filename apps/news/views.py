@@ -95,6 +95,10 @@ def contact_view(request):
     return render(request, 'news/contact.html', {'form': form})
 
 
+def about_view(request):
+    return render(request, 'news/about.html')
+
+
 def search_articles(request):
     query = request.GET.get('q', '')
     category_slug = request.GET.get('category', '')
