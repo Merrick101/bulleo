@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from .models import Profile, Comment, Notification
 
 
@@ -35,27 +36,30 @@ class IsReplyFilter(admin.SimpleListFilter):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('user', 'article', 'content', 'created_at', 'parent', 'upvote_count', 'downvote_count')  # Show vote counts
-    search_fields = ('content', 'user__username', 'article__title')  # Search by content, username, and article title
-    list_filter = ('created_at', IsReplyFilter)  # Add the custom filter here
-    ordering = ('-created_at',)  # Order comments by most recent first
-    list_per_page = 25  # Display 25 comments per page in the admin panel
+    list_display = ('user', 'article', 'short_content', 'created_at', 'parent_link', 'upvote_count', 'downvote_count')
+    search_fields = ('content', 'user__username', 'article__title')
+    list_filter = ('created_at', IsReplyFilter)
+    ordering = ('-created_at',)
+    list_per_page = 25
+    list_select_related = ('user', 'article', 'parent')
+
+    def short_content(self, obj):
+        return obj.content[:50] + ("..." if len(obj.content) > 50 else "")
+    short_content.short_description = "Content"
+
+    def parent_link(self, obj):
+        if obj.parent:
+            return format_html('<a href="{}">{}</a>', obj.parent.get_absolute_url(), obj.parent.content[:50])
+        return "N/A"
+    parent_link.short_description = "Parent Comment"
 
     def upvote_count(self, obj):
         return obj.upvotes.count()
+    upvote_count.admin_order_field = 'upvotes'
 
     def downvote_count(self, obj):
         return obj.downvotes.count()
-
-    upvote_count.admin_order_field = 'upvotes'  # Make upvote count sortable
-    downvote_count.admin_order_field = 'downvotes'  # Make downvote count sortable
-
-    def parent(self, obj):
-        # Display the content of the parent comment if it's a reply
-        if obj.parent:
-            return obj.parent.content[:50]  # Display the first 50 characters of the parent content
-        return None
-    parent.admin_order_field = 'parent'  # Make parent sortable
+    downvote_count.admin_order_field = 'downvotes'
 
 
 @admin.register(Notification)
