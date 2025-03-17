@@ -94,7 +94,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-SITE_ID = 2
+SITE_ID = int(os.environ.get("SITE_ID", 2))
 
 # Allauth Configurations for social logins
 ACCOUNT_EMAIL_REQUIRED = True
