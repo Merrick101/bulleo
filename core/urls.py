@@ -6,7 +6,7 @@ from apps.news.views import homepage
 urlpatterns = [
     # Admin Panel
     path('admin/', admin.site.urls),
-    path('', include('django.contrib.auth.urls')),
+    # path('', include('django.contrib.auth.urls')),
 
     # Use Allauth for authentication (removing django.contrib.auth.urls)
     path('accounts/', include('allauth.urls')),
