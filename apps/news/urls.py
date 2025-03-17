@@ -7,7 +7,7 @@ from .views import (
 app_name = "news"
 
 urlpatterns = [
-    path('', homepage, name='homepage'),
+    path('', homepage, name='homepage'),  # The homepage
     path('contact/', contact_view, name='contact'),
     path('about/', about_view, name='about'),
     path('search/', search_articles, name='search_results'),
