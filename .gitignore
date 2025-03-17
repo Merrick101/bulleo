@@ -9,3 +9,7 @@ node_modules/
 cloudinary_python.txt
 .venv
 apps/news/tests/fixtures/social_app.json
+bulleo_backup.dump
+git-filter-repo.py
+heroku_logs.txt
+db.sqlite3
