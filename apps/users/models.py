@@ -1,3 +1,9 @@
+"""
+Models for the Users app, including user profiles,
+categories for news preferences, comments, and notifications.
+Located at: apps/users/models.py
+"""
+
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -6,18 +12,29 @@ from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from django.utils.text import slugify
 from cloudinary.models import CloudinaryField
-from django.apps import apps  # Lazy import
+from django.apps import apps
 
 User = get_user_model()  # Dynamically load user model
 
 
 # Category Model for News Preferences
 class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True, blank=True)
-    description = models.TextField(blank=True, null=True, help_text="A brief description of the category")
-    icon = models.ImageField(upload_to="images/category_icons/", blank=True, null=True, help_text="Optional icon for the category")
-    order = models.PositiveIntegerField(default=0, help_text="Order for displaying categories")
+    name = models.CharField(
+        max_length=100, unique=True
+    )
+    slug = models.SlugField(
+        max_length=100, unique=True, blank=True
+    )
+    description = models.TextField(
+        blank=True, null=True, help_text="A brief description of the category"
+    )
+    icon = models.ImageField(
+        upload_to="images/category_icons/", blank=True, null=True,
+        help_text="Optional icon for the category"
+    )
+    order = models.PositiveIntegerField(
+        default=0, help_text="Order for displaying categories"
+    )
 
     class Meta:
         verbose_name_plural = "Categories"
@@ -35,12 +52,24 @@ class Category(models.Model):
 
 # User Profile Model
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    bio = models.TextField(blank=True, null=True)
-    profile_picture = CloudinaryField("image", default="placeholder.jpg")  # Cloudinary field
-    preferred_categories = models.ManyToManyField(Category, blank=True)
-    notifications_enabled = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="profile"
+    )
+    bio = models.TextField(
+        blank=True, null=True
+    )
+    profile_picture = CloudinaryField(
+        "image", default="placeholder.jpg"
+    )  # Cloudinary field
+    preferred_categories = models.ManyToManyField(
+        Category, blank=True
+    )
+    notifications_enabled = models.BooleanField(
+        default=True
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
 
     class Meta:
         ordering = ['-created_at']
@@ -51,22 +80,41 @@ class Profile(models.Model):
 
 # Comment Model
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    article = models.ForeignKey("news.Article", on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    article = models.ForeignKey(
+        "news.Article", on_delete=models.CASCADE, related_name="comments"
+    )
     content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True, related_name="replies")
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+    parent = models.ForeignKey(
+        "self", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="replies"
+    )
 
     # Voting System (we rely on the many-to-many relationships)
-    upvotes = models.ManyToManyField(User, related_name="upvoted_comments", blank=True)
-    downvotes = models.ManyToManyField(User, related_name="downvoted_comments", blank=True)
+    upvotes = models.ManyToManyField(
+        User, related_name="upvoted_comments", blank=True
+    )
+    downvotes = models.ManyToManyField(
+        User, related_name="downvoted_comments", blank=True
+    )
 
     # Report field: marks a comment as reported/harmful.
-    reported = models.BooleanField(default=False)
+    reported = models.BooleanField(
+        default=False
+    )
 
     # Deleted flag (optional but useful)
-    deleted = models.BooleanField(default=False)
+    deleted = models.BooleanField(
+        default=False
+    )
 
     class Meta:
         ordering = ['created_at']
@@ -108,11 +156,19 @@ class Comment(models.Model):
 
 
 class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='notifications'
+    )
     message = models.TextField()
-    link = models.URLField(blank=True, null=True)  # Optional link to the relevant content
-    read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    link = models.URLField(
+        blank=True, null=True
+    )  # Optional link to the relevant content
+    read = models.BooleanField(
+        default=False
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
 
     def __str__(self):
         return f"Notification for {self.user.username}: {self.message[:20]}"

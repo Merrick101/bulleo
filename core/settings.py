@@ -1,3 +1,8 @@
+"""
+Django settings for Bulleo project.
+Located at: core/settings.py
+"""
+
 from pathlib import Path
 from celery.schedules import crontab
 import os

@@ -1,4 +1,9 @@
-from .settings import *  # Import everything from settings
+"""
+Test settings for the Django application.
+Located at: core/test_settings.py
+"""
+
+from .settings import *  # NOQA
 
 SITE_ID = 1
 

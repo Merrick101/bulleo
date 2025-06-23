@@ -1,3 +1,5 @@
+# apps/news/urls.py
+
 from django.urls import path
 from .views import (
     homepage, search_articles, article_detail, vote_comment, post_comment,

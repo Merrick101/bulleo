@@ -1,3 +1,8 @@
+"""
+Users application configuration for Django.
+Located at: apps/users/apps.py
+"""
+
 from django.apps import AppConfig
 
 
@@ -6,5 +11,5 @@ class UsersConfig(AppConfig):
     name = 'apps.users'
 
     def ready(self):
-        # Ensure that signals are loaded when the app is ready
-        import apps.users.signals  # Import the signals module to activate signal handlers
+        # Import the signals module to activate signal handlers
+        import apps.users.signals  # noqa: F401

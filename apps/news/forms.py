@@ -1,3 +1,5 @@
+# apps/news/forms.py
+
 from django import forms
 
 

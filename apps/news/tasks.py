@@ -1,3 +1,5 @@
+# apps/news/tasks.py
+
 import requests
 import logging
 import redis

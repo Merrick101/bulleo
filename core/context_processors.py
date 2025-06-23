@@ -1,3 +1,8 @@
+"""
+Context processors for the core application.
+Located at: core/context_processors.py
+"""
+
 from django.contrib.auth.forms import AuthenticationForm
 from allauth.account.forms import SignupForm
 

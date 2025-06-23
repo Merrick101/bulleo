@@ -1,5 +1,10 @@
+"""
+Project URL Configuration
+Located at: core/urls.py
+"""
+
 from django.contrib import admin
-from django.conf import settings
+from django.conf import settings  # NOQA
 from django.urls import path, include
 from apps.news.views import homepage
 

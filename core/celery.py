@@ -1,3 +1,8 @@
+"""
+Celery configuration for the Django project.
+Located at: core/celery.py
+"""
+
 import os
 from celery import Celery
 from django.conf import settings

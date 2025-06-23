@@ -1,10 +1,10 @@
+# apps/news/models.py
+
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from apps.users.models import Category
-
-# Create your models here.
 
 
 # Model to represent a news source

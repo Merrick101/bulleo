@@ -1,3 +1,8 @@
+"""
+Signal handlers for user profile creation and updates.
+Located at: apps/users/signals.py
+"""
+
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
