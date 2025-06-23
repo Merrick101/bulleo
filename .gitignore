@@ -1,15 +1,50 @@
-core.Microsoft*
-core.mongo*
-core.python*
-env.py
+# Python / Django
 __pycache__/
+**/__pycache__/
 *.py[cod]
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.db
+*.swp
+
+# Migrations (exclude generated code, keep folder)
+**/migrations/*.py
+**/migrations/__pycache__/
+
+# Environments
+.env
+.env.*
+env.py
+.venv/
+venv/
+
+# Custom / Project-specific
 node_modules/
 .github/
-cloudinary_python.txt
-.venv
 apps/news/tests/fixtures/social_app.json
 bulleo_backup.dump
 git-filter-repo.py
 heroku_logs.txt
-db.sqlite3
+
+# Testing / Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# macOS / OS-specific
+.DS_Store
+
+# Translations
+*.mo
+
+# Misc Microsoft and temp files
+core.Microsoft*
+core.mongo*
+core.python*
+cloudinary_python.txt

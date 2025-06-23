@@ -3,6 +3,7 @@ Django settings for Bulleo project.
 Located at: core/settings.py
 """
 
+from decouple import config
 from pathlib import Path
 from celery.schedules import crontab
 import os
@@ -11,13 +12,11 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-if os.path.isfile('env.py'):
-    import env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-DEBUG = os.environ.get("DEBUG", "False").lower() in ["true", "1"]
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -81,7 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = config("DATABASE_URL", default=None)
 if DATABASE_URL:
     DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
 else:
@@ -93,13 +92,17 @@ else:
     }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 10}},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME":
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME":
+        "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 10}},
+    {"NAME":
+        "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME":
+        "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-SITE_ID = int(os.environ.get("SITE_ID", 2))
+SITE_ID = config("SITE_ID", default=2, cast=int)
 
 # Allauth Configurations for social logins
 ACCOUNT_EMAIL_REQUIRED = True
@@ -107,9 +110,9 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
 
-SOCIALACCOUNT_AUTO_SIGNUP = True   # Skip extra final step for social signups
-SOCIALACCOUNT_QUERY_EMAIL = True    # Ensure email is queried from provider
-SOCIALACCOUNT_LOGIN_ON_GET = True   # Login immediately after social login
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_LOGIN_REDIRECT_URL = "/"
 
 ACCOUNT_SIGNUP_REDIRECT_URL = '/users/onboarding/'
@@ -160,8 +163,8 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = "bulleo.news@gmail.com"
 CONTACT_RECIPIENT_EMAIL = "bulleo.news@gmail.com"
 
@@ -176,9 +179,9 @@ USE_I18N = True
 USE_TZ = True
 
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": config("CLOUDINARY_API_KEY"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET"),
     "secure": True,
 }
 
@@ -186,7 +189,7 @@ CLOUDINARY_STORAGE = {
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # Media URL for Cloudinary
-MEDIA_URL = f"https://res.cloudinary.com/{os.getenv('CLOUDINARY_CLOUD_NAME')}/"
+MEDIA_URL = f"https://res.cloudinary.com/{config('CLOUDINARY_CLOUD_NAME')}/"
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -204,12 +207,12 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # API Keys
-NEWS_API_KEY = os.environ.get("NEWS_API_KEY")
-GUARDIAN_API_KEY = os.environ.get("GUARDIAN_API_KEY")
+NEWS_API_KEY = config("NEWS_API_KEY")
+GUARDIAN_API_KEY = config("GUARDIAN_API_KEY")
 
 # Celery Configuration
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+CELERY_BROKER_URL = config("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND")
 CELERY_TIMEZONE = "UTC"
 
 # Periodic Task Configuration
@@ -231,7 +234,7 @@ INTERNAL_IPS = [
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.environ.get('REDIS_URL'),
+        'LOCATION': config('REDIS_URL'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
