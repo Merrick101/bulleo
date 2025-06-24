@@ -9,6 +9,7 @@ import requests
 import logging
 import redis
 import json
+import re
 from datetime import timedelta
 from dateutil import parser
 from celery import shared_task
@@ -98,6 +99,27 @@ def fetch_news_articles():
     created_count = 0
     cached_articles = []
 
+    CATEGORY_KEYWORDS = {
+        "Politics": [
+            "election", "government", "minister", "policy", "parliament"
+        ],
+        "Business": [
+            "market", "economy", "trade", "inflation", "stock"
+        ],
+        "Technology": [
+            "AI", "tech", "software", "hardware", "startup"
+        ],
+        "Sports": [
+            "match", "goal", "team", "tournament", "league"
+        ],
+        "World News": [
+            "UN", "international", "global", "conflict", "diplomacy"
+        ],
+        "Entertainment": [
+            "movie", "music", "celebrity", "TV", "film"
+        ],
+    }
+
     for article_data in articles_data:
         title = article_data.get("title")
         url_article = article_data.get("url")
@@ -120,6 +142,25 @@ def fetch_news_articles():
         summary = article_data.get("description", "")
         image_url = article_data.get("urlToImage")
         category = None
+        combined_text = re.sub(
+            r"[^\w\s]", "", f"{title} {summary} {content}".lower()
+        )
+
+        for cat_name, keywords in CATEGORY_KEYWORDS.items():
+            if any(keyword.lower() in combined_text for keyword in keywords):
+                try:
+                    category = Category.objects.get(name=cat_name)
+                except Category.DoesNotExist:
+                    category = None
+                break
+
+        if not category:
+            logger.debug(f"No category matched for: {title}")
+            try:
+                category = Category.objects.get(name="General")
+            except Category.DoesNotExist:
+                category = None
+                logger.warning("Fallback category 'General' does not exist.")
 
         _, article_created = Article.objects.get_or_create(
             url=url_article,
@@ -165,93 +206,3 @@ def get_or_create_news_source(source_name):
         }
     )
     return news_source
-
-
-@shared_task
-def fetch_guardian_articles():
-    """Fetch articles from the Guardian API and
-    store them in the database and Redis cache."""
-    api_key = settings.GUARDIAN_API_KEY
-    sections = {
-        "World News": "world",
-        "Politics": "politics",
-        "Business": "business",
-        "Technology": "technology",
-        "Sports": "sport",
-        "Entertainment": "culture",
-    }
-    total_created = 0
-    base_url = "https://content.guardianapis.com/search"
-    common_params = {
-        "api-key": api_key,
-        "page-size": 20,
-        "show-fields": "trailText,thumbnail"
-    }
-    cached_articles = []
-    for category_name, section in sections.items():
-        params = common_params.copy()
-        params["section"] = section
-        try:
-            response = requests.get(base_url, params=params, timeout=10)
-            response.raise_for_status()
-        except requests.RequestException as e:
-            logger.error(
-                f"Error fetching Guardian articles for {section}: {e}"
-            )
-            continue
-
-        data = response.json()
-        results = data.get("response", {}).get("results", [])
-        created_count = 0
-        for item in results:
-            title = item.get("webTitle")
-            url_article = item.get("webUrl")
-            published_str = item.get("webPublicationDate")
-            fields = item.get("fields", {})
-            summary = fields.get("trailText", "")
-            image_url = fields.get("thumbnail", "")
-            try:
-                published_at = parser.parse(published_str)
-            except (TypeError, ValueError):
-                published_at = None
-            source_name = "The Guardian"
-            news_source = get_or_create_news_source(source_name)
-            try:
-                category = Category.objects.get(name=category_name)
-            except Category.DoesNotExist:
-                category = None
-
-            _, article_created = Article.objects.get_or_create(
-                url=url_article,
-                defaults={
-                    "title": title,
-                    "content": "",
-                    "summary": summary,
-                    "image_url": image_url,
-                    "published_at": published_at,
-                    "source": news_source,
-                    "category": category,
-                }
-            )
-            if article_created:
-                created_count += 1
-
-            cached_articles.append({
-                "title": title,
-                "url": url_article,
-                "summary": summary,
-                "image_url": image_url,
-                "published_at":
-                    published_at.isoformat() if published_at else "",
-                "source": source_name,
-            })
-
-        total_created += created_count
-
-    cache_articles(cached_articles, source="guardian")
-    message = (
-        f"Guardian fetch complete."
-        f"Total new articles created: {total_created}."
-    )
-    logger.info(message)
-    return message

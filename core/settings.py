@@ -208,7 +208,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # API Keys
 NEWS_API_KEY = config("NEWS_API_KEY")
-GUARDIAN_API_KEY = config("GUARDIAN_API_KEY")
 
 # Celery Configuration
 CELERY_BROKER_URL = config("CELERY_BROKER_URL")
