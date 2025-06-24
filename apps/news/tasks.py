@@ -1,4 +1,9 @@
-# apps/news/tasks.py
+"""
+Celery tasks for fetching and caching news articles
+This module contains Celery tasks that fetch news articles from external APIs,
+store them in the database, and cache them in Redis.
+Located at: apps/news/tasks.py
+"""
 
 import requests
 import logging
@@ -19,7 +24,9 @@ logger = logging.getLogger(__name__)
 # Initialize Redis client using a configurable host (default to localhost)
 REDIS_HOST = getattr(settings, 'REDIS_HOST', 'localhost')
 REDIS_PORT = getattr(settings, 'REDIS_PORT', 6379)
-redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=True)
+redis_client = redis.StrictRedis(
+    host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=True
+)
 
 # Set Redis expiry time for news articles (28 days)
 REDIS_ARTICLE_EXPIRY = timedelta(days=28).total_seconds()
@@ -40,21 +47,33 @@ def cache_articles(articles, source, max_articles=100):
     key = get_redis_key(source)
     try:
         existing_articles = redis_client.lrange(key, 0, -1)
-        existing_urls = {json.loads(article)["url"] for article in existing_articles}
-        new_articles = [json.dumps(article) for article in articles if article["url"] not in existing_urls]
+        existing_urls = {
+            json.loads(article)["url"] for article in existing_articles
+        }
+        new_articles = [
+            json.dumps(article) for article in articles if article
+            ["url"] not in existing_urls
+        ]
         if not new_articles:
             logger.info(f"No new articles to cache for {source}.")
             return
-        redis_client.lpush(key, *new_articles)  # Bulk insert for efficiency
-        redis_client.ltrim(key, 0, max_articles - 1)  # Keep latest 100
-        redis_client.expire(key, int(REDIS_ARTICLE_EXPIRY))  # Set expiry to 28 days
+        redis_client.lpush(
+            key, *new_articles
+        )  # Bulk insert for efficiency
+        redis_client.ltrim(
+            key, 0, max_articles - 1
+        )  # Keep latest 100
+        redis_client.expire(
+            key, int(REDIS_ARTICLE_EXPIRY)
+        )  # Set expiry to 28 days
     except redis.RedisError as e:
         logger.error(f"Redis error: {e}")
 
 
 @shared_task
 def fetch_news_articles():
-    """Fetch top headlines from News API and store them in the database and Redis cache."""
+    """Fetch top headlines from News API and
+    store them in the database and Redis cache."""
     key = get_redis_key("newsapi")
     if redis_client.exists(key):
         logger.info("News articles already cached, skipping fetch.")
@@ -88,7 +107,9 @@ def fetch_news_articles():
             continue
 
         try:
-            published_at = parser.parse(published_str) if published_str else timezone.now()
+            published_at = parser.parse(
+                published_str
+            ) if published_str else timezone.now()
         except (TypeError, ValueError):
             published_at = timezone.now()
 
@@ -125,7 +146,10 @@ def fetch_news_articles():
         })
 
     cache_articles(cached_articles, source="newsapi")
-    message = f"News articles fetched and stored successfully. {created_count} new articles created."
+    message = (
+        f"News articles fetched and stored successfully."
+        f"{created_count} new articles created."
+    )
     logger.info(message)
     return message
 
@@ -145,7 +169,8 @@ def get_or_create_news_source(source_name):
 
 @shared_task
 def fetch_guardian_articles():
-    """Fetch articles from the Guardian API and store them in the database and Redis cache."""
+    """Fetch articles from the Guardian API and
+    store them in the database and Redis cache."""
     api_key = settings.GUARDIAN_API_KEY
     sections = {
         "World News": "world",
@@ -170,7 +195,9 @@ def fetch_guardian_articles():
             response = requests.get(base_url, params=params, timeout=10)
             response.raise_for_status()
         except requests.RequestException as e:
-            logger.error(f"Error fetching Guardian articles for {section}: {e}")
+            logger.error(
+                f"Error fetching Guardian articles for {section}: {e}"
+            )
             continue
 
         data = response.json()
@@ -214,13 +241,17 @@ def fetch_guardian_articles():
                 "url": url_article,
                 "summary": summary,
                 "image_url": image_url,
-                "published_at": published_at.isoformat() if published_at else "",
+                "published_at":
+                    published_at.isoformat() if published_at else "",
                 "source": source_name,
             })
 
         total_created += created_count
 
     cache_articles(cached_articles, source="guardian")
-    message = f"Guardian fetch complete. Total new articles created: {total_created}."
+    message = (
+        f"Guardian fetch complete."
+        f"Total new articles created: {total_created}."
+    )
     logger.info(message)
     return message

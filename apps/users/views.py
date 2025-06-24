@@ -6,12 +6,16 @@ Located at: apps/users/views.py
 """
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import logout, get_user_model, update_session_auth_hash
+from django.contrib.auth import (
+    logout, get_user_model,
+    update_session_auth_hash
+    )
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 import json
-from .models import Profile, Category, Notification, Comment
+from .models import Profile, Comment
+from apps.news.models import Category
 from apps.news.models import Article
 from .forms import ProfileForm
 

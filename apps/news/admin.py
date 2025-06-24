@@ -1,4 +1,7 @@
-# apps/news/admin.py
+"""
+Admin configuration for the News app.
+Located at: apps/news/admin.py
+"""
 
 from django.contrib import admin
 from django.utils.html import format_html
@@ -6,9 +9,15 @@ from .models import Article
 
 
 class ArticleAdmin(admin.ModelAdmin):
-    list_display = ('title_link', 'published_at', 'source', 'category', 'display_image')
-    list_filter = ('published_at', 'source', 'category')
-    search_fields = ('title', 'content', 'summary')
+    list_display = (
+        'title_link', 'published_at', 'source', 'category', 'display_image'
+    )
+    list_filter = (
+        'published_at', 'source', 'category'
+    )
+    search_fields = (
+        'title', 'content', 'summary'
+    )
     date_hierarchy = 'published_at'
 
     def title_link(self, obj):
