@@ -105,18 +105,50 @@ AUTH_PASSWORD_VALIDATORS = [
 
 JAZZMIN_SETTINGS = {
     "site_title": "Bulleo Admin",
+    "site_logo": "images/bulleo-admin-logo.png",
+    "site_logo_classes": "img-circle",
+    "site_logo_height": "40px",
+    "custom_css": "css/admin-custom.css",
     "site_header": "Bulleo Administration",
     "site_brand": "Bulleo",
     "welcome_sign": "Welcome to Bulleo Admin Panel",
     "copyright": "Bulleo © 2025",
 
+    "custom_links": {
+        "news": [
+            {
+                "name": "Manage Articles",
+                "url": "/admin/news/article/",
+                "icon": "fas fa-newspaper",
+                "permissions": ["news.view_article"]
+            },
+            {
+                "name": "View Categories",
+                "url": "/admin/news/category/",
+                "icon": "fas fa-tags",
+                "permissions": ["news.view_category"]
+            },
+        ],
+        "users": [
+            {
+                "name": "Moderate Comments",
+                "url": "/admin/users/comment/",
+                "icon": "fas fa-comment-dots",
+                "permissions": ["users.view_comment"]
+            },
+            {
+                "name": "User Profiles",
+                "url": "/admin/users/profile/",
+                "icon": "fas fa-user-circle",
+                "permissions": ["users.view_profile"]
+            },
+        ]
+    },
+
     "search_model": [
         "news.Article",
-        "news.NewsSource",
-        "news.Category",
-        "users.Profile",
         "users.Comment",
-        "users.Notification"
+        "users.Profile",
     ],
 
     "topmenu_links": [

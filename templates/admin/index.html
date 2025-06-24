@@ -1,6 +1,30 @@
 {% extends "admin/base_site.html" %}
 {% block content %}
-    <h1>Welcome, {{ user.username }}</h1>
-    <p>Manage news, users, and comments here.</p>
-    {{ block.super }}
+<div class="container-fluid">
+    <h1 class="display-5 mb-4">Welcome back, {{ user.username }} 👋</h1>
+    <p class="lead">Use the links below to manage news, users, and site content.</p>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 mb-4">
+                <h4>📰 News Management</h4>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'admin:news_article_changelist' %}">Manage Articles</a></li>
+                    <li><a href="{% url 'admin:news_category_changelist' %}">View Categories</a></li>
+                    <li><a href="{% url 'admin:news_newssource_changelist' %}">News Sources</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 mb-4">
+                <h4>👥 User Engagement</h4>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'admin:users_comment_changelist' %}">Moderate Comments</a></li>
+                    <li><a href="{% url 'admin:users_profile_changelist' %}">User Profiles</a></li>
+                    <li><a href="{% url 'admin:users_notification_changelist' %}">User Notifications</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

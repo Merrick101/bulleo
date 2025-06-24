@@ -8,16 +8,23 @@ from django.conf import settings  # NOQA
 from django.urls import path, include
 from apps.news.views import homepage
 
+admin.site.index_title = "Admin Dashboard"
+admin.site.site_header = "Bulleo Admin"
+admin.site.site_title = "Bulleo Admin Panel"
+
 urlpatterns = [
     # Admin Panel
     path('admin/', admin.site.urls),
+    path('admin/dashboard/', admin.site.index),
     path('', include('django.contrib.auth.urls')),
 
-    # Use Allauth for authentication (removing django.contrib.auth.urls)
+    # Home Page
+    path("", homepage, name="home"),
+
+    # Authentication
     path('accounts/', include('allauth.urls')),
 
-    # Application URLs
-    path("", homepage, name="home"),
+    # App-specific
     path('news/', include('apps.news.urls', namespace="news")),
     path("users/", include("apps.users.urls", namespace="users")),
 ]

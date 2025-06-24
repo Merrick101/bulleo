@@ -1,17 +1,17 @@
 {% extends "admin/base_site.html" %}
-{% load crispy_forms_tags %}  <!-- Load crispy-forms -->
+{% load static crispy_forms_tags %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center">Bulleo Admin Login</h2>
-    
-    <form method="post" class="mt-4">
+<div class="container mt-4 text-center">
+    <h2 class="custom-logo mb-4">Bulleo Admin Login</h2>
+
+    <form method="post" class="text-start">
         {% csrf_token %}
-        {{ form|crispy }}  <!-- Applies crispy-forms styling -->
+        {{ form|crispy }}
         <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
 
-    <p class="mt-3 text-center">
+    <p class="mt-3">
         <a href="{% url 'password_reset' %}">Forgot password?</a>
     </p>
 </div>

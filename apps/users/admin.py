@@ -74,7 +74,7 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = (
         'user', 'article', 'short_content', 'created_at',
         'parent_link', 'upvote_count', 'downvote_count',
-        'is_report', 'is_deleted'
+        'is_reported', 'is_deleted'
     )
     search_fields = (
         'content', 'user__username', 'article__title'

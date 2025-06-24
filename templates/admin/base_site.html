@@ -1,7 +1,27 @@
-{% extends "admin/base.html" %}
+{% extends "admin/base_site.html" %}
+{% load static %}
 
 {% block title %}Bulleo Admin Panel{% endblock %}
 
+{% block extrastyle %}
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lato:wght@300;400;700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    .custom-logo {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 24px;
+        letter-spacing: 0.5px;
+        color: #333;
+        text-transform: uppercase;
+        margin: 0;
+    }
+    .module h2, .module caption {
+        font-family: 'Merriweather', serif;
+    }
+  </style>
+{% endblock %}
+
 {% block branding %}
-    <h1><a href="{% url 'admin:index' %}">Bulleo Admin</a></h1>
+  <h1 class="custom-logo">
+    <a href="{% url 'admin:index' %}" style="text-decoration: none; color: inherit;">Bulleo Admin</a>
+  </h1>
 {% endblock %}
