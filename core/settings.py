@@ -114,6 +114,12 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Welcome to Bulleo Admin Panel",
     "copyright": "Bulleo © 2025",
 
+    "order_with_respect_to": [
+        "users.Comment",
+        "users.Notification",
+        "users.Group",
+    ],
+
     "custom_links": {
         "news": [
             {
@@ -175,8 +181,14 @@ JAZZMIN_SETTINGS = {
 
     "show_sidebar": True,
     "navigation_expanded": True,
-    "hide_apps": [],
-    "hide_models": [],
+    "hide_apps": [
+        "auth",
+    ],
+    "hide_models": [
+        "account.EmailAddress",
+        "users.Profile",
+    ],
+
 }
 
 JAZZMIN_UI_TWEAKS = {
