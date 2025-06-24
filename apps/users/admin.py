@@ -51,17 +51,36 @@ class IsReplyFilter(admin.SimpleListFilter):
         return queryset
 
 
+class DeletedFilter(admin.SimpleListFilter):
+    title = 'Deleted Status'
+    parameter_name = 'deleted'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Deleted'),
+            ('no', 'Visible'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(deleted=True)
+        if self.value() == 'no':
+            return queryset.filter(deleted=False)
+        return queryset
+
+
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = (
         'user', 'article', 'short_content', 'created_at',
-        'parent_link', 'upvote_count', 'downvote_count'
+        'parent_link', 'upvote_count', 'downvote_count',
+        'is_report', 'is_deleted'
     )
     search_fields = (
         'content', 'user__username', 'article__title'
     )
     list_filter = (
-        'created_at', IsReplyFilter
+        'created_at', 'reported', DeletedFilter, IsReplyFilter
     )
     ordering = (
         '-created_at',
@@ -70,6 +89,16 @@ class CommentAdmin(admin.ModelAdmin):
     list_select_related = (
         'user', 'article', 'parent'
     )
+
+    def is_reported(self, obj):
+        return obj.reported
+    is_reported.boolean = True
+    is_reported.short_description = "Reported"
+
+    def is_deleted(self, obj):
+        return obj.deleted
+    is_deleted.boolean = True
+    is_deleted.short_description = "Deleted"
 
     def short_content(self, obj):
         return obj.content[:50] + (
@@ -93,6 +122,13 @@ class CommentAdmin(admin.ModelAdmin):
     def downvote_count(self, obj):
         return obj.downvotes.count()
     downvote_count.admin_order_field = 'downvotes'
+
+    actions = ['mark_as_reviewed']
+
+    def mark_as_reviewed(self, request, queryset):
+        updated = queryset.update(reported=False)
+        self.message_user(request, f"{updated} comments marked as reviewed.")
+    mark_as_reviewed.short_description = "Mark selected comments as reviewed"
 
 
 @admin.register(Notification)

@@ -53,6 +53,16 @@ class ArticleAdmin(admin.ModelAdmin):
         return "-"
     short_summary.short_description = "Summary"
 
+    def like_count(self, obj):
+        return obj.likes.count()
+    like_count.short_description = "Likes"
+
+    def save_count(self, obj):
+        return obj.saves.count()
+    save_count.short_description = "Saves"
+
+    list_display += ('like_count', 'save_count')
+
 
 @admin.register(NewsSource)
 class NewsSourceAdmin(admin.ModelAdmin):
@@ -63,7 +73,15 @@ class NewsSourceAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug', 'order')
+    list_display = ('name', 'slug', 'order', 'icon_preview')
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('order', 'name')
+
+    def icon_preview(self, obj):
+        if obj.icon:
+            return format_html(
+                '<img src="{}" width="40" height="40" />', obj.icon.url
+            )
+        return "-"
+    icon_preview.short_description = "Icon Preview"

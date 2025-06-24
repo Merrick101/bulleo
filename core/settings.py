@@ -25,6 +25,7 @@ ALLOWED_HOSTS = [
 ]
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -101,6 +102,59 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME":
         "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Bulleo Admin",
+    "site_header": "Bulleo Administration",
+    "site_brand": "Bulleo",
+    "welcome_sign": "Welcome to Bulleo Admin Panel",
+    "copyright": "Bulleo © 2025",
+
+    "search_model": [
+        "news.Article",
+        "news.NewsSource",
+        "news.Category",
+        "users.Profile",
+        "users.Comment",
+        "users.Notification"
+    ],
+
+    "topmenu_links": [
+        {"name": "Home", "url": "/", "new_window": True},
+        {"model": "news.article"},
+        {"model": "community.comment"},
+        {"app": "users"},
+    ],
+
+    "usermenu_links": [
+        {"name": "Frontend", "url": "/", "new_window": True},
+        {"name": "GitHub", "url": "https://github.com/your-bulleo-repo", "new_window": True},
+    ],
+
+    "icons": {
+        "users.Profile": "fas fa-user-circle",
+        "users.Comment": "fas fa-comment",
+        "users.Notification": "fas fa-bell",
+        "news.Article": "fas fa-newspaper",
+        "news.NewsSource": "fas fa-globe",
+        "news.Category": "fas fa-tags",
+        "auth.User": "fas fa-users-cog",
+    },
+
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "hide_apps": [],
+    "hide_models": [],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "cosmo",  # Options include: flatly, darkly, solar, cyborg, etc.
+    "dark_mode_theme": "darkly",
+    "navbar_small_text": True,
+    "footer_fixed": True,
+    "body_small_text": False,
+}
+
 
 SITE_ID = config("SITE_ID", default=2, cast=int)
 
