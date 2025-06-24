@@ -81,6 +81,13 @@ class Article(models.Model):
         related_name="articles"
     )
 
+    imported = models.BooleanField(
+        default=False,
+        help_text=(
+            "Set to True if the article was fetched from an external API."
+        )
+    )
+
     class Meta:
         ordering = ['-published_at']
 

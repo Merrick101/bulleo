@@ -172,6 +172,7 @@ def fetch_news_articles():
                 "published_at": published_at,
                 "source": news_source,
                 "category": category,
+                "imported": True,
             }
         )
         if article_created:
