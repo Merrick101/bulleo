@@ -5,6 +5,7 @@ Located at: apps/users/models.py
 """
 
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from cloudinary.models import CloudinaryField
 
@@ -114,6 +115,9 @@ class Comment(models.Model):
         self.user = None
         self.deleted = True
         self.save()
+
+    def get_absolute_url(self):
+        return reverse("admin:users_comment_change", args=[str(self.id)])
 
     def __str__(self):
         username = self.user.username if self.user else "Anonymous"
