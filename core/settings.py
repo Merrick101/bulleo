@@ -82,8 +82,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASE_URL = config("DATABASE_URL", default=None)
+
 if DATABASE_URL:
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600,
+                                         ssl_require=True)
+    }
 else:
     DATABASES = {
         'default': {
@@ -151,6 +155,17 @@ JAZZMIN_SETTINGS = {
         ]
     },
 
+    "custom_app_titles": {
+        "django_celery_beat": "News Sync",
+    },
+
+    "custom_model_names": {
+        "django_celery_beat.periodictask": "Scheduled Tasks",
+        "django_celery_beat.intervalschedule": "Repeat Intervals",
+        "django_celery_beat.crontabschedule": "Cron Schedules",
+        "django_celery_beat.solarschedule": "Solar Schedules",
+    },
+
     "search_model": [
         "news.Article",
         "users.Comment",
@@ -187,6 +202,9 @@ JAZZMIN_SETTINGS = {
     "hide_models": [
         "account.EmailAddress",
         "users.Profile",
+        "django_celery_beat.ClockedSchedule",
+        "django_celery_beat.crontabschedule",
+        "django_celery_beat.solarschedule",
     ],
 
 }
@@ -317,10 +335,6 @@ CELERY_TIMEZONE = "UTC"
 CELERY_BEAT_SCHEDULE = {
     'fetch-news-every-12-hours': {
         'task': 'apps.news.tasks.fetch_news_articles',
-        'schedule': 43200.0,  # every 12 hours
-    },
-    'fetch-guardian-every-12-hours': {
-        'task': 'apps.news.tasks.fetch_guardian_articles',
         'schedule': 43200.0,  # every 12 hours
     },
 }

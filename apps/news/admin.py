@@ -85,3 +85,5 @@ class CategoryAdmin(admin.ModelAdmin):
             )
         return "-"
     icon_preview.short_description = "Icon Preview"
+
+import apps.news.admin_tasks  # NOQA
