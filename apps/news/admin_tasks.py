@@ -19,12 +19,28 @@ IntervalSchedule._meta.verbose_name_plural = "Fetch Intervals"
 # Override the app title (sidebar group label in Jazzmin)
 apps.get_app_config("django_celery_beat").verbose_name = _("News Sync")
 
-# Unregister and re-register with updated config
+
+# Custom admin class to inject context help into changelist
+class CustomPeriodicTaskAdmin(PeriodicTaskAdmin):
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['title'] = "News Fetch Tasks"
+        extra_context['help_text'] = (
+            "This section controls how news articles"
+            "are automatically fetched. "
+            "Use the Fetch Intervals to adjust timing,"
+            "or click into a task to modify it."
+        )
+        return super().changelist_view(request, extra_context=extra_context)
+
+
+# Unregister original admin classes to avoid conflicts
 for model in [PeriodicTask, IntervalSchedule]:
     try:
         admin.site.unregister(model)
     except admin.sites.NotRegistered:
         pass
 
-admin.site.register(PeriodicTask, PeriodicTaskAdmin)
+# Re-register with custom admin class (only for PeriodicTask)
+admin.site.register(PeriodicTask, CustomPeriodicTaskAdmin)
 admin.site.register(IntervalSchedule, IntervalScheduleAdmin)
