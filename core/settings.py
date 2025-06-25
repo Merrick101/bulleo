@@ -199,7 +199,6 @@ JAZZMIN_UI_TWEAKS = {
     "body_small_text": False,
 }
 
-
 SITE_ID = config("SITE_ID", default=2, cast=int)
 
 # Allauth Configurations for social logins
@@ -255,7 +254,9 @@ AUTH_USER_MODEL = "auth.User"
 # Use Allauth's default URLs
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+
+# Admin Panel Logout Redirect
+LOGOUT_REDIRECT_URL = "/accounts/logout/handler/"
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -328,15 +329,22 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': config('REDIS_URL'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         }
     }
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': config('REDIS_URL'),
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
