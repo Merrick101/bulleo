@@ -207,3 +207,14 @@ def get_or_create_news_source(source_name):
         }
     )
     return news_source
+
+
+@shared_task
+def redis_heartbeat():
+    """
+    Simple task to ping Redis to prevent free-tier expiry on Upstash.
+    """
+    try:
+        redis_client.ping()
+    except redis.RedisError as e:
+        logger.warning(f"Heartbeat ping to Redis failed: {e}")

@@ -341,6 +341,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'apps.news.tasks.fetch_news_articles',
         'schedule': 43200.0,  # every 12 hours
     },
+    'redis-heartbeat-every-5-days': {
+        'task': 'apps.news.tasks.redis_heartbeat',
+        'schedule': 5 * 86400.0,  # every 5 days
+    },
 }
 
 INTERNAL_IPS = [
