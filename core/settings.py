@@ -194,6 +194,10 @@ JAZZMIN_SETTINGS = {
         "auth.User": "fas fa-users-cog",
     },
 
+    "custom_app_icons": {
+        "django_celery_beat": "fas fa-sync-alt",
+    },
+
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [
