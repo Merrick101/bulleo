@@ -1,0 +1,21 @@
+{% load i18n %}
+<div class="offcanvas offcanvas-start" tabindex="-1"
+     id="mainMenuOffcanvas" aria-labelledby="mainMenuOffcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="mainMenuOffcanvasLabel">
+      {% trans "Menu" %}
+    </h5>
+    <button type="button" class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="{% trans 'Close' %}"></button>
+  </div>
+  <div class="offcanvas-body">
+    {% include "partials/search_offcanvas.html" %}
+    <ul class="list-unstyled">
+      <li><a href="{% url 'news:homepage' %}">
+        <i class="fas fa-home me-2"></i>{% trans "Home" %}
+      </a></li>
+      <!-- ... etc ... -->
+    </ul>
+  </div>
+</div>

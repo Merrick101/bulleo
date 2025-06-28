@@ -1,0 +1,35 @@
+{% comment %}
+  Expects:
+    - `chunks`: a list-of-lists of objects
+    - `carousel_id`: unique string
+{% endcomment %}
+<div class="bulleo-carousel-wrapper position-relative">
+  <div id="{{ carousel_id }}" class="carousel slide"
+       data-bs-ride="carousel">
+    <div class="carousel-inner">
+      {% for chunk in chunks %}
+        <div class="carousel-item{% if forloop.first %} active{% endif %}">
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            {% for obj in chunk %}
+              {% include "partials/article_card.html" with article=obj %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- prev/next -->
+  <button class="custom-arrow custom-arrow-left" type="button"
+          data-bs-target="#{{ carousel_id }}"
+          data-bs-slide="prev">
+    <i class="fas fa-chevron-left fa-2x"></i>
+    <span class="visually-hidden">{% trans "Previous" %}</span>
+  </button>
+  <button class="custom-arrow custom-arrow-right" type="button"
+          data-bs-target="#{{ carousel_id }}"
+          data-bs-slide="next">
+    <i class="fas fa-chevron-right fa-2x"></i>
+    <span class="visually-hidden">{% trans "Next" %}</span>
+  </button>
+</div>

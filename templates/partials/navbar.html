@@ -1,0 +1,35 @@
+{% load i18n %}
+<nav class="custom-navbar sticky-top">
+  <div class="container-fluid">
+    <div class="d-flex w-100 align-items-center justify-content-between">
+      <!-- Menu toggle -->
+      <div class="d-flex align-items-center">
+        <div class="menu-icon me-4" id="menuToggle">
+          <i class="fas fa-bars"></i>
+          <span class="ms-1">{% trans "Menu" %}</span>
+        </div>
+      </div>
+
+      <!-- Logo -->
+      <div class="navbar-center flex-grow-1 text-center">
+        <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
+      </div>
+
+      <!-- Auth / Profile -->
+      <div class="auth-buttons d-flex align-items-center">
+        {% if user.is_authenticated %}
+          {% include "partials/navbar_authenticated.html" %}
+        {% else %}
+          <a href="{% url 'account_login' %}"
+             class="btn btn-outline-dark btn-sm">{% trans "Log In" %}
+          </a>
+          <a href="{% url 'account_signup' %}"
+             class="btn btn-primary btn-sm">{% trans "Sign Up" %}
+          </a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% block sub_navbar %}{% endblock %}
+  </div>
+</nav>

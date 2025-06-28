@@ -1,0 +1,24 @@
+{% load i18n %}
+<nav class="sub-navbar">
+  <div class="container">
+    <ul class="nav nav-pills justify-content-center mb-0">
+      <li class="nav-item">
+        <a class="nav-link" href="#bulleo-home-trending">
+          {% trans "Trending News" %}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#bulleo-home-latest">
+          {% trans "Latest News" %}
+        </a>
+      </li>
+      {% if user.is_authenticated and picked_articles_by_category %}
+        <li class="nav-item">
+          <a class="nav-link" href="#bulleo-home-picked">
+            {% trans "Picked for You" %}
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>

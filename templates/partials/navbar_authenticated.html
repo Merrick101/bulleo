@@ -1,0 +1,83 @@
+{% load i18n %}
+{# notifications dropdown #}
+<div class="dropdown me-2">
+  <button class="btn btn-outline-light dropdown-toggle"
+          type="button"
+          id="notificationsDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          aria-label="{% trans 'Notifications' %}">
+    <i class="fas fa-bell"></i>
+    {% if notifications %}
+      <span class="badge bg-danger">{{ notifications|length }}</span>
+    {% endif %}
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end"
+      aria-labelledby="notificationsDropdown">
+    <li>
+      <div class="dropdown-item text-center">
+        <p class="mb-1 fw-bold">
+          {% trans "Notifications" %}
+        </p>
+        <div class="d-flex align-items-center justify-content-center">
+          <span class="me-2">{% trans "Off" %}</span>
+          <div class="form-check form-switch m-0">
+            <input class="form-check-input"
+                   type="checkbox"
+                   id="notificationsToggle"
+                   {% if user.profile.notifications_enabled %}checked{% endif %}>
+          </div>
+          <span class="ms-2">{% trans "On" %}</span>
+        </div>
+        <button id="markAllReadBtn"
+                class="btn btn-sm btn-link">
+          {% trans "Mark all as read" %}
+        </button>
+      </div>
+    </li>
+    {% if notifications %}
+      {% for notification in notifications %}
+        <li>
+          <a class="dropdown-item"
+             href="{{ notification.link }}"
+             data-notification-id="{{ notification.id }}">
+            {{ notification.message }}
+          </a>
+        </li>
+      {% endfor %}
+    {% else %}
+      <li>
+        <span class="dropdown-item text-muted">
+          {% trans "No new notifications" %}
+        </span>
+      </li>
+    {% endif %}
+  </ul>
+</div>
+
+{# profile dropdown #}
+<div class="dropdown">
+  <button class="btn btn-outline-light dropdown-toggle"
+          type="button"
+          id="profileDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          aria-label="{% trans 'Profile menu' %}">
+    <i class="fas fa-user me-1"></i>{{ user.username }}
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end"
+      aria-labelledby="profileDropdown">
+    <li>
+      <a class="dropdown-item"
+         href="{% url 'users:profile' %}">
+        {% trans "Profile" %}
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item text-danger"
+         href="{% url 'account_logout' %}">
+        {% trans "Logout" %}
+      </a>
+    </li>
+  </ul>
+</div>

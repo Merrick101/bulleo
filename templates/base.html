@@ -29,177 +29,21 @@
   <link rel="icon" type="image/x-icon" href="{% static 'images/favicon/favicon-32x32.png' %}" />
 </head>
 <body>
-  <!-- Combined Sticky Navbar -->
-  <nav class="custom-navbar sticky-top">
-    <div class="container-fluid">
-      <!-- First Row: Main Navigation -->
-      <div class="d-flex w-100 align-items-center justify-content-between">
-        <!-- Left Side: Menu and Search -->
-        <div class="d-flex align-items-center">
-          <!-- Menu Icon: toggles off-canvas menu -->
-          <div class="menu-icon me-4" id="menuToggle">
-            <i class="fas fa-bars"></i>
-            <span class="ms-1">Menu</span>
-          </div>
-        </div>
+  {% include "partials/navbar.html" %}
 
-        <!-- Center Section: Logo -->
-        <div class="navbar-center flex-grow-1 text-center">
-          <a href="{% url 'home' %}" class="navbar-logo">Bulleo</a>
-        </div>
-
-        <!-- Right Side: Notifications and Auth Buttons / Profile -->
-        <div class="auth-buttons d-flex align-items-center">
-          {% if user.is_authenticated %}
-            <!-- Notifications Dropdown -->
-            <div class="dropdown me-2">
-              <button class="btn btn-outline-light dropdown-toggle" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-bell"></i>
-                {% if notifications %}
-                  <span class="badge bg-danger">{{ notifications|length }}</span>
-                {% endif %}
-              </button>
-              <ul class="notifications-dropdown-menu dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
-                <li>
-                  <div class="dropdown-item text-center">
-                    <p class="mb-1 fw-bold notifications-menu-title">{% trans "Notifications" %}</p>
-                    <div class="d-flex align-items-center justify-content-center">
-                      <span class="me-2">{% trans "Off" %}</span>
-                      <div class="form-check form-switch m-0">
-                        <input 
-                          class="form-check-input" 
-                          type="checkbox" 
-                          id="notificationsToggle"
-                          {% if user.profile.notifications_enabled %}checked{% endif %}
-                        >
-                      </div>
-                      <span class="ms-2">{% trans "On" %}</span>
-                    </div>
-                    <button id="markAllReadBtn" class="btn btn-sm btn-link">{% trans "Mark all as read" %}</button>
-                  </div>
-                </li>
-                {% if notifications %}
-                  {% for notification in notifications %}
-                    <li>
-                      <a class="notifications-dropdown-list-item dropdown-item" href="{{ notification.link }}" data-notification-id="{{ notification.id }}">
-                        {{ notification.message }}
-                      </a>
-                    </li>
-                  {% endfor %}
-                {% else %}
-                  <li><span class="dropdown-item text-muted">{% trans "No new notifications" %}</span></li>
-                {% endif %}
-              </ul>
-            </div>
-
-            <!-- Profile Dropdown -->
-            <div class="dropdown">
-              <button class="btn btn-outline-light dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-user"></i> {{ user.username }}
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                <li><a class="dropdown-item" href="{% url 'users:profile' %}">Profile</a></li>
-                <li>
-                  <a class="dropdown-item text-danger" href="{% url 'account_logout' %}">Logout</a>
-                </li>
-              </ul>
-            </div>
-          {% else %}
-            <a href="{% url 'account_login' %}" class="btn btn-outline-dark btn-sm">Log In</a>
-            <a href="{% url 'account_signup' %}" class="btn btn-primary btn-sm">Sign Up</a>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Second Row: Sub-Navigation -->
-      {% block sub_navbar %}{% endblock sub_navbar %}
-
-    </div>
-  </nav>
+  {% block sub_navbar %}
+    {% include "partials/sub_navbar.html" %}
+  {% endblock sub_navbar %}
 
   <div class="container mt-4">
     {% block content %}{% endblock %}
   </div>
 
-  <footer class="custom-footer py-4">
-    <div class="container">
-      <div class="row align-items-center">
-        <!-- Left: Copyright -->
-        <div class="col-md-4 text-center text-md-left mb-3 mb-md-0">
-          <p class="mb-0">&copy; 2025 Bulleo. All Rights Reserved.</p>
-        </div>
-        <!-- Center: Social Media Icons -->
-        <div class="col-md-4 text-center mb-3 mb-md-0">
-          <a href="https://facebook.com" target="_blank" class="text-light me-3 social-icon">
-            <i class="fab fa-facebook-f fa-lg"></i>
-          </a>
-          <a href="https://twitter.com" target="_blank" class="text-light me-3 social-icon">
-            <i class="fab fa-twitter fa-lg"></i>
-          </a>
-          <a href="https://instagram.com" target="_blank" class="text-light me-3 social-icon">
-            <i class="fab fa-instagram fa-lg"></i>
-          </a>
-          <a href="https://linkedin.com" target="_blank" class="text-light social-icon">
-            <i class="fab fa-linkedin-in fa-lg"></i>
-          </a>
-        </div>
-        <!-- Right: Extra Links -->
-        <div class="col-md-4 text-center text-md-right">
-          <a href="{% url 'news:about' %}" class="text-light footer-link me-3">{% trans "About" %}</a>
-          <a href="{% url 'news:contact' %}" class="text-light footer-link">{% trans "Contact" %}</a>
-        </div>
-      </div>
-    </div>
-  </footer>  
+  {% include "partials/footer.html" %}
+  {% include "partials/offcanvas_menu.html" %}
 
-  <!-- Offcanvas Menu -->
-  <div class="offcanvas offcanvas-start" tabindex="-1" id="mainMenuOffcanvas" aria-labelledby="mainMenuOffcanvasLabel">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="mainMenuOffcanvasLabel">Menu</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-      <!-- Search Container (Icon + Expanding Input) -->
-      <div class="position-relative d-flex align-items-center" id="searchContainer">
-        <i class="fas fa-search search-icon" id="searchToggle"></i>
-        <form class="search-form d-none" action="{% url 'news:search_results' %}" method="get" id="searchForm">
-          <div class="input-group">
-            <input class="form-control" type="search" name="q" placeholder="Search for news..." aria-label="Search" />
-            <button class="btn btn-outline-secondary" type="submit">
-              <i class="fas fa-search"></i>
-            </button>
-            <button class="btn btn-outline-secondary" type="button" id="searchClose">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-        </form>
-        <span class="search-label">Search</span>
-      </div>
-      <ul class="list-unstyled">
-        <li>
-          <a href="{% url 'news:homepage' %}">
-            <i class="fas fa-home me-2"></i>Home
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'news:search_results' %}">
-            <i class="fas fa-newspaper me-2"></i>All Articles
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'news:about' %}">
-            <i class="fas fa-circle-info me-2"></i>About
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'news:contact' %}">
-            <i class="fas fa-envelope me-2"></i>Contact
-          </a>
-        </li>
-      </ul>      
-    </div>
-  </div>
 
+  <!-- scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/navbar.js' %}"></script>
   <script src="{% static 'js/article-interactions.js' %}"></script>
