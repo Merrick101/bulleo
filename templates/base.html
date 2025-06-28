@@ -1,3 +1,5 @@
+{% comment %} templates/base.html {% endcomment %}
+
 {% load static %}
 {% load crispy_forms_tags %}
 {% load i18n %}
@@ -30,6 +32,7 @@
 </head>
 <body>
   {% include "partials/navbar.html" %}
+  {% include "partials/messages.html" %}
 
   {% block sub_navbar %}
     {% include "partials/sub_navbar.html" %}
@@ -42,11 +45,6 @@
   {% include "partials/footer.html" %}
   {% include "partials/offcanvas_menu.html" %}
 
-
-  <!-- scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="{% static 'js/navbar.js' %}"></script>
-  <script src="{% static 'js/article-interactions.js' %}"></script>
-  <script src="{% static 'js/notifications.js' %}"></script>
+  {% include "partials/scripts.html" %}
 </body>
 </html>

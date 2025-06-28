@@ -1,0 +1,12 @@
+{% comment %} templates/partials/share_buttons.html {% endcomment %}
+
+<div class="share-buttons">
+  <a href="https://twitter.com/share?url={{ request.build_absolute_uri }}"
+     target="_blank" class="btn btn-sm btn-outline-primary me-1">
+    <i class="fab fa-twitter"></i> Tweet
+  </a>
+  <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+     target="_blank" class="btn btn-sm btn-outline-primary">
+    <i class="fab fa-facebook-f"></i> Share
+  </a>
+</div>
