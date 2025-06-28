@@ -1,6 +1,54 @@
+/* General Styles */
+body, .module, .card {
+  font-family: 'Lato', sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+h1, .custom-logo {
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+.module h2, .module caption, .card h4 {
+  font-family: 'Merriweather', serif;
+}
+
+/* Logo & branding */
+.custom-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
 .sidebar .brand-link img {
     height: 40px !important;
     margin-top: 5px;
     margin-left: 5px;
     object-fit: contain;
+}
+
+/* Admin cards on dashboard */
+.dashboard-card {
+  transition: transform .1s;
+}
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Tidy up the footer */
+#footer {
+  text-align: center;
+  font-size: .9rem;
+  color: #666;
+  padding: 1rem 0;
+}
+
+.run-now-btn {
+  margin-left: 3.5em;
+  margin-top: 1em;
 }

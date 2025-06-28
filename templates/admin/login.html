@@ -2,22 +2,33 @@
 {% load static crispy_forms_tags %}
 
 {% block content %}
-<div class="container mt-4 text-center">
-    <h2 class="custom-logo mb-4">Bulleo Admin Login</h2>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-4">
+      <!-- Branding Logo -->
+      <div class="text-center mb-4">
+        <img src="{% static 'images/logo.png' %}" alt="Bulleo Logo" class="img-fluid" style="max-height: 80px;" />
+      </div>
 
-    <form method="post" class="text-start">
+      <h2 class="custom-logo text-center mb-4">Bulleo Admin Login</h2>
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+
+      <form method="post" novalidate>
         {% csrf_token %}
         {{ form|crispy }}
         <button type="submit" class="btn btn-primary w-100">Login</button>
-    </form>
+      </form>
 
-    <p class="mt-3">
+      <div class="d-flex justify-content-between mt-3">
         <a href="{% url 'password_reset' %}">Forgot password?</a>
-    </p>
-
-    <p class="mt-3 text-center">
-        <a href="{% url 'home' %}" class="btn btn-outline-secondary">← Back to Bulleo</a>
-    </p>
-    
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

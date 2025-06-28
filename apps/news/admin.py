@@ -4,6 +4,7 @@ Located at: apps/news/admin.py
 """
 
 from django.contrib import admin
+from django.db.models import Count
 from django.utils.html import format_html
 from .models import Article, NewsSource, Category
 
@@ -53,15 +54,22 @@ class ArticleAdmin(admin.ModelAdmin):
         return "-"
     short_summary.short_description = "Summary"
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(
+            _like_count=Count('likes'),
+            _save_count=Count('saves'),
+        )
+
     def like_count(self, obj):
-        return obj.likes.count()
+        return getattr(obj, '_like_count', 0)
+    like_count.admin_order_field = '_like_count'
     like_count.short_description = "Likes"
 
     def save_count(self, obj):
-        return obj.saves.count()
+        return getattr(obj, '_save_count', 0)
+    save_count.admin_order_field = '_save_count'
     save_count.short_description = "Saves"
-
-    list_display += ('like_count', 'save_count')
 
 
 @admin.register(NewsSource)
@@ -74,6 +82,7 @@ class NewsSourceAdmin(admin.ModelAdmin):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'order', 'icon_preview')
+    list_editable = ('order',)
     search_fields = ('name', 'slug')
     prepopulated_fields = {'slug': ('name',)}
     ordering = ('order', 'name')
