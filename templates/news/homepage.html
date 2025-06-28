@@ -1,324 +1,78 @@
+{% extends "base.html" %}
+
 {% comment %} templates/news/homepage.html {% endcomment %}
 
-{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Homepage{% endblock %}
 
 {% block sub_navbar %}
-<nav class="sub-navbar">
-  <div class="container">
-    <ul class="nav nav-pills justify-content-center mb-0">
-      <li class="nav-item">
-        <a class="nav-link" href="#bulleo-home-trending">Trending News</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#bulleo-home-latest">Latest News</a>
-      </li>
-      {% if user.is_authenticated and picked_articles_by_category %}
-      <li class="nav-item">
-        <a class="nav-link" href="#bulleo-home-picked">Picked for You</a>
-      </li>
-      {% endif %}
-    </ul>
-  </div>
-</nav>
+  <nav class="sub-navbar">
+    <div class="container">
+      <ul class="nav nav-pills justify-content-center mb-0">
+        <li class="nav-item">
+          <a class="nav-link" href="#bulleo-home-trending">Trending News</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#bulleo-home-latest">Latest News</a>
+        </li>
+        {% if user.is_authenticated and picked_articles_by_category %}
+        <li class="nav-item">
+          <a class="nav-link" href="#bulleo-home-picked">Picked for You</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
 {% endblock sub_navbar %}
 
 {% block content %}
 <div class="container my-4 bulleo-home-container">
 
-  <!-- Main Header / Intro -->
   <h1 class="mb-3 bulleo-home-title">Welcome to Bulleo</h1>
   <p class="bulleo-home-subtitle">Stay in the Loop with Your Daily Bulletin.</p>
 
-  <!-- Trending News Section Carousel -->
+  <!-- Trending News Section -->
   <section id="bulleo-home-trending" class="my-5 bulleo-home-section">
     <h2 class="bulleo-home-section-title">Trending News</h2>
     {% if trending_chunks %}
-    <div class="bulleo-carousel-wrapper">
-      <div id="trendingCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-          {% for chunk in trending_chunks %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-              <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-4">
-                {% for article in chunk %}
-                  <div class="col">
-                    <div class="card h-100 bulleo-home-article-card d-flex flex-column">
-                      {% if article.image_url %}
-                        <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
-                      {% endif %}
-                      <div class="card-body d-flex flex-column">
-                        <h5 class="card-title bulleo-home-article-title">
-                          {{ article.title|truncatechars:60 }}
-                        </h5>
-                        <p class="card-text text-muted bulleo-home-article-meta">
-                          {% if article.source %}{{ article.source.name }} | {% endif %}
-                          {{ article.published_at|date:"M d, Y H:i" }}
-                        </p>
-                        <p class="card-text bulleo-home-article-summary">
-                          {{ article.summary|truncatewords:20 }}
-                        </p>
-                        <a href="{% url 'news:article_detail' article.id %}"
-                           class="btn btn-sm btn-primary read-more-btn mt-auto">
-                          Read More
-                        </a>
-                      </div>
-                      <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
-                        <div>
-                          <span class="text-muted"><i class="fas fa-eye me-1"></i>{{ article.views }} views</span>
-                          <span class="text-muted ms-3"><i class="fas fa-comments me-1"></i>{{ article.comments.count }} comments</span>
-                        </div>
-                        <div>
-                          <a href="#" class="like-btn me-3" data-article-id="{{ article.id }}">
-                            <i class="fas fa-thumbs-up"></i> {{ article.likes.count }}
-                          </a>
-                          <a href="#" class="save-btn" data-article-id="{{ article.id }}">
-                            <i class="fas fa-bookmark"></i> {{ article.saves.count }}
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-      <!-- Custom Carousel Controls for Trending -->
-      <button class="custom-arrow custom-arrow-left" type="button"
-              data-bs-target="#trendingCarousel" data-bs-slide="prev">
-        <i class="fas fa-chevron-left fa-2x"></i>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="custom-arrow custom-arrow-right" type="button"
-              data-bs-target="#trendingCarousel" data-bs-slide="next">
-        <i class="fas fa-chevron-right fa-2x"></i>
-        <span class="visually-hidden">Next</span>
-      </button>
-    </div>
+      {% include "partials/carousel.html" with carousel_id="trendingCarousel" chunks=trending_chunks %}
     {% else %}
       <p>No trending articles available.</p>
     {% endif %}
   </section>
 
-  <!-- Latest News Section Carousel -->
+  <!-- Latest News Section -->
   <section id="bulleo-home-latest" class="my-5 bulleo-home-section">
     <h2 class="bulleo-home-section-title">Latest News</h2>
     {% if latest_chunks %}
-    <div class="bulleo-carousel-wrapper">
-      <div id="latestCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-          {% for chunk in latest_chunks %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-              <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-4">
-                {% for article in chunk %}
-                  <div class="col">
-                    <div class="card h-100 bulleo-home-article-card d-flex flex-column">
-                      {% if article.image_url %}
-                        <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
-                      {% endif %}
-                      <div class="card-body d-flex flex-column">
-                        <h5 class="card-title bulleo-home-article-title">
-                          {{ article.title|truncatechars:60 }}
-                        </h5>
-                        <p class="card-text text-muted bulleo-home-article-meta">
-                          {% if article.source %}{{ article.source.name }} | {% endif %}
-                          {{ article.published_at|date:"M d, Y H:i" }}
-                        </p>
-                        <p class="card-text bulleo-home-article-summary">
-                          {{ article.summary|truncatewords:20 }}
-                        </p>
-                        <a href="{% url 'news:article_detail' article.id %}"
-                           class="btn btn-sm btn-primary read-more-btn mt-auto">
-                          Read More
-                        </a>
-                      </div>
-                      <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
-                        <div>
-                          <span class="text-muted"><i class="fas fa-eye me-1"></i>{{ article.views }} views</span>
-                          <span class="text-muted ms-3"><i class="fas fa-comments me-1"></i>{{ article.comments.count }} comments</span>
-                        </div>
-                        <div>
-                          <a href="#" class="like-btn me-3" data-article-id="{{ article.id }}">
-                            <i class="fas fa-thumbs-up"></i> {{ article.likes.count }}
-                          </a>
-                          <a href="#" class="save-btn" data-article-id="{{ article.id }}">
-                            <i class="fas fa-bookmark"></i> {{ article.saves.count }}
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-      <!-- Custom Carousel Controls for Latest -->
-      <button class="custom-arrow custom-arrow-left" type="button"
-              data-bs-target="#latestCarousel" data-bs-slide="prev">
-        <i class="fas fa-chevron-left fa-2x"></i>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="custom-arrow custom-arrow-right" type="button"
-              data-bs-target="#latestCarousel" data-bs-slide="next">
-        <i class="fas fa-chevron-right fa-2x"></i>
-        <span class="visually-hidden">Next</span>
-      </button>
-    </div>
+      {% include "partials/carousel.html" with carousel_id="latestCarousel" chunks=latest_chunks %}
     {% else %}
       <p>No latest articles available.</p>
     {% endif %}
   </section>
 
-  <!-- Picked for You Section -->
+  <!-- Picked For You Section -->
   {% if user.is_authenticated and picked_articles_by_category %}
-    <section id="bulleo-home-picked" class="my-5 bulleo-home-section">
-      {% for category, cat_data in picked_articles_by_category.items %}
-        <div class="mb-5">
-          <!-- Trending in Category Carousel -->
-          <h3 class="bulleo-home-subsection-title">Trending in {{ category.name }}</h3>
-          {% if cat_data.trending %}
-          <div class="bulleo-carousel-wrapper">
-            <div id="catTrendingCarousel-{{ category.slug }}" class="carousel slide mb-3" data-bs-ride="carousel">
-              <div class="carousel-inner">
-                {% for chunk in cat_data.trending %}
-                  <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-4">
-                      {% for article in chunk %}
-                        <div class="col">
-                          <div class="card h-100 bulleo-home-article-card d-flex flex-column">
-                            {% if article.image_url %}
-                              <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
-                            {% endif %}
-                            <div class="card-body d-flex flex-column">
-                              <h5 class="card-title bulleo-home-article-title">
-                                {{ article.title|truncatechars:60 }}
-                              </h5>
-                              <p class="card-text text-muted bulleo-home-article-meta">
-                                {% if article.source %}{{ article.source.name }} | {% endif %}
-                                {{ article.published_at|date:"M d, Y H:i" }}
-                              </p>
-                              <p class="card-text bulleo-home-article-summary">
-                                {{ article.summary|truncatewords:20 }}
-                              </p>
-                              <a href="{% url 'news:article_detail' article.id %}"
-                                 class="btn btn-sm btn-primary read-more-btn mt-auto">
-                                Read More
-                              </a>
-                            </div>
-                            <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
-                              <div>
-                                <span class="text-muted"><i class="fas fa-eye me-1"></i>{{ article.views }} views</span>
-                                <span class="text-muted ms-3"><i class="fas fa-comments me-1"></i>{{ article.comments.count }} comments</span>
-                              </div>
-                              <div>
-                                <a href="#" class="like-btn me-3" data-article-id="{{ article.id }}">
-                                  <i class="fas fa-thumbs-up"></i> {{ article.likes.count }}
-                                </a>
-                                <a href="#" class="save-btn" data-article-id="{{ article.id }}">
-                                  <i class="fas fa-bookmark"></i> {{ article.saves.count }}
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      {% endfor %}
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-            <!-- Custom Carousel Controls for Category Trending -->
-            <button class="custom-arrow custom-arrow-left" type="button"
-                    data-bs-target="#catTrendingCarousel-{{ category.slug }}" data-bs-slide="prev">
-              <i class="fas fa-chevron-left fa-2x"></i>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="custom-arrow custom-arrow-right" type="button"
-                    data-bs-target="#catTrendingCarousel-{{ category.slug }}" data-bs-slide="next">
-              <i class="fas fa-chevron-right fa-2x"></i>
-              <span class="visually-hidden">Next</span>
-            </button>
-          </div>
-          {% else %}
-            <p>No trending articles in {{ category.name }} available.</p>
-          {% endif %}
+  <section id="bulleo-home-picked" class="my-5 bulleo-home-section">
+    {% for category, cat_data in picked_articles_by_category.items %}
+      <div class="mb-5">
+        <h3 class="bulleo-home-subsection-title">Trending in {{ category.name }}</h3>
+        {% if cat_data.trending %}
+          {% include "partials/carousel.html" with carousel_id="catTrendingCarousel-{{ category.slug }}" chunks=cat_data.trending %}
+        {% else %}
+          <p>No trending articles in {{ category.name }}.</p>
+        {% endif %}
 
-          <!-- Latest in Category Carousel -->
-          <h3 class="bulleo-home-subsection-title">Latest in {{ category.name }}</h3>
-          {% if cat_data.latest %}
-          <div class="bulleo-carousel-wrapper">
-            <div id="catLatestCarousel-{{ category.slug }}" class="carousel slide" data-bs-ride="carousel">
-              <div class="carousel-inner">
-                {% for chunk in cat_data.latest %}
-                  <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 g-4">
-                      {% for article in chunk %}
-                        <div class="col">
-                          <div class="card h-100 bulleo-home-article-card d-flex flex-column">
-                            {% if article.image_url %}
-                              <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
-                            {% endif %}
-                            <div class="card-body d-flex flex-column">
-                              <h5 class="card-title bulleo-home-article-title">
-                                {{ article.title|truncatechars:60 }}
-                              </h5>
-                              <p class="card-text text-muted bulleo-home-article-meta">
-                                {% if article.source %}{{ article.source.name }} | {% endif %}
-                                {{ article.published_at|date:"M d, Y H:i" }}
-                              </p>
-                              <p class="card-text bulleo-home-article-summary">
-                                {{ article.summary|truncatewords:20 }}
-                              </p>
-                              <a href="{% url 'news:article_detail' article.id %}"
-                                 class="btn btn-sm btn-primary read-more-btn mt-auto">
-                                Read More
-                              </a>
-                            </div>
-                            <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
-                              <div>
-                                <span class="text-muted"><i class="fas fa-eye me-1"></i>{{ article.views }} views</span>
-                                <span class="text-muted ms-3"><i class="fas fa-comments me-1"></i>{{ article.comments.count }} comments</span>
-                              </div>
-                              <div>
-                                <a href="#" class="like-btn me-3" data-article-id="{{ article.id }}">
-                                  <i class="fas fa-thumbs-up"></i> {{ article.likes.count }}
-                                </a>
-                                <a href="#" class="save-btn" data-article-id="{{ article.id }}">
-                                  <i class="fas fa-bookmark"></i> {{ article.saves.count }}
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      {% endfor %}
-                    </div>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-            <!-- Custom Carousel Controls for Category Latest -->
-            <button class="custom-arrow custom-arrow-left" type="button"
-                    data-bs-target="#catLatestCarousel-{{ category.slug }}" data-bs-slide="prev">
-              <i class="fas fa-chevron-left fa-2x"></i>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="custom-arrow custom-arrow-right" type="button"
-                    data-bs-target="#catLatestCarousel-{{ category.slug }}" data-bs-slide="next">
-              <i class="fas fa-chevron-right fa-2x"></i>
-              <span class="visually-hidden">Next</span>
-            </button>
-          </div>
-          {% else %}
-            <p>No latest articles in {{ category.name }} available.</p>
-          {% endif %}
-        </div>
-      {% endfor %}
-    </section>
+        <h3 class="bulleo-home-subsection-title mt-4">Latest in {{ category.name }}</h3>
+        {% if cat_data.latest %}
+          {% include "partials/carousel.html" with carousel_id="catLatestCarousel-{{ category.slug }}" chunks=cat_data.latest %}
+        {% else %}
+          <p>No latest articles in {{ category.name }}.</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </section>
   {% endif %}
 </div>
 {% endblock %}

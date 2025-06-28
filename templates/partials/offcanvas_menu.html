@@ -1,9 +1,9 @@
-{% comment %} templates/partials/offcanvas_menu.html {% endcomment %}
-
 {% load i18n %}
+{% load static %}
+
 <div class="offcanvas offcanvas-start" tabindex="-1"
      id="mainMenuOffcanvas" aria-labelledby="mainMenuOffcanvasLabel">
-  <div class="offcanvas-header">
+  <div class="offcanvas-header border-bottom">
     <h5 class="offcanvas-title" id="mainMenuOffcanvasLabel">
       {% trans "Menu" %}
     </h5>
@@ -11,13 +11,23 @@
             data-bs-dismiss="offcanvas"
             aria-label="{% trans 'Close' %}"></button>
   </div>
+
   <div class="offcanvas-body">
     {% include "partials/search_offcanvas.html" %}
-    <ul class="list-unstyled">
-      <li><a href="{% url 'news:homepage' %}">
-        <i class="fas fa-home me-2"></i>{% trans "Home" %}
-      </a></li>
-      <!-- ... etc ... -->
-    </ul>
+
+    <nav class="nav flex-column mt-4">
+      <a class="nav-link d-flex align-items-center text-dark" href="{% url 'news:homepage' %}">
+        <i class="fas fa-home me-2"></i> {% trans "Home" %}
+      </a>
+      <a class="nav-link d-flex align-items-center text-dark" href="{% url 'users:profile' %}">
+        <i class="fas fa-user me-2"></i> {% trans "Profile" %}
+      </a>
+      <a class="nav-link d-flex align-items-center text-dark" href="{% url 'news:about' %}">
+        <i class="fas fa-info-circle me-2"></i> {% trans "About" %}
+      </a>
+      <a class="nav-link d-flex align-items-center text-dark" href="{% url 'news:contact' %}">
+        <i class="fas fa-envelope me-2"></i> {% trans "Contact" %}
+      </a>
+    </nav>
   </div>
 </div>

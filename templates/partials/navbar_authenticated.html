@@ -1,10 +1,9 @@
-{% comment %} templates/partials/navbar_authenticated.html {% endcomment %}
-
 {% load i18n %}
-{# notifications dropdown #}
+{% load static %}
+
+<!-- Notifications Dropdown -->
 <div class="dropdown me-2">
-  <button class="btn btn-outline-light dropdown-toggle"
-          type="button"
+  <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
           id="notificationsDropdown"
           data-bs-toggle="dropdown"
           aria-expanded="false"
@@ -14,13 +13,11 @@
       <span class="badge bg-danger">{{ notifications|length }}</span>
     {% endif %}
   </button>
-  <ul class="dropdown-menu dropdown-menu-end"
+  <ul class="dropdown-menu dropdown-menu-end bg-dark text-light border-0"
       aria-labelledby="notificationsDropdown">
     <li>
-      <div class="dropdown-item text-center">
-        <p class="mb-1 fw-bold">
-          {% trans "Notifications" %}
-        </p>
+      <div class="dropdown-item text-center text-light">
+        <p class="mb-1 fw-bold">{% trans "Notifications" %}</p>
         <div class="d-flex align-items-center justify-content-center">
           <span class="me-2">{% trans "Off" %}</span>
           <div class="form-check form-switch m-0">
@@ -32,7 +29,7 @@
           <span class="ms-2">{% trans "On" %}</span>
         </div>
         <button id="markAllReadBtn"
-                class="btn btn-sm btn-link">
+                class="btn btn-sm btn-link text-decoration-none mt-2 text-info">
           {% trans "Mark all as read" %}
         </button>
       </div>
@@ -40,8 +37,7 @@
     {% if notifications %}
       {% for notification in notifications %}
         <li>
-          <a class="dropdown-item"
-             href="{{ notification.link }}"
+          <a class="dropdown-item text-light" href="{{ notification.link }}"
              data-notification-id="{{ notification.id }}">
             {{ notification.message }}
           </a>
@@ -49,35 +45,30 @@
       {% endfor %}
     {% else %}
       <li>
-        <span class="dropdown-item text-muted">
-          {% trans "No new notifications" %}
-        </span>
+        <span class="dropdown-item text-muted">{% trans "No new notifications" %}</span>
       </li>
     {% endif %}
   </ul>
 </div>
 
-{# profile dropdown #}
+<!-- Profile Dropdown -->
 <div class="dropdown">
-  <button class="btn btn-outline-light dropdown-toggle"
-          type="button"
+  <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
           id="profileDropdown"
           data-bs-toggle="dropdown"
           aria-expanded="false"
           aria-label="{% trans 'Profile menu' %}">
     <i class="fas fa-user me-1"></i>{{ user.username }}
   </button>
-  <ul class="dropdown-menu dropdown-menu-end"
+  <ul class="dropdown-menu dropdown-menu-end bg-dark text-light border-0"
       aria-labelledby="profileDropdown">
     <li>
-      <a class="dropdown-item"
-         href="{% url 'users:profile' %}">
+      <a class="dropdown-item text-light" href="{% url 'users:profile' %}">
         {% trans "Profile" %}
       </a>
     </li>
     <li>
-      <a class="dropdown-item text-danger"
-         href="{% url 'account_logout' %}">
+      <a class="dropdown-item text-danger" href="{% url 'account_logout' %}">
         {% trans "Logout" %}
       </a>
     </li>
