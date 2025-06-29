@@ -169,6 +169,7 @@
             <div class="accordion mb-3" id="accordionSavedForLater">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingSaved">
+                        <a id="saved_articles"></a>
                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSaved">
                             {% trans "Saved for Later" %}
                         </button>
@@ -176,7 +177,7 @@
                     <div id="collapseSaved" class="accordion-collapse collapse">
                         <div class="accordion-body">
                             <!-- Saved for Later -->
-                            <ul id="saved-articles-list" class="list-unstyled">
+                            <ul id="saved_articles" class="list-unstyled">
                                 {% for article in saved_articles %}
                                     <li class="d-flex align-items-center mb-2">
                                         <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">

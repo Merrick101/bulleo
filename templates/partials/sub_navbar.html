@@ -1,26 +1,30 @@
-{% comment %} templates/partials/sub_navbar.html {% endcomment %}
-
 {% load i18n %}
-<nav class="sub-navbar">
+{% load static %}
+
+<nav class="sub-navbar bg-light border-bottom py-2">
   <div class="container">
-    <ul class="nav nav-pills justify-content-center mb-0">
+    <ul class="nav nav-pills justify-content-center flex-wrap gap-2 mb-0">
+
       <li class="nav-item">
-        <a class="nav-link" href="#bulleo-home-trending">
+        <a class="nav-link px-3 py-1" href="#bulleo-home-trending">
           {% trans "Trending News" %}
         </a>
       </li>
+
       <li class="nav-item">
-        <a class="nav-link" href="#bulleo-home-latest">
+        <a class="nav-link px-3 py-1" href="#bulleo-home-latest">
           {% trans "Latest News" %}
         </a>
       </li>
+
       {% if user.is_authenticated and picked_articles_by_category %}
         <li class="nav-item">
-          <a class="nav-link" href="#bulleo-home-picked">
+          <a class="nav-link px-3 py-1" href="#bulleo-home-picked">
             {% trans "Picked for You" %}
           </a>
         </li>
       {% endif %}
+
     </ul>
   </div>
 </nav>

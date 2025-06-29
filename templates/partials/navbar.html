@@ -1,24 +1,30 @@
 {% load i18n %}
 {% load static %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top py-2">
   <div class="container-fluid">
 
-    <!-- Offcanvas Toggle -->
-    <button class="btn btn-outline-light me-3 d-lg-none" type="button"
+    <!-- Offcanvas Toggle (Mobile) -->
+    <button class="btn btn-outline-light me-2" type="button"
             data-bs-toggle="offcanvas"
             data-bs-target="#mainMenuOffcanvas"
-            aria-controls="mainMenuOffcanvas">
-      <i class="fas fa-bars"></i> <span class="ms-1">{% trans "Menu" %}</span>
+            aria-controls="mainMenuOffcanvas"
+            aria-label="{% trans 'Toggle navigation' %}">
+      <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Centered Logo -->
-    <a href="{% url 'home' %}" class="navbar-brand mx-auto fs-2 fw-semibold text-light">
+    <!-- Home Icon (Mobile Shortcut) -->
+    <a href="{% url 'news:homepage' %}" class="btn btn-link text-light d-lg-none me-2">
+      <i class="fas fa-home fs-5"></i>
+    </a>
+
+    <!-- Centered Logo (Desktop) -->
+    <a href="{% url 'home' %}" class="navbar-brand mx-lg-auto fw-semibold fs-3 text-light">
       Bulleo
     </a>
 
-    <!-- Auth Buttons / Profile -->
-    <div class="d-flex align-items-center">
+    <!-- Right Side: Auth Buttons or Profile Menu -->
+    <div class="d-flex align-items-center ms-auto">
       {% if user.is_authenticated %}
         {% include "partials/navbar_authenticated.html" %}
       {% else %}
@@ -33,3 +39,6 @@
 
   </div>
 </nav>
+
+<!-- Offcanvas Navigation -->
+{% include "partials/offcanvas_menu.html" %}

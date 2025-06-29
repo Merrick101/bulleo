@@ -94,6 +94,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .offcanvas {
   max-width: 280px;
+  z-index: 1050; /* Ensure it appears above other content */
 }
 
 .offcanvas-body .list-unstyled {

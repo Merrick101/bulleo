@@ -1,76 +1,54 @@
 {% load i18n %}
 {% load static %}
 
-<!-- Notifications Dropdown -->
-<div class="dropdown me-2">
-  <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
-          id="notificationsDropdown"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-          aria-label="{% trans 'Notifications' %}">
-    <i class="fas fa-bell"></i>
-    {% if notifications %}
-      <span class="badge bg-danger">{{ notifications|length }}</span>
-    {% endif %}
-  </button>
-  <ul class="dropdown-menu dropdown-menu-end bg-dark text-light border-0"
-      aria-labelledby="notificationsDropdown">
-    <li>
-      <div class="dropdown-item text-center text-light">
-        <p class="mb-1 fw-bold">{% trans "Notifications" %}</p>
-        <div class="d-flex align-items-center justify-content-center">
-          <span class="me-2">{% trans "Off" %}</span>
-          <div class="form-check form-switch m-0">
-            <input class="form-check-input"
-                   type="checkbox"
-                   id="notificationsToggle"
-                   {% if user.profile.notifications_enabled %}checked{% endif %}>
-          </div>
-          <span class="ms-2">{% trans "On" %}</span>
-        </div>
-        <button id="markAllReadBtn"
-                class="btn btn-sm btn-link text-decoration-none mt-2 text-info">
-          {% trans "Mark all as read" %}
-        </button>
-      </div>
-    </li>
-    {% if notifications %}
-      {% for notification in notifications %}
-        <li>
-          <a class="dropdown-item text-light" href="{{ notification.link }}"
-             data-notification-id="{{ notification.id }}">
-            {{ notification.message }}
-          </a>
-        </li>
-      {% endfor %}
-    {% else %}
-      <li>
-        <span class="dropdown-item text-muted">{% trans "No new notifications" %}</span>
-      </li>
-    {% endif %}
-  </ul>
-</div>
-
 <!-- Profile Dropdown -->
 <div class="dropdown">
-  <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button"
+  <button class="btn btn-outline-light btn-sm dropdown-toggle d-flex align-items-center"
           id="profileDropdown"
           data-bs-toggle="dropdown"
           aria-expanded="false"
           aria-label="{% trans 'Profile menu' %}">
-    <i class="fas fa-user me-1"></i>{{ user.username }}
+    <i class="fas fa-user me-1"></i>
+    <span class="d-none d-sm-inline">{{ user.username }}</span>
   </button>
-  <ul class="dropdown-menu dropdown-menu-end bg-dark text-light border-0"
+
+  <ul class="dropdown-menu dropdown-menu-end bg-dark text-light border-0 shadow"
       aria-labelledby="profileDropdown">
+
     <li>
-      <a class="dropdown-item text-light" href="{% url 'users:profile' %}">
-        {% trans "Profile" %}
+      <a class="dropdown-item text-light py-2" href="{% url 'users:profile' %}">
+        <i class="fas fa-user-circle me-2"></i> {% trans "Profile" %}
       </a>
     </li>
+
     <li>
-      <a class="dropdown-item text-danger" href="{% url 'account_logout' %}">
-        {% trans "Logout" %}
+      <a class="dropdown-item text-light py-2" href="{% url 'users:profile' %}#saved-articles">
+        <i class="fas fa-bookmark me-2"></i> {% trans "Saved Articles" %}
       </a>
     </li>
+
+    <li class="dropdown-divider bg-secondary my-1"></li>
+
+    <!-- Notifications Toggle -->
+    <li class="px-3 py-2">
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="text-light small">{% trans "Notifications" %}</span>
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input"
+                 type="checkbox"
+                 id="notificationsToggle"
+                 {% if user.profile.notifications_enabled %}checked{% endif %}>
+        </div>
+      </div>
+    </li>
+
+    <li class="dropdown-divider bg-secondary my-1"></li>
+
+    <li>
+      <a class="dropdown-item text-danger py-2" href="{% url 'account_logout' %}">
+        <i class="fas fa-sign-out-alt me-2"></i> {% trans "Logout" %}
+      </a>
+    </li>
+
   </ul>
 </div>

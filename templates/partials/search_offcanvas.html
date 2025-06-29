@@ -1,39 +1,15 @@
-{% comment %} templates/partials/search_offcanvas.html {% endcomment %}
-
 {% load i18n %}
-<div class="position-relative d-flex align-items-center" id="searchContainer">
-  <!-- Search icon toggles the form -->
-  <i class="fas fa-search search-icon"
-     id="searchToggle"
-     aria-hidden="true"></i>
 
-  <!-- Hidden by default, shown when toggle is clicked -->
-  <form class="search-form d-none"
-        id="searchForm"
-        action="{% url 'news:search_results' %}"
-        method="get">
-    <div class="input-group">
-      <input type="search"
-             name="q"
-             class="form-control"
-             placeholder="{% trans 'Search for news…' %}"
-             aria-label="{% trans 'Search' %}">
-      <button type="submit"
-              class="btn btn-outline-secondary"
-              aria-label="{% trans 'Submit search' %}">
-        <i class="fas fa-search"></i>
-      </button>
-      <button type="button"
-              class="btn btn-outline-secondary"
-              id="searchClose"
-              aria-label="{% trans 'Close search' %}">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-  </form>
-
-  <!-- Visible label when form is hidden -->
-  <span class="search-label ms-2">
-    {% trans "Search" %}
-  </span>
-</div>
+<form method="get"
+      action="{% url 'news:search_results' %}"
+      class="w-100 d-flex"
+      id="offcanvasSearchForm">
+  <input type="search"
+         name="q"
+         class="form-control me-2"
+         placeholder="{% trans 'Search for news…' %}"
+         aria-label="{% trans 'Search' %}">
+  <button type="submit" class="btn btn-outline-light">
+    <i class="fas fa-search"></i>
+  </button>
+</form>
