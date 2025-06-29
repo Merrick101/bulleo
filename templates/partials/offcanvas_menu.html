@@ -1,8 +1,7 @@
 {% load i18n %}
 {% load static %}
 
-<div class="offcanvas offcanvas-start" tabindex="-1"
-     id="mainMenuOffcanvas" aria-labelledby="mainMenuOffcanvasLabel">
+<div class="offcanvas offcanvas-start bg-dark text-light" tabindex="-1" id="mainMenuOffcanvas">
 
   <div class="offcanvas-header border-bottom">
     <div class="w-100">
@@ -11,9 +10,10 @@
       </h5>
     </div>
 
-    <button type="button" class="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="{% trans 'Close' %}"></button>
+    <a href="#" class="text-light ms-auto" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-chevron-left fs-5"></i>
+    </a>
+
   </div>
 
   <div class="offcanvas-body d-flex flex-column justify-content-between">

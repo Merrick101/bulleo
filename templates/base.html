@@ -34,13 +34,16 @@
 
   {% include "partials/navbar.html" %}
 
-  {% include "partials/messages.html" %}
+  <div class="border-top border-bottom"></div>
 
   {% block sub_navbar %}
     {% include "partials/sub_navbar.html" %}
   {% endblock sub_navbar %}
 
-  <div class="container mt-4">
+  {% include "partials/messages.html" %}
+
+  <!-- Remove margin-top here -->
+  <div class="container">
     {% block content %}{% endblock %}
   </div>
 

@@ -2,14 +2,19 @@
 
 <form method="get"
       action="{% url 'news:search_results' %}"
-      class="w-100 d-flex"
+      class="d-flex w-100 align-items-center gap-2"
+      role="search"
       id="offcanvasSearchForm">
+
   <input type="search"
          name="q"
-         class="form-control me-2"
+         class="form-control form-control-sm bg-dark text-light border-light"
          placeholder="{% trans 'Search for news…' %}"
          aria-label="{% trans 'Search' %}">
-  <button type="submit" class="btn btn-outline-light">
+
+  <button type="submit"
+          class="btn btn-outline-light btn-sm"
+          aria-label="{% trans 'Submit search' %}">
     <i class="fas fa-search"></i>
   </button>
 </form>
