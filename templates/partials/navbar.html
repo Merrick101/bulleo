@@ -1,25 +1,30 @@
 {% load i18n %}
 {% load static %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top py-2">
+<nav class="navbar navbar-dark bg-dark shadow-sm sticky-top py-2">
   <div class="container-fluid">
 
-    <!-- Offcanvas Toggle (Mobile) -->
-    <button class="btn btn-outline-light me-2" type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#mainMenuOffcanvas"
-            aria-controls="mainMenuOffcanvas"
-            aria-label="{% trans 'Toggle navigation' %}">
-      <i class="fas fa-bars"></i>
-    </button>
+    <!-- Left: Logo -->
+    <div class="d-flex align-items-center flex-shrink-0 me-3">
+      <a href="{% url 'home' %}" class="navbar-logo fw-semibold fs-3 text-light mb-0">
+        Bulleo
+      </a>
+    </div>
 
-    <!-- Centered Logo (Desktop) -->
-    <a href="{% url 'home' %}" class="navbar-logo mx-lg-auto fw-semibold fs-3 text-light">
-      Bulleo
-    </a>
+    <!-- Mobile Search Toggle (only on small screens) -->
+    <div class="d-lg-none ms-auto me-2">
+      <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#mobileSearchCollapse" aria-expanded="false" aria-controls="mobileSearchCollapse" aria-label="{% trans 'Toggle search' %}">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
 
-    <!-- Right Side: Auth Buttons or Profile Menu -->
-    <div class="d-flex align-items-center ms-auto">
+    <!-- Center: Search (hidden on small screens) -->
+    <div class="search-bar d-none d-lg-flex flex-grow-1 justify-content-center mx-3">
+      {% include "partials/search_form.html" %}
+    </div>
+
+    <!-- Right: Auth or Profile -->
+    <div class="d-flex align-items-center flex-shrink-0 ms-auto">
       {% if user.is_authenticated %}
         {% include "partials/navbar_authenticated.html" %}
       {% else %}
@@ -33,7 +38,11 @@
     </div>
 
   </div>
-</nav>
 
-<!-- Offcanvas Navigation -->
-{% include "partials/offcanvas_menu.html" %}
+    <!-- Mobile Search Form (collapsible) -->
+    <div class="collapse bg-dark" id="mobileSearchCollapse">
+      <div class="container py-2">
+        {% include "partials/search_form.html" %}
+      </div>
+  </div>
+</nav>
