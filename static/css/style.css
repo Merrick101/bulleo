@@ -33,6 +33,11 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 500px;
 }
 
+.dropdown-menu .dropdown-item.text-light:hover {
+  background-color: #ffffff; /* dark gray or use a brand color */
+  color: #232323 !important;
+}
+
 #bulleo-home-trending,
 #bulleo-home-latest,
 #bulleo-home-picked {
