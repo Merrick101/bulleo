@@ -391,7 +391,9 @@ def onboarding(request):
         messages.success(request, "Your categories have been saved.")
         return redirect("home")
     else:
-        categories = Category.objects.all()
+        categories = Category.objects.exclude(
+            name__iexact="General"
+        ).order_by("name")
         return render(
             request, "onboarding/category_selection.html",
             {"categories": categories}
