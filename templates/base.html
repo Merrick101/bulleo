@@ -31,7 +31,6 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="{% static 'images/favicon/favicon-32x32.png' %}" />
 </head>
-
 <body>
 
   {% include "partials/navbar.html" %}
@@ -51,5 +50,11 @@
 
   {% include "partials/footer.html" %}
   {% include "partials/scripts.html" %}
+
+  <!-- Back to Top Button -->
+  <a href="#" id="backToTop" class="btn btn-dark btn-sm position-fixed bottom-0 end-0 m-3 d-none" title="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </a>
+  
 </body>
 </html>
