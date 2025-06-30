@@ -6,25 +6,18 @@
 
     <!-- Left: Logo -->
     <div class="d-flex align-items-center flex-shrink-0 me-3">
-      <a href="{% url 'home' %}" class="navbar-logo fw-semibold fs-3 text-light mb-0">
+      <a href="{% url 'home' %}" class="navbar-logo d-flex align-items-center text-light text-decoration-none">
         Bulleo
       </a>
     </div>
 
-    <!-- Mobile Search Toggle (only on small screens) -->
-    <div class="d-lg-none ms-auto me-2">
-      <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#mobileSearchCollapse" aria-expanded="false" aria-controls="mobileSearchCollapse" aria-label="{% trans 'Toggle search' %}">
-        <i class="fas fa-search"></i>
-      </button>
-    </div>
-
-    <!-- Center: Search (hidden on small screens) -->
-    <div class="search-bar d-none d-lg-flex flex-grow-1 justify-content-center mx-3">
+    <!-- Center: Search (visible from md and up) -->
+    <div class="search-bar d-none d-md-flex flex-grow-1 justify-content-center mx-3">
       {% include "partials/search_form.html" %}
     </div>
 
-    <!-- Right: Auth or Profile -->
-    <div class="d-flex align-items-center flex-shrink-0 ms-auto">
+    <!-- Right: Auth or Profile (hidden on small screens) -->
+    <div class="d-none d-md-flex align-items-center flex-shrink-0">
       {% if user.is_authenticated %}
         {% include "partials/navbar_authenticated.html" %}
       {% else %}
@@ -37,12 +30,23 @@
       {% endif %}
     </div>
 
-  </div>
+    <!-- Mobile Menu Toggle (right-aligned, only on small screens) -->
+    <div class="dropdown d-md-none ms-auto">
+      <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" id="mobileMenuDropdown"
+              data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bars"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end bg-dark border-0 shadow p-3" aria-labelledby="mobileMenuDropdown">
+        <li class="mb-2">{% include "partials/search_form.html" %}</li>
+        {% if user.is_authenticated %}
+          <li><a class="dropdown-item text-light" href="{% url 'users:profile' %}">{% trans "Profile" %}</a></li>
+          <li><a class="dropdown-item text-light" href="{% url 'account_logout' %}">{% trans "Logout" %}</a></li>
+        {% else %}
+          <li><a class="btn btn-outline-light btn-sm w-100 mb-2" href="{% url 'account_login' %}">{% trans "Log In" %}</a></li>
+          <li><a class="btn btn-primary btn-sm w-100" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a></li>
+        {% endif %}
+      </ul>
+    </div>
 
-    <!-- Mobile Search Form (collapsible) -->
-    <div class="collapse bg-dark" id="mobileSearchCollapse">
-      <div class="container py-2">
-        {% include "partials/search_form.html" %}
-      </div>
   </div>
 </nav>

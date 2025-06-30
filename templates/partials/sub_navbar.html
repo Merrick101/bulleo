@@ -1,26 +1,56 @@
 {% load i18n %}
-{% load static %}
 
-<nav class="bg-light border-top border-bottom py-2">
+<nav class="sub-navbar bg-dark border-top border-bottom py-2 sticky-top z-1">
   <div class="container">
     <ul class="nav nav-pills justify-content-center flex-wrap gap-2 mb-0">
 
-      <li class="nav-item">
-        <a class="nav-link px-3 py-1" href="#bulleo-home-trending">
-          {% trans "Trending News" %}
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link px-3 py-1" href="#bulleo-home-latest">
-          {% trans "Latest News" %}
-        </a>
-      </li>
-
-      {% if user.is_authenticated and picked_articles_by_category %}
+      {% if request.path == '/' %}
+        <!-- Homepage: Scroll to sections -->
         <li class="nav-item">
-          <a class="nav-link px-3 py-1" href="#bulleo-home-picked">
-            {% trans "Picked for You" %}
+          <a class="nav-link px-3 py-1 text-light" href="#bulleo-home-trending">{% trans "Trending News" %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-3 py-1 text-light" href="#bulleo-home-latest">{% trans "Latest News" %}</a>
+        </li>
+        {% if user.is_authenticated and picked_articles_by_category %}
+          <li class="nav-item">
+            <a class="nav-link px-3 py-1 text-light" href="#bulleo-home-picked">{% trans "Picked for You" %}</a>
+          </li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link px-3 py-1 text-light" href="{% url 'news:search_results' %}">{% trans "All Articles" %}</a>
+        </li>
+      
+      {% elif 'search' in request.path %}
+        <!-- Search Results Page: Category Filters -->
+        <li class="nav-item">
+          <a class="nav-link px-3 py-1 text-light" href="?category=world-news{% if query %}&q={{ query }}{% endif %}">
+            <i class="fas fa-globe me-2"></i>{% trans "World News" %}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-3 py-1 text-light" href="?category=politics{% if query %}&q={{ query }}{% endif %}">
+            <i class="fas fa-gavel me-2"></i>{% trans "Politics" %}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-3 py-1 text-light" href="?category=business{% if query %}&q={{ query }}{% endif %}">
+            <i class="fas fa-briefcase me-2"></i>{% trans "Business" %}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-3 py-1 text-light" href="?category=technology{% if query %}&q={{ query }}{% endif %}">
+            <i class="fas fa-microchip me-2"></i>{% trans "Technology" %}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-3 py-1 text-light" href="?category=sports{% if query %}&q={{ query }}{% endif %}">
+            <i class="fas fa-futbol me-2"></i>{% trans "Sports" %}
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link px-3 py-1 text-light" href="?category=entertainment{% if query %}&q={{ query }}{% endif %}">
+            <i class="fas fa-film me-2"></i>{% trans "Entertainment" %}
           </a>
         </li>
       {% endif %}

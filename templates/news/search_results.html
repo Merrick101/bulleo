@@ -3,42 +3,7 @@
 {% load i18n %}
 
 {% block sub_navbar %}
-<nav class="sub-navbar">
-  <div class="container">
-    <ul class="nav nav-pills justify-content-center mb-0">
-      <li class="nav-item">
-        <a class="nav-link" href="?category=world-news{% if query %}&q={{ query }}{% endif %}">
-          <i class="fas fa-globe fa-2x me-3"></i>World News
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="?category=politics{% if query %}&q={{ query }}{% endif %}">
-          <i class="fas fa-gavel fa-2x me-3"></i>Politics
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="?category=business{% if query %}&q={{ query }}{% endif %}">
-          <i class="fas fa-briefcase fa-2x me-3"></i>Business
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="?category=technology{% if query %}&q={{ query }}{% endif %}">
-          <i class="fas fa-microchip fa-2x me-3"></i>Technology
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="?category=sports{% if query %}&q={{ query }}{% endif %}">
-          <i class="fas fa-futbol fa-2x me-3"></i>Sports
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="?category=entertainment{% if query %}&q={{ query }}{% endif %}">
-          <i class="fas fa-film fa-2x me-3"></i>Entertainment
-        </a>
-      </li>
-    </ul>
-  </div>
-</nav>
+  {% include "partials/sub_navbar.html" %}
 {% endblock sub_navbar %}
 
 {% block content %}

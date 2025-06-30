@@ -7,23 +7,7 @@
 {% block title %}Homepage{% endblock %}
 
 {% block sub_navbar %}
-  <nav class="sub-navbar bg-dark border-top border-bottom py-2">
-    <div class="container">
-      <ul class="nav nav-pills justify-content-center mb-0">
-        <li class="nav-item">
-          <a class="nav-link" href="#bulleo-home-trending">Trending News</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#bulleo-home-latest">Latest News</a>
-        </li>
-        {% if user.is_authenticated and picked_articles_by_category %}
-        <li class="nav-item">
-          <a class="nav-link" href="#bulleo-home-picked">Picked for You</a>
-        </li>
-        {% endif %}
-      </ul>
-    </div>
-  </nav>
+  {% include "partials/sub_navbar.html" %}
 {% endblock sub_navbar %}
 
 {% block content %}

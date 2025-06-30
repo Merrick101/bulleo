@@ -14,8 +14,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .navbar-logo {
   font-family: 'Bebas Neue', sans-serif;
-  letter-spacing: 0.3rem;
-  text-decoration: none;
+  letter-spacing: 0.2rem;
+  font-size: clamp(1.5rem, 2.7vw, 2.7rem);
+  margin-left: 3px;
+  padding: 0;
+  line-height: 1;
 }
 
 .navbar-dark .navbar-toggler-icon {
