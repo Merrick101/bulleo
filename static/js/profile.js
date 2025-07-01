@@ -21,7 +21,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (form) {
             form.addEventListener("submit", function (event) {
                 event.preventDefault();
+
+                // Disable all inputs and buttons
+                const elements = form.querySelectorAll("input, button");
+                elements.forEach(el => el.disabled = true);
+
                 const formData = new URLSearchParams(new FormData(form));
+
                 fetch(form.action, {
                     method: "POST",
                     body: formData,
@@ -40,6 +46,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 .catch(error => {
                     console.error("Error:", error);
                     document.getElementById(feedbackId).innerHTML = `<div class="alert alert-danger">An error occurred. Please try again.</div>`;
+                })
+                .finally(() => {
+                    // Re-enable form elements after request completes
+                    elements.forEach(el => el.disabled = false);
                 });
             });
         }
