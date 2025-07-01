@@ -404,25 +404,23 @@ def onboarding(request):
 
 @login_required
 def preferences_update(request):
-    """
-    Updates the user's preferred categories based on the
-    News Feed Preferences form.
-    Accepts AJAX POST requests.
-    """
-    if request.method == "POST" and request.headers.get(
-        "X-Requested-With"
-    ) == "XMLHttpRequest":
-        # Get list of selected category IDs
+    if request.method == "POST":
         selected_ids = request.POST.getlist("preferred_categories")
         profile = request.user.profile
-        # Update preferred categories
         profile.preferred_categories.set(selected_ids)
         profile.save()
 
-        return JsonResponse(
-            {"success": True, "message": "Preferences updated successfully."}
-        )
+        # Check if AJAX request, respond accordingly
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {"success":
+                    True, "message": "Preferences updated successfully."}
+            )
 
+        messages.success(request, "Preferences updated successfully.")
+        return redirect("users:profile")
+
+    # Still reject GET
     return JsonResponse(
         {"success": False, "error": "Invalid request."}, status=400
     )

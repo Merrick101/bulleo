@@ -6,284 +6,190 @@
 <div class="container mt-5 profile-page-container">
     <h2 class="mb-4">{% trans "Profile Settings" %}</h2>
     <div class="row">
-        <!-- Profile Info Section (Left Side) -->
+        <!-- Left Sidebar -->
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm profile-info-card">
                 <div class="card-body">
-                    <h5 class="card-title profile-username">{{ profile.user.username }}</h5>
-                    <p class="card-text profile-bio">{{ profile.bio }}</p>
-                    
-                    <!-- Profile Picture Section -->
-                    <div class="profile-picture-section" id="profile-picture-section">
-                        {% if profile.profile_picture %}
-                            <img src="{{ profile.profile_picture.url }}" alt="{% trans 'Profile Picture' %}" class="profile-picture" id="profile-picture">
-                        {% else %}
-                            <p class="no-profile-picture">{% trans "No profile picture uploaded." %}</p>
-                        {% endif %}
-                        
-                        <!-- Form for Profile Picture Upload -->
-                        <form method="POST" enctype="multipart/form-data" id="profile-picture-form">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label class="form-label" for="profile-picture-upload">{% trans "Change Profile Picture" %}</label>
-                                <input type="file" class="form-control profile-picture-input" name="profile_picture" accept="image/*" id="profile-picture-upload">
-                            </div>
-                            <button type="submit" class="btn btn-primary" id="upload-picture-btn">
-                                {% trans "Upload Picture" %}
-                            </button>
-                        </form>
-                    </div>
+                    <h5 class="card-title">{{ profile.user.username }}</h5>
+                    <p class="text-muted">{{ profile.bio|default:_("No bio added.") }}</p>
+                    <hr>
+                    <p><strong>{% trans "Email:" %}</strong> {{ profile.user.email }}</p>
+                    <p><strong>{% trans "Joined:" %}</strong> {{ profile.user.date_joined|date:"F Y" }}</p>
+                    <p><strong>{% trans "Preferences:" %}</strong>
+                        {% for category in preferred_category_names %}
+                            <span class="badge bg-secondary">{{ category }}</span>
+                        {% empty %}
+                            <span class="text-muted">{% trans "None selected." %}</span>
+                        {% endfor %}
+                    </p>
                 </div>
             </div>
         </div>
 
-        <!-- Profile Settings Section (Right Side) -->
+        <!-- Right Content Area -->
         <div class="col-md-8">
-            <!-- Accordion for Edit Account Details -->
-            <div class="accordion mb-3" id="accordionEditAccount">
-                <div class="accordion-item" id="edit-account-section">
-                    <h2 class="accordion-header" id="headingEditAccount">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEditAccount" aria-expanded="false" aria-controls="collapseEditAccount">
-                            {% trans "Edit Account Details" %}
-                        </button>
-                    </h2>
-                    <div id="collapseEditAccount" class="accordion-collapse collapse" aria-labelledby="headingEditAccount">
-                        <div class="accordion-body">
-                            <!-- Username Update Mini-Form -->
-                            <form method="POST" id="update-username-form" action="{% url 'users:update_username' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="form_type" value="account_username">
-                                <input type="hidden" name="username" value="{{ profile.user.username }}">
-                                <div class="mb-3">
-                                    <label for="username_field" class="form-label">{% trans "Username" %}</label>
-                                    <input type="text" class="form-control profile-username-update-input" id="username_field" name="username" 
-                                        value="{{ profile.user.username }}" placeholder="Enter new username" 
-                                        data-original-value="{{ profile.user.username }}">
-                                </div>
-                                <button type="submit" class="btn btn-primary profile-username-save-btn">{% trans "Save Username" %}</button>
-                                <button type="button" class="btn btn-secondary discard-username-btn">Discard Changes</button>
-                                <div id="username-feedback"></div>
-                            </form>
+            <!-- Tabs -->
+            <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                <li class="nav-item"><button class="nav-link active" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" type="button" role="tab">{% trans "Account" %}</button></li>
+                <li class="nav-item"><button class="nav-link" id="preferences-tab" data-bs-toggle="tab" data-bs-target="#preferences" type="button" role="tab">{% trans "Preferences" %}</button></li>
+                <li class="nav-item"><button class="nav-link" id="saved-tab" data-bs-toggle="tab" data-bs-target="#saved" type="button" role="tab">{% trans "Saved" %}</button></li>
+                <li class="nav-item"><button class="nav-link" id="upvoted-tab" data-bs-toggle="tab" data-bs-target="#upvoted" type="button" role="tab">{% trans "Upvoted" %}</button></li>
+                <li class="nav-item"><button class="nav-link" id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab">{% trans "Comments" %}</button></li>
+                <li class="nav-item"><button class="nav-link text-danger" id="delete-tab" data-bs-toggle="tab" data-bs-target="#delete" type="button" role="tab">{% trans "Delete" %}</button></li>
+            </ul>
 
-                            <!-- Email Update Mini-Form -->
-                            <form method="POST" id="update-email-form" action="{% url 'users:update_email' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="form_type" value="account_email">
-                                <div class="mb-3">
-                                    <label for="email_field" class="form-label">{% trans "Email" %}</label>
-                                    <input type="email" class="form-control profile-email-update-input" id="email_field" name="email" 
-                                        value="{{ profile.user.email }}" placeholder="Enter new email" 
-                                        data-original-value="{{ profile.user.email }}">
-                                </div>
-                                <button type="submit" class="btn btn-primary profile-email-save-btn">{% trans "Save Email" %}</button>
-                                <button type="button" class="btn btn-secondary discard-email-btn">Discard Changes</button>
-                                <div id="email-feedback"></div>
-                            </form>
-
-                            <!-- Password Update Mini-Form -->
-                            <form method="POST" id="update-password-form" action="{% url 'users:update_password' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="form_type" value="account_password">
-                                <input type="text" name="username" value="{{ profile.user.username }}" class="visually-hidden" autocomplete="username">
-                                <div class="mb-3">
-                                    <label for="current_password_field" class="form-label">{% trans "Current Password" %}</label>
-                                    <input type="password" class="form-control profile-current-password-input" id="current_password_field" name="current_password" placeholder="Enter current password" autocomplete="current-password">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="new_password_field" class="form-label">{% trans "New Password" %}</label>
-                                    <input type="password" class="form-control profile-new-password-input" id="new_password_field" name="new_password" placeholder="Enter new password" autocomplete="new-password">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="confirm_new_password_field" class="form-label">{% trans "Confirm New Password" %}</label>
-                                    <input type="password" class="form-control profile-confirm-new-password-input" id="confirm_new_password_field" name="confirm_new_password" placeholder="Confirm new password" autocomplete="new-password">
-                                </div>
-                                <p class="text-muted">Leave password fields blank if you do not wish to change your password.</p>
-                                <button type="submit" class="btn btn-primary profile-password-save-btn">{% trans "Save Password" %}</button>
-                                <button type="button" class="btn btn-secondary discard-password-btn">Clear Password Fields</button>
-                                <div id="password-feedback"></div>
-                            </form>
+            <div class="tab-content pt-3" id="profileTabsContent">
+                <!-- Account Tab -->
+                <div class="tab-pane fade show active" id="account" role="tabpanel">
+                    <!-- Username Update -->
+                    <form method="POST" id="update-username-form" action="{% url 'users:update_username' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="username" value="{{ profile.user.username }}">
+                        <div class="mb-3">
+                            <label for="username_field" class="form-label">{% trans "Username" %}</label>
+                            <input type="text" class="form-control" id="username_field" name="username" value="{{ profile.user.username }}" data-original-value="{{ profile.user.username }}">
                         </div>
-                    </div>
-                </div>
-            </div>
+                        <button type="submit" class="btn btn-primary">{% trans "Save Username" %}</button>
+                        <button type="button" class="btn btn-secondary discard-username-btn">{% trans "Discard Changes" %}</button>
+                        <div id="username-feedback"></div>
+                    </form>
 
-            <!-- Accordion for News Feed Preferences -->
-            <div class="accordion mb-3" id="accordionNewsFeed">
-                <div class="accordion-item" id="news-feed-preferences-section">
-                <h2 class="accordion-header" id="headingNewsFeed">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNewsFeed" aria-expanded="false" aria-controls="collapseNewsFeed">
-                    {% trans "News Feed Preferences" %}
-                    </button>
-                </h2>
-                <div id="collapseNewsFeed" class="accordion-collapse collapse" aria-labelledby="headingNewsFeed">
-                    <div class="accordion-body">
+                    <hr>
+
+                    <!-- Email Update -->
+                    <form method="POST" id="update-email-form" action="{% url 'users:update_email' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="email_field" class="form-label">{% trans "Email" %}</label>
+                            <input type="email" class="form-control" id="email_field" name="email" value="{{ profile.user.email }}" data-original-value="{{ profile.user.email }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">{% trans "Save Email" %}</button>
+                        <button type="button" class="btn btn-secondary discard-email-btn">{% trans "Discard Changes" %}</button>
+                        <div id="email-feedback"></div>
+                    </form>
+
+                    <hr>
+
+                    <!-- Password Update -->
+                    <form method="POST" id="update-password-form" action="{% url 'users:update_password' %}">
+                        {% csrf_token %}
+                        <input type="text" name="username" value="{{ profile.user.username }}" class="visually-hidden" autocomplete="username">
+                        <div class="mb-3">
+                            <label for="current_password_field" class="form-label">{% trans "Current Password" %}</label>
+                            <input type="password" class="form-control" id="current_password_field" name="current_password" autocomplete="current-password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="new_password_field" class="form-label">{% trans "New Password" %}</label>
+                            <input type="password" class="form-control" id="new_password_field" name="new_password" autocomplete="new-password">
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm_new_password_field" class="form-label">{% trans "Confirm New Password" %}</label>
+                            <input type="password" class="form-control" id="confirm_new_password_field" name="confirm_new_password" autocomplete="new-password">
+                        </div>
+                        <p class="text-muted">{% trans "Leave password fields blank if you do not wish to change your password." %}</p>
+                        <button type="submit" class="btn btn-primary">{% trans "Save Password" %}</button>
+                        <button type="button" class="btn btn-secondary discard-password-btn">{% trans "Clear Password Fields" %}</button>
+                        <div id="password-feedback"></div>
+                    </form>
+                </div>
+
+                <!-- Preferences Tab -->
+                <div class="tab-pane fade" id="preferences" role="tabpanel">
                     <form method="POST" id="news-feed-preferences-form" action="{% url 'users:preferences_update' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="form_type" value="preferences">
                         <div class="mb-3">
-                        <label class="form-label">{% trans "Preferred Categories" %}</label><br>
-                        {% for category in categories %}
-                        <div class="form-check">
-                            <input class="form-check-input" 
-                                type="checkbox" 
-                                name="preferred_categories" 
-                                id="category_{{ category.id }}" 
-                                value="{{ category.id }}"
-                                {% if category.name in preferred_category_names %} checked {% endif %}>
-                            <label class="form-check-label" for="category_{{ category.id }}">
-                            {% if category.name == "World News" %}
-                                <i class="fas fa-globe"></i>
-                            {% elif category.name == "Politics" %}
-                                <i class="fas fa-gavel"></i>
-                            {% elif category.name == "Business" %}
-                                <i class="fas fa-briefcase"></i>
-                            {% elif category.name == "Technology" %}
-                                <i class="fas fa-microchip"></i>
-                            {% elif category.name == "Sports" %}
-                                <i class="fas fa-futbol"></i>
-                            {% elif category.name == "Entertainment" %}
-                                <i class="fas fa-film"></i>
-                            {% else %}
-                                <i class="fas fa-question-circle"></i>
-                            {% endif %}
-                            {{ category.name }}
-                            </label>
-                        </div>
-                        {% endfor %}
+                            <label class="form-label">{% trans "Preferred Categories" %}</label><br>
+                            {% for category in categories %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="preferred_categories" id="category_{{ category.id }}" value="{{ category.id }}"
+                                    {% if category.name in preferred_category_names %} checked {% endif %}>
+                                <label class="form-check-label" for="category_{{ category.id }}">
+                                    <i class="fas fa-{{ category.icon }}"></i> {{ category.name }}
+                                </label>
+                            </div>
+                            {% endfor %}
                         </div>
                         <div id="preferences-feedback"></div>
                         <div class="d-flex gap-2 mt-3">
-                        <button type="submit" class="btn btn-primary" id="save-preferences-btn">{% trans "Save Preferences" %}</button>
-                        <button type="button" class="btn btn-warning" id="reset-preferences-btn">{% trans "Reset to Default" %}</button>
-                        <button type="button" class="btn btn-secondary" id="cancel-preferences-btn">{% trans "Cancel Changes" %}</button>
+                            <button type="submit" class="btn btn-primary">{% trans "Save Preferences" %}</button>
+                            <button type="button" class="btn btn-warning" id="reset-preferences-btn">{% trans "Reset to Default" %}</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-preferences-btn">{% trans "Cancel Changes" %}</button>
                         </div>
                     </form>
-                    </div>
                 </div>
-                </div>
-            </div>  
 
-            <!-- Accordion for Saved for Later -->
-            <div class="accordion mb-3" id="accordionSavedForLater">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingSaved">
-                        <a id="saved_articles"></a>
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSaved">
-                            {% trans "Saved for Later" %}
-                        </button>
-                    </h2>
-                    <div id="collapseSaved" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                            <!-- Saved for Later -->
-                            <ul id="saved_articles" class="list-unstyled">
-                                {% for article in saved_articles %}
-                                    <li class="d-flex align-items-center mb-2">
-                                        <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
-                                        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                                        <button class="btn btn-sm btn-danger ms-auto remove-saved" data-id="{{ article.id }}">{% trans "Remove" %}</button>
-                                    </li>
-                                {% empty %}
-                                    <p class="text-muted">{% trans "No saved articles." %}</p>
-                                {% endfor %}
-                            </ul>
-                            <button class="btn btn-danger" id="clear-saved">{% trans "Clear All" %}</button>
-                        </div>
-                    </div>
+                <!-- Saved Articles Tab -->
+                <div class="tab-pane fade" id="saved" role="tabpanel">
+                    <ul class="list-unstyled">
+                        {% for article in saved_articles %}
+                            <li class="d-flex align-items-center mb-2">
+                                <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                                <button class="btn btn-sm btn-danger ms-auto remove-saved" data-id="{{ article.id }}">{% trans "Remove" %}</button>
+                            </li>
+                        {% empty %}
+                            <p class="text-muted">{% trans "You haven’t saved any articles yet." %}</p>
+                        {% endfor %}
+                    </ul>
+                    <button class="btn btn-danger" id="clear-saved">{% trans "Remove All" %}</button>
                 </div>
-            </div>
 
-            <!-- Accordion for Upvoted Articles -->
-            <div class="accordion mb-3" id="accordionUpvotedArticles">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingUpvoted">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUpvoted">
-                            {% trans "Upvoted Articles" %}
-                        </button>
-                    </h2>
-                    <div id="collapseUpvoted" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                            <!-- Upvoted Articles -->
-                            <ul id="upvoted-articles-list" class="list-unstyled">
-                                {% for article in upvoted_articles %}
-                                    <li class="d-flex align-items-center mb-2">
-                                        <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
-                                        <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                                        <button class="btn btn-sm btn-danger ms-auto remove-upvote" data-id="{{ article.id }}">{% trans "Remove" %}</button>
-                                    </li>
-                                {% empty %}
-                                    <p class="text-muted">{% trans "No upvoted articles." %}</p>
-                                {% endfor %}
-                            </ul>
-                            <button class="btn btn-danger" id="clear-upvoted">{% trans "Clear All" %}</button>
-                        </div>
-                    </div>
+                <!-- Upvoted Articles Tab -->
+                <div class="tab-pane fade" id="upvoted" role="tabpanel">
+                    <ul class="list-unstyled">
+                        {% for article in upvoted_articles %}
+                            <li class="d-flex align-items-center mb-2">
+                                <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+                                <button class="btn btn-sm btn-danger ms-auto remove-upvote" data-id="{{ article.id }}">{% trans "Remove" %}</button>
+                            </li>
+                        {% empty %}
+                            <p class="text-muted">{% trans "You haven’t upvoted any articles yet." %}</p>
+                        {% endfor %}
+                    </ul>
+                    <button class="btn btn-danger" id="clear-upvoted">{% trans "Remove All" %}</button>
                 </div>
-            </div>
 
-            <!-- Accordion for Comment History -->
-            <div class="accordion mb-3" id="accordionCommentHistory">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingComments">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseComments">
-                            {% trans "Comment History" %}
-                        </button>
-                    </h2>
-                    <div id="collapseComments" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                            <!-- Comment History -->
-                            <ul id="comment-history-list" class="list-unstyled">
-                                {% for comment in comments %}
-                                    <li class="mb-3">
-                                        <div class="d-flex align-items-center">
-                                            <img src="{{ comment.article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
-                                            <a href="{{ comment.article.get_absolute_url }}">{{ comment.article.title }}</a>
-                                        </div>
-                                        <p class="ms-5 mt-2">{{ comment.content }}</p>
-                                        <div class="ms-5">
-                                            <button class="btn btn-sm btn-danger remove-comment" data-id="{{ comment.id }}">{% trans "Remove" %}</button>
-                                        </div>
-                                    </li>
-                                {% empty %}
-                                    <p class="text-muted">{% trans "No comments yet." %}</p>
-                                {% endfor %}
-                            </ul>
-                            <span id="empty-comments-message" data-message="{% trans 'No comments yet.' %}" style="display: none;"></span>
-                            <!-- Clear All Comments Button -->
-                            <button class="btn btn-danger" id="clear-comments-btn">{% trans "Clear All Comments" %}</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Accordion for Delete Account -->
-            <div class="accordion mb-3" id="accordionDeleteAccount">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingDelete">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDelete">
-                            {% trans "Delete Account" %}
-                        </button>
-                    </h2>
-                    <div id="collapseDelete" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                            <p class="text-danger">{% trans "Warning: Deleting your account is irreversible. All data will be lost." %}</p>
-                            <form method="POST" id="delete-account-form">
-                                {% csrf_token %}
-                                <input type="text" name="username" value="{{ profile.user.username }}" class="visually-hidden" autocomplete="username">
-                                <div class="mb-3">
-                                    <label for="password">{% trans "Enter Password" %}</label>
-                                    <input type="password" name="password" id="password" class="form-control" required autocomplete="current-password">
+                <!-- Comments Tab -->
+                <div class="tab-pane fade" id="comments" role="tabpanel">
+                    <ul class="list-unstyled">
+                        {% for comment in comments %}
+                            <li class="mb-3">
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ comment.article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                    <a href="{{ comment.article.get_absolute_url }}">{{ comment.article.title }}</a>
                                 </div>
-                                <button type="submit" class="btn btn-danger">{% trans "Confirm Deletion" %}</button>
-                            </form>
+                                <p class="ms-5 mt-2">{{ comment.content }}</p>
+                                <div class="ms-5">
+                                    <button class="btn btn-sm btn-danger remove-comment" data-id="{{ comment.id }}">{% trans "Remove" %}</button>
+                                </div>
+                            </li>
+                        {% empty %}
+                            <p class="text-muted">{% trans "You haven’t posted any comments yet." %}</p>
+                        {% endfor %}
+                    </ul>
+                    <button class="btn btn-danger" id="clear-comments-btn">{% trans "Remove All Comments" %}</button>
+                </div>
+
+                <!-- Delete Account Tab -->
+                <div class="tab-pane fade" id="delete" role="tabpanel">
+                    <p class="text-danger">{% trans "Warning: Deleting your account is irreversible. All data will be lost." %}</p>
+                    <form method="POST" id="delete-account-form">
+                        {% csrf_token %}
+                        <input type="text" name="username" value="{{ profile.user.username }}" class="visually-hidden" autocomplete="username">
+                        <div class="mb-3">
+                            <label for="password">{% trans "Enter Password" %}</label>
+                            <input type="password" name="password" id="password" class="form-control" required autocomplete="current-password">
                         </div>
-                    </div>
+                        <button type="submit" class="btn btn-danger">{% trans "Confirm Deletion" %}</button>
+                    </form>
                 </div>
             </div>
-        </div> <!-- End col-md-8 -->
-    </div> <!-- End row -->
+        </div> <!-- End Right Column -->
+    </div> <!-- End Row -->
 </div>
+{% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/profile.js' %}"></script>
-{% endblock extra_js %}
 {% endblock %}
