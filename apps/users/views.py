@@ -72,28 +72,32 @@ def profile_view(request):
 
 @login_required
 def update_username(request):
-    """
-    Updates the user's username.
-    """
-    if request.method == 'POST' and request.headers.get(
-        'X-Requested-With'
-    ) == 'XMLHttpRequest':
+    if request.method == 'POST':
         new_username = request.POST.get('username', '').strip()
 
         if not new_username:
-            return JsonResponse(
-                {'success': False, 'error': "Username cannot be empty."}
-            )
+            error_msg = "Username cannot be empty."
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': error_msg})
+            messages.error(request, error_msg)
+            return redirect('users:profile')
 
         try:
             request.user.username = new_username
             request.user.save()
-            return JsonResponse({
-                'success': True, 'message': "Username updated successfully!",
-                'new_username': request.user.username
-            })
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': "Username updated successfully!",
+                    'new_username': request.user.username
+                })
+            messages.success(request, "Username updated successfully!")
+            return redirect('users:profile')
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': str(e)})
+            messages.error(request, str(e))
+            return redirect('users:profile')
 
     return JsonResponse(
         {'success': False, 'error': "Invalid request."}, status=400
