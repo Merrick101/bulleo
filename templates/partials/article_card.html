@@ -5,20 +5,25 @@
   Expects a context variable `article`.
 {% endcomment %}
 <div class="col">
-  <div class="card h-100 bulleo-home-article-card d-flex flex-column">
+  <div class="card h-100 bulleo-home-article-card d-flex flex-column" role="article">
     {% if article.image_url %}
       <img src="{{ article.image_url }}"
-           class="card-img-top"
-           alt="{{ article.title }}">
+          class="card-img-top"
+          alt="{{ article.title }}">
+    {% else %}
+      <img src="{% static 'images/article-placeholder.png' %}"
+          {% comment %} Placeholder image for articles without an image {% endcomment %}
+          class="card-img-top"
+          alt="{% trans 'Placeholder image' %}">
     {% endif %}
     <div class="card-body d-flex flex-column">
       <h5 class="card-title bulleo-home-article-title">
         {{ article.title|truncatechars:60 }}
       </h5>
-      <p class="card-text text-muted bulleo-home-article-meta">
+      <small class="card-text text-muted bulleo-home-article-meta">
         {% if article.source %}{{ article.source.name }} |{% endif %}
         {{ article.published_at|date:"M d, Y H:i" }}
-      </p>
+      </small>
       <p class="card-text bulleo-home-article-summary">
         {{ article.summary|truncatewords:20 }}
       </p>
@@ -39,11 +44,13 @@
       </div>
       <div>
         <a href="#" class="like-btn me-3"
-           data-article-id="{{ article.id }}">
+           data-article-id="{{ article.id }}" 
+           title="{% trans 'Like this article' %}">
           <i class="fas fa-thumbs-up"></i> {{ article.likes.count }}
         </a>
         <a href="#" class="save-btn"
-           data-article-id="{{ article.id }}">
+           data-article-id="{{ article.id }}" 
+           title="{% trans 'Save this article' %}">
           <i class="fas fa-bookmark"></i> {{ article.saves.count }}
         </a>
       </div>

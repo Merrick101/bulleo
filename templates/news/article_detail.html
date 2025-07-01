@@ -1,5 +1,3 @@
-{% comment %} templates/news/article_detail.html {% endcomment %}
-
 {% extends "base.html" %}
 {% load static %}
 {% load i18n %}
@@ -18,6 +16,13 @@
       | Published on: {{ article.published_at|date:"F d, Y" }}
     </p>
 
+    <!-- Article Image -->
+    {% if article.image_url %}
+      <img src="{{ article.image_url }}" alt="{{ article.title }}" class="img-fluid mb-4">
+    {% else %}
+      <img src="{% static 'images/placeholder/article-placeholder.png' %}" alt="Placeholder image" class="img-fluid mb-4">
+    {% endif %}
+
     <!-- Display Summary & Original Link -->
     {% if article.summary %}
       <p class="article-summary my-2">{{ article.summary }}</p>
@@ -35,10 +40,12 @@
     <!-- Like & Save Buttons for Article Detail (unique classes) -->
     {% if user.is_authenticated %}
       <div class="d-flex align-items-center gap-3 my-3">
-        <button class="btn btn-sm btn-outline-primary detail-like-btn" data-article-id="{{ article.id }}">
+        <button class="btn btn-sm btn-outline-primary detail-like-btn" data-article-id="{{ article.id }}" 
+        title="{% trans 'Like this article' %}">
           <i class="fas fa-thumbs-up"></i> Like ({{ article.likes.count }})
         </button>
-        <button class="btn btn-sm btn-outline-secondary detail-save-btn" data-article-id="{{ article.id }}">
+        <button class="btn btn-sm btn-outline-secondary detail-save-btn" data-article-id="{{ article.id }}" 
+        title="{% trans 'Save this article' %}">
           <i class="fas fa-bookmark"></i> Save ({{ article.saves.count }})
         </button>
       </div>
