@@ -1,4 +1,5 @@
-{% comment %} templates/news/_comment.html {% endcomment %}
+{% load static %}
+{% load i18n %}
 
 <div class="comment mb-3 my-comment {% if comment.deleted %}deleted-comment{% endif %} {% if comment.parent %}reply{% endif %}" 
      id="comment-{{ comment.id }}" 
@@ -19,7 +20,7 @@
     {% if not comment.deleted and user.is_authenticated %}
       <!-- More Actions Dropdown -->
       <div class="dropdown my-comment-more-actions">
-        <button class="btn btn-link dropdown-toggle my-ellipsis-btn" type="button" id="dropdownMenuButton-{{ comment.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-link dropdown-toggle my-ellipsis-btn" aria-label="More actions for comment {{ comment.id }}" type="button" id="dropdownMenuButton-{{ comment.id }}" data-bs-toggle="dropdown" aria-expanded="false">
           …
         </button>
         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-{{ comment.id }}">
@@ -63,9 +64,9 @@
   {% with replies=comment.replies.all %}
     {% if replies %}
       <div class="my-comment-toggle">
-        <button class="btn btn-link toggle-replies">Hide Replies</button>
+        <button class="btn btn-link toggle-replies" aria-expanded="true" aria-controls="replies-{{ comment.id }}">Hide Replies</button>
       </div>
-      <div class="replies">
+      <div class="replies" id="replies-{{ comment.id }}">
         {% for reply in replies %}
           {% include "news/_comment.html" with comment=reply %}
         {% endfor %}

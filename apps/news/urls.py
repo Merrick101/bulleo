@@ -9,14 +9,13 @@ from django.urls import path
 from .views import (
     homepage, search_articles, article_detail, vote_comment, post_comment,
     edit_comment, delete_comment, reply_to_comment, report_comment,
-    toggle_like, toggle_save, contact_view, about_view
+    toggle_like, toggle_save, about_view
 )
 
 app_name = "news"
 
 urlpatterns = [
     path('', homepage, name='homepage'),
-    path('contact/', contact_view, name='contact'),
     path('about/', about_view, name='about'),
     path('search/', search_articles, name='search_results'),
     path(

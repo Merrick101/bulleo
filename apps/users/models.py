@@ -7,7 +7,6 @@ Located at: apps/users/models.py
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from cloudinary.models import CloudinaryField
 
 User = get_user_model()  # Dynamically load user model
 
@@ -20,9 +19,6 @@ class Profile(models.Model):
     bio = models.TextField(
         blank=True, null=True
     )
-    profile_picture = CloudinaryField(
-        "image", default="placeholder.jpg"
-    )  # Cloudinary field
     preferred_categories = models.ManyToManyField(
         "news.Category", blank=True
     )
@@ -141,3 +137,16 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username}: {self.message[:20]}"
+
+
+# Contact Message Model
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    replied = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.subject} from {self.name}"

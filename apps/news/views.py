@@ -4,17 +4,13 @@ search, comments, and user interactions.
 Located at: apps/news/views.py
 """
 
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count, F
 from django.contrib.auth.decorators import login_required
-from django.core.mail import send_mail
-from django.contrib import messages
-from django.conf import settings
 from .models import Article, Category
 from apps.users.forms import CommentForm
-from .forms import ContactForm
 from apps.users.models import Comment
 
 
@@ -73,39 +69,6 @@ def homepage(request):
         'picked_articles_by_category': picked_articles_by_category,
     }
     return render(request, 'news/homepage.html', context)
-
-
-def contact_view(request):
-    if request.method == 'POST':
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            # Extract form data
-            name = form.cleaned_data['name']
-            email = form.cleaned_data['email']
-            subject = form.cleaned_data['subject']
-            message = form.cleaned_data['message']
-
-            full_message = f"Message from {name} ({email}):\n\n{message}"
-
-            send_mail(
-                subject,
-                full_message,
-                # Use a default sender email
-                settings.DEFAULT_FROM_EMAIL,
-                # Recipient email from settings
-                [settings.CONTACT_RECIPIENT_EMAIL],
-                fail_silently=False,
-            )
-            messages.success(
-                request, "Thank you for your message."
-                "We'll get back to you soon."
-            )
-            # Redirect to the same page or a thank you page
-            return redirect('news:contact')
-    else:
-        form = ContactForm()
-
-    return render(request, 'news/contact.html', {'form': form})
 
 
 def about_view(request):

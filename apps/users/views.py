@@ -12,12 +12,14 @@ from django.contrib.auth import (
     )
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 from django.http import JsonResponse
 import json
-from .models import Profile, Comment
+from .models import Profile, Comment, ContactMessage
 from apps.news.models import Category
 from apps.news.models import Article
-from .forms import ProfileForm
+from .forms import ProfileForm, ContactForm
 
 User = get_user_model()
 
@@ -489,3 +491,42 @@ def logout_view(request):
     """
     logout(request)
     return redirect("home")
+
+
+def contact_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+
+            # Optional: Save to DB
+            ContactMessage.objects.create(
+                name=name,
+                email=email,
+                subject=subject,
+                message=message
+            )
+
+            # Compose email content
+            full_message = f"Message from {name} ({email}):\n\n{message}"
+
+            send_mail(
+                subject,
+                full_message,
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.CONTACT_RECIPIENT_EMAIL],
+                fail_silently=False,
+            )
+
+            messages.success(
+                request, "Thank you for your message."
+                "We'll get back to you soon."
+            )
+            return redirect('users:contact')
+    else:
+        form = ContactForm()
+
+    return render(request, 'users/contact.html', {'form': form})

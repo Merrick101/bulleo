@@ -5,14 +5,14 @@ Located at: apps/users/admin.py
 
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Profile, Comment, Notification
+from .models import Profile, Comment, Notification, ContactMessage
 
 
 # Register Profile with more fields in list_display
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = (
-        'user', 'bio', 'created_at', 'profile_picture'
+        'user', 'bio', 'created_at'
     )  # Display bio and profile picture
     search_fields = (
         'user__username', 'bio'
@@ -137,3 +137,10 @@ class NotificationAdmin(admin.ModelAdmin):
     list_filter = ('read', 'created_at')
     search_fields = ('message', 'user__username')
     ordering = ('-created_at',)
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'subject', 'submitted_at', 'replied')
+    list_filter = ('replied', 'submitted_at')
+    search_fields = ('name', 'email', 'subject', 'message')

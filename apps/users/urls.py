@@ -56,4 +56,8 @@ urlpatterns = [
     # Temporary/test routes
     path('test-onboarding/', views.test_onboarding,
          name="test_onboarding"),
+
+    # Contact form view
+    path("contact/", views.contact_view,
+         name="contact"),
 ]
