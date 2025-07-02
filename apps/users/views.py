@@ -72,124 +72,143 @@ def profile_view(request):
 
 @login_required
 def update_username(request):
-    if request.method == 'POST':
-        new_username = request.POST.get('username', '').strip()
+    if request.method != 'POST':
+        return JsonResponse(
+            {'success': False, 'error': 'Invalid request.'}, status=400
+        )
 
-        if not new_username:
-            error_msg = "Username cannot be empty."
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'error': error_msg})
-            messages.error(request, error_msg)
-            return redirect('users:profile')
+    new_username = request.POST.get('username', '').strip()
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
-        try:
-            request.user.username = new_username
-            request.user.save()
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'message': "Username updated successfully!",
-                    'new_username': request.user.username
-                })
-            messages.success(request, "Username updated successfully!")
-            return redirect('users:profile')
-        except Exception as e:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'error': str(e)})
-            messages.error(request, str(e))
-            return redirect('users:profile')
+    # Validation
+    if not new_username:
+        msg = "Username cannot be empty."
+        return JsonResponse(
+            {'success': False, 'error': msg}
+        ) if is_ajax else _reject(request, msg)
 
-    return JsonResponse(
-        {'success': False, 'error': "Invalid request."}, status=400
-    )
+    if new_username == request.user.username:
+        msg = "No changes detected."
+        return JsonResponse(
+            {'success': False, 'error': msg}
+        ) if is_ajax else _reject(request, msg)
+
+    if User.objects.filter(
+        username=new_username
+    ).exclude(pk=request.user.pk).exists():
+        msg = "This username is already taken."
+        return JsonResponse(
+            {'success': False, 'error': msg}
+        ) if is_ajax else _reject(request, msg)
+
+    # Save
+    try:
+        request.user.username = new_username
+        request.user.save()
+        msg = "Username updated successfully!"
+        return JsonResponse(
+            {'success': True, 'message': msg, 'new_username': new_username}
+        ) if is_ajax else _success(request, msg)
+    except Exception as e:
+        return JsonResponse(
+            {'success': False, 'error': str(e)}
+        ) if is_ajax else _reject(str(e))
+
+
+def _reject(request, message):
+    messages.error(request, message)
+    return redirect('users:profile')
+
+
+def _success(request, message):
+    messages.success(request, message)
+    return redirect('users:profile')
 
 
 @login_required
 def update_email(request):
-    """
-    Updates the user's email address.
-    """
-    if request.method == 'POST' and request.headers.get(
+    if request.method != 'POST' or request.headers.get(
         'X-Requested-With'
-    ) == 'XMLHttpRequest':
-        new_email = request.POST.get('email', '').strip()
+    ) != 'XMLHttpRequest':
+        return JsonResponse(
+            {'success': False, 'error': 'Invalid request.'}, status=400
+        )
 
-        if not new_email:
-            return JsonResponse({
-                'success': False, 'error': 'Email cannot be empty.'
-            })
-        if new_email == request.user.email:
-            return JsonResponse({
-                'success': False, 'error':
-                'New email must be different from your current email.'
-            })
-        if User.objects.filter(
-            email=new_email
-        ).exclude(
-            pk=request.user.pk
-        ).exists():
-            return JsonResponse({
-                'success': False, 'error': 'This email is already in use.'
-            })
+    new_email = request.POST.get('email', '').strip()
 
-        try:
-            request.user.email = new_email
-            request.user.save()
-            return JsonResponse({
-                'success': True, 'message': 'Email updated successfully!'
-            })
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+    # Validation
+    if not new_email:
+        return JsonResponse(
+            {'success': False, 'error': 'Email cannot be empty.'}
+        )
+    if new_email == request.user.email:
+        return JsonResponse(
+            {'success': False, 'error': 'No changes detected.'}
+        )
+    if User.objects.filter(
+        email=new_email
+    ).exclude(pk=request.user.pk).exists():
+        return JsonResponse(
+            {'success': False, 'error': 'This email is already in use.'}
+        )
 
-    return JsonResponse({
-        'success': False, 'error': 'Invalid request.'}, status=400
-    )
+    # Save
+    try:
+        request.user.email = new_email
+        request.user.save()
+
+        return JsonResponse(
+            {'success': True, 'message': 'Email updated successfully!'}
+        )
+    except Exception as e:
+        return JsonResponse(
+            {'success': False, 'error': str(e)}
+        )
 
 
 @login_required
 def update_password(request):
-    """
-    Updates the user's password securely.
-    """
-    if request.method == 'POST' and request.headers.get(
+    if request.method != 'POST' or request.headers.get(
         'X-Requested-With'
-    ) == 'XMLHttpRequest':
-        current_password = request.POST.get('current_password', '')
-        new_password = request.POST.get('new_password', '')
-        confirm_new_password = request.POST.get('confirm_new_password', '')
+    ) != 'XMLHttpRequest':
+        return JsonResponse(
+            {'success': False, 'error': 'Invalid request.'}, status=400
+        )
 
-        if not current_password:
-            return JsonResponse(
-                {'success': False, 'error': 'Current password is required.'}
-            )
-        if not request.user.check_password(current_password):
-            return JsonResponse(
-                {'success': False, 'error': 'Current password is incorrect.'}
-            )
-        if new_password != confirm_new_password:
-            return JsonResponse(
-                {'success': False, 'error': 'New passwords do not match.'}
-            )
-        if not new_password:
-            return JsonResponse(
-                {'success': False, 'error': 'New password cannot be empty.'}
-            )
+    current = request.POST.get('current_password', '')
+    new = request.POST.get('new_password', '')
+    confirm = request.POST.get('confirm_new_password', '')
 
-        try:
-            request.user.set_password(new_password)
-            request.user.save()
-            update_session_auth_hash(request, request.user)
-            return JsonResponse(
-                {'success': True, 'message': 'Password updated successfully!'}
-            )
-        except Exception as e:
-            return JsonResponse(
-                {'success': False, 'error': str(e)}
-            )
+    # Validation
+    if not current or not new or not confirm:
+        return JsonResponse(
+            {'success': False, 'error': 'All fields are required.'}
+        )
+    if not request.user.check_password(current):
+        return JsonResponse(
+            {'success': False, 'error': 'Current password is incorrect.'}
+        )
+    if new != confirm:
+        return JsonResponse(
+            {'success': False, 'error': 'New passwords do not match.'}
+        )
+    if new == current:
+        return JsonResponse(
+            {'success': False, 'error': 'New password must be different.'}
+        )
 
-    return JsonResponse(
-        {'success': False, 'error': 'Invalid request.'}, status=400
-    )
+    # Save
+    try:
+        request.user.set_password(new)
+        request.user.save()
+        update_session_auth_hash(request, request.user)
+        return JsonResponse(
+            {'success': True, 'message': 'Password updated successfully!'}
+        )
+    except Exception as e:
+        return JsonResponse(
+            {'success': False, 'error': str(e)}
+        )
 
 
 @login_required

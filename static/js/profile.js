@@ -21,6 +21,11 @@ document.addEventListener("DOMContentLoaded", function () {
         if (form) {
             form.addEventListener("submit", function (event) {
                 event.preventDefault();
+                
+                // Check if the user confirms the action
+                if (!confirm("Are you sure you want to save your changes?")) {
+                    return;
+                }
 
                 // Disable all inputs and buttons
                 const elements = form.querySelectorAll("input, button");
@@ -58,22 +63,6 @@ document.addEventListener("DOMContentLoaded", function () {
     handleFormSubmit("update-username-form", "username-feedback");
     handleFormSubmit("update-email-form", "email-feedback");
     handleFormSubmit("update-password-form", "password-feedback");
-
-    // --- Discard Buttons ---
-    function setupDiscardButton(buttonClass, fieldId, feedbackId) {
-        const button = document.querySelector(buttonClass);
-        if (button) {
-            button.addEventListener("click", function () {
-                const field = document.getElementById(fieldId);
-                field.value = field.getAttribute("data-original-value");
-                const feedback = document.getElementById(feedbackId);
-                if (feedback) feedback.innerHTML = "";
-            });
-        }
-    }
-
-    setupDiscardButton(".discard-username-btn", "username_field", "username-feedback");
-    setupDiscardButton(".discard-email-btn", "email_field", "email-feedback");
 
     // --- AJAX: News Preferences ---
     const preferencesForm = document.getElementById("news-feed-preferences-form");

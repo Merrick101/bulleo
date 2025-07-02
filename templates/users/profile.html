@@ -49,7 +49,6 @@
                             <input type="text" class="form-control" id="username_field" name="username" value="{{ profile.user.username }}" data-original-value="{{ profile.user.username }}">
                         </div>
                         <button type="submit" class="btn btn-primary">{% trans "Save Username" %}</button>
-                        <button type="button" class="btn btn-secondary discard-username-btn">{% trans "Discard Changes" %}</button>
                         <div id="username-feedback"></div>
                     </form>
 
@@ -63,7 +62,6 @@
                             <input type="email" class="form-control" id="email_field" name="email" value="{{ profile.user.email }}" data-original-value="{{ profile.user.email }}">
                         </div>
                         <button type="submit" class="btn btn-primary">{% trans "Save Email" %}</button>
-                        <button type="button" class="btn btn-secondary discard-email-btn">{% trans "Discard Changes" %}</button>
                         <div id="email-feedback"></div>
                     </form>
 
@@ -87,7 +85,6 @@
                         </div>
                         <p class="text-muted">{% trans "Leave password fields blank if you do not wish to change your password." %}</p>
                         <button type="submit" class="btn btn-primary">{% trans "Save Password" %}</button>
-                        <button type="button" class="btn btn-secondary discard-password-btn">{% trans "Clear Password Fields" %}</button>
                         <div id="password-feedback"></div>
                     </form>
                 </div>
