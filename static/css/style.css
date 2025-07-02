@@ -14,6 +14,12 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Merriweather', sans-serif;
 }
 
+.pagination {
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 2rem;
+}
+
 /* Navbar Styling */
 
 .navbar-logo {
@@ -402,5 +408,12 @@ h1, h2, h3, h4, h5, h6 {
   }
   .collapsible-menu {
     width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .sort-btn-group .btn {
+    font-size: 0.8rem;
+    height: 36px;
   }
 }

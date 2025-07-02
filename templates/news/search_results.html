@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
-{% load i18n %}
+{% load static i18n %}
 
 {% block sub_navbar %}
   {% include "partials/sub_navbar.html" %}
@@ -23,18 +22,11 @@
       <i class="fas fa-exclamation-triangle me-2"></i>
       {% trans "Sorry. No results matching your search were found." %}
     </div>
-    <div class="d-flex align-items-center mb-3">
-      <a href="#" class="btn btn-secondary me-2">
-        {% trans "Refine Your Search" %}
-      </a>
+    <div class="d-flex flex-wrap align-items-center mb-3 gap-3">
+      <a href="#" class="btn btn-secondary">{% trans "Refine Your Search" %}</a>
       <form action="{% url 'news:search_results' %}" method="get" class="d-flex">
-        <input
-          class="form-control me-2"
-          type="search"
-          name="q"
-          placeholder="{% trans 'Search again...' %}"
-          aria-label="Search"
-        />
+        <input class="form-control me-2" type="search" name="q"
+               placeholder="{% trans 'Search again...' %}" aria-label="Search" />
         <button class="btn btn-outline-primary" type="submit">
           {% trans "Search" %}
         </button>
@@ -45,125 +37,26 @@
       {% trans "Total Number of Results" %}: <strong>{{ page_obj.paginator.count }}</strong>
     </p>
 
-    <!-- Sorting/Filtering UI -->
-    <div class="mb-3">
-      <strong>{% trans "Sort By:" %}</strong>
-      <a href="?sort=most_relevant{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
-        class="btn btn-sm sort-btn-most-relevant {% if sort == 'most_relevant' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
-        {% trans "Most Relevant" %}
-      </a>
-      <a href="?sort=most_recent{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
-        class="btn btn-sm sort-btn-most-recent {% if sort == 'most_recent' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
-        {% trans "Most Recent" %}
-      </a>
-      <a href="?sort=oldest{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
-        class="btn btn-sm sort-btn-oldest {% if sort == 'oldest' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
-        {% trans "Oldest" %}
-      </a>
-      <a href="?sort=category{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
-        class="btn btn-sm sort-btn-category {% if sort == 'category' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
-        {% trans "Category" %}
-      </a>
-      <a href="?sort=source{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
-        class="btn btn-sm sort-btn-source {% if sort == 'source' %}btn-dark{% else %}btn-outline-dark{% endif %} me-2">
-        {% trans "Source" %}
-      </a>
-    </div>
-
-    <!-- Grid of Search Results -->
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-      {% for article in articles %}
-        <div class="col">
-          <div class="card h-100 bulleo-home-article-card d-flex flex-column">
-            {% if article.image_url %}
-              <img src="{{ article.image_url }}" class="card-img-top" alt="{{ article.title }}">
-            {% else %}
-              <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="Placeholder Image">
-            {% endif %}
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title bulleo-home-article-title">
-                {{ article.title|truncatechars:60 }}
-              </h5>
-              <p class="card-text text-muted bulleo-home-article-meta">
-                {% if article.source %}{{ article.source.name }} | {% endif %}
-                {{ article.published_at|date:"M d, Y H:i" }}
-              </p>
-              <p class="card-text bulleo-home-article-summary">
-                {{ article.summary|truncatewords:20 }}
-              </p>
-              <a href="{% url 'news:article_detail' article.id %}"
-                 class="btn btn-primary read-more-btn mt-auto">
-                {% trans "Read More" %}
-              </a>
-            </div>
-            <div class="card-footer d-flex justify-content-between bulleo-home-article-footer">
-              <div>
-                <span class="text-muted"><i class="fas fa-eye me-1"></i>{{ article.views }} views</span>
-                <span class="text-muted ms-3"><i class="fas fa-comments me-1"></i>{{ article.comments.count }} comments</span>
-              </div>
-              <div>
-                <a href="#" class="like-btn me-3" data-article-id="{{ article.id }}">
-                  <i class="fas fa-thumbs-up"></i> {{ article.likes.count }}
-                </a>
-                <a href="#" class="save-btn" data-article-id="{{ article.id }}">
-                  <i class="fas fa-bookmark"></i> {{ article.saves.count }}
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- Sorting UI -->
+    <div class="mb-4 overflow-auto d-md-block d-flex flex-nowrap gap-2 sort-btn-group">
+      <strong class="me-2">{% trans "Sort By:" %}</strong>
+      {% for option in options %}
+        <a href="?sort={{ option }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
+          class="btn btn-sm {% if sort == option %}btn-dark{% else %}btn-outline-dark{% endif %}">
+          {% trans option|title %}
+        </a>
       {% endfor %}
     </div>
 
-    <!-- Pagination Controls -->
-    {% if is_paginated %}
-      <div class="mt-4 d-flex justify-content-center">
-        <nav aria-label="Page navigation">
-          <ul class="pagination">
-            {% if page_obj.has_previous %}
-              <li class="page-item">
-                <a class="page-link"
-                   href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
-                   aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
-              </li>
-            {% else %}
-              <li class="page-item disabled">
-                <span class="page-link">&laquo;</span>
-              </li>
-            {% endif %}
+    <!-- Articles Grid -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for article in articles %}
+        {% include "partials/article_card.html" with article=article %}
+      {% endfor %}
+    </div>
 
-            {% for num in page_obj.paginator.page_range %}
-              {% if page_obj.number == num %}
-                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <li class="page-item">
-                  <a class="page-link"
-                     href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}">
-                    {{ num }}
-                  </a>
-                </li>
-              {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-              <li class="page-item">
-                <a class="page-link"
-                   href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if source_slug %}&source={{ source_slug }}{% endif %}"
-                   aria-label="Next">
-                  <span aria-hidden="true">&raquo;</span>
-                </a>
-              </li>
-            {% else %}
-              <li class="page-item disabled">
-                <span class="page-link">&raquo;</span>
-              </li>
-            {% endif %}
-          </ul>
-        </nav>
-      </div>
-    {% endif %}
+    <!-- Pagination -->
+    {% include "partials/pagination.html" %}
   {% endif %}
 </div>
 {% endblock content %}

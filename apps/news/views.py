@@ -79,7 +79,7 @@ def search_articles(request):
     query = request.GET.get('q', '')
     category_slug = request.GET.get('category', '')
     source_slug = request.GET.get('source', '')
-    sort = request.GET.get('sort', 'most_relevant')
+    sort = request.GET.get('sort', 'relevant')
 
     articles = Article.objects.all()
 
@@ -99,7 +99,7 @@ def search_articles(request):
         articles = articles.filter(source__slug=source_slug)
 
     # Sorting logic here ...
-    if sort == 'most_recent':
+    if sort == 'recent':
         articles = articles.order_by('-published_at')
     elif sort == 'oldest':
         articles = articles.order_by('published_at')
@@ -107,7 +107,7 @@ def search_articles(request):
         articles = articles.order_by('category__name')
     elif sort == 'source':
         articles = articles.order_by('source__name')
-    else:
+    else:  # 'relevant' or unknown fallback
         articles = articles.order_by('-id')
 
     paginator = Paginator(articles, 9)
@@ -123,6 +123,9 @@ def search_articles(request):
         'category_name': category_name,
         'source_slug': source_slug,
         'sort': sort,
+        'options': [
+            "relevant", "recent", "oldest", "category", "source"
+        ],
     }
     return render(request, "news/search_results.html", context)
 
