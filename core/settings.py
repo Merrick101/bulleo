@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'widget_tweaks',
     'crispy_forms',
     'crispy_bootstrap5',
     'apps.users.apps.UsersConfig',
