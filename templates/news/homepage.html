@@ -49,6 +49,8 @@
           <p>No trending articles in {{ category.name }}.</p>
         {% endif %}
 
+        <hr class="my-5">
+
         <h3 class="bulleo-home-subsection-title mt-4">Latest in {{ category.name }}</h3>
         {% if cat_data.latest.chunks %}
           {% with carousel_id=cat_data.latest.carousel_id chunks=cat_data.latest.chunks %}
