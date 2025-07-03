@@ -13,6 +13,7 @@ from django.contrib.auth import (
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
+from allauth.account.utils import send_email_confirmation
 from django.conf import settings
 from django.http import JsonResponse
 import json
@@ -64,7 +65,7 @@ def profile_view(request):
         "preferred_category_names": list(
             profile.preferred_categories.values_list('name', flat=True)
         ),
-        "categories": Category.objects.all(),
+        "categories": Category.objects.exclude(name__iexact="General"),
     }
 
     return render(request, "users/profile.html", context)
@@ -156,9 +157,11 @@ def update_email(request):
     try:
         request.user.email = new_email
         request.user.save()
+        send_email_confirmation(request, request.user)
 
         return JsonResponse(
-            {'success': True, 'message': 'Email updated successfully!'}
+            {'success': True,
+             'message': 'Email updated. A confirmation email has been sent.'}
         )
     except Exception as e:
         return JsonResponse(
@@ -302,6 +305,11 @@ def remove_comment(request):
         "X-Requested-With"
     ) == "XMLHttpRequest":
         comment_id = request.POST.get("comment_id")
+        if not comment_id:
+            return JsonResponse(
+                {"success": False, "error": "Missing comment ID"}, status=400
+            )
+
         comment = get_object_or_404(
             Comment, id=comment_id, user=request.user
         )

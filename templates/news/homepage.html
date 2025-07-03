@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
-{% comment %} templates/news/homepage.html {% endcomment %}
-
-{% load static %}
+{% load static i18n %}
 
 {% block title %}Homepage{% endblock %}
 
@@ -17,7 +15,9 @@
   <section id="bulleo-home-trending" class="my-5 bulleo-home-section">
     <h2 class="bulleo-home-section-title">Trending News</h2>
     {% if trending_chunks %}
-      {% include "partials/carousel.html" with carousel_id="trendingCarousel" chunks=trending_chunks %}
+      {% with carousel_id="trendingCarousel" chunks=trending_chunks %}
+        {% include "partials/carousel.html" %}
+      {% endwith %}
     {% else %}
       <p>No trending articles available.</p>
     {% endif %}
@@ -27,7 +27,9 @@
   <section id="bulleo-home-latest" class="my-5 bulleo-home-section">
     <h2 class="bulleo-home-section-title">Latest News</h2>
     {% if latest_chunks %}
-      {% include "partials/carousel.html" with carousel_id="latestCarousel" chunks=latest_chunks %}
+      {% with carousel_id="latestCarousel" chunks=latest_chunks %}
+        {% include "partials/carousel.html" %}
+      {% endwith %}
     {% else %}
       <p>No latest articles available.</p>
     {% endif %}
@@ -39,15 +41,19 @@
     {% for category, cat_data in picked_articles_by_category.items %}
       <div class="mb-5">
         <h3 class="bulleo-home-subsection-title">Trending in {{ category.name }}</h3>
-        {% if cat_data.trending %}
-          {% include "partials/carousel.html" with carousel_id="catTrendingCarousel-{{ category.slug }}" chunks=cat_data.trending %}
+        {% if cat_data.trending.chunks %}
+          {% with carousel_id=cat_data.trending.carousel_id chunks=cat_data.trending.chunks %}
+            {% include "partials/carousel.html" %}
+          {% endwith %}
         {% else %}
           <p>No trending articles in {{ category.name }}.</p>
         {% endif %}
 
         <h3 class="bulleo-home-subsection-title mt-4">Latest in {{ category.name }}</h3>
-        {% if cat_data.latest %}
-          {% include "partials/carousel.html" with carousel_id="catLatestCarousel-{{ category.slug }}" chunks=cat_data.latest %}
+        {% if cat_data.latest.chunks %}
+          {% with carousel_id=cat_data.latest.carousel_id chunks=cat_data.latest.chunks %}
+            {% include "partials/carousel.html" %}
+          {% endwith %}
         {% else %}
           <p>No latest articles in {{ category.name }}.</p>
         {% endif %}

@@ -5,9 +5,9 @@
 {% block content %}
 <div class="container mt-5 profile-page-container">
     <h2 class="mb-4">{% trans "Profile Settings" %}</h2>
-    <div class="row">
-        <!-- Left Sidebar -->
-        <div class="col-md-4 mb-4">
+    <div class="row flex-column flex-md-row g-4">
+        <!-- Left Content Area -->
+        <div class="col-12 col-md-4 mb-4 mb-md-0">
             <div class="card shadow-sm profile-info-card">
                 <div class="card-body">
                     <h5 class="card-title">{{ profile.user.username }}</h5>
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Right Content Area -->
-        <div class="col-md-8">
+        <div class="col-12 col-md-8">
             <!-- Tabs -->
             <ul class="nav nav-tabs" id="profileTabs" role="tablist">
                 <li class="nav-item"><button class="nav-link active" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" type="button" role="tab">{% trans "Account" %}</button></li>
@@ -108,15 +108,13 @@
                         <div id="preferences-feedback"></div>
                         <div class="d-flex gap-2 mt-3">
                             <button type="submit" class="btn btn-primary">{% trans "Save Preferences" %}</button>
-                            <button type="button" class="btn btn-warning" id="reset-preferences-btn">{% trans "Reset to Default" %}</button>
-                            <button type="button" class="btn btn-secondary" id="cancel-preferences-btn">{% trans "Cancel Changes" %}</button>
                         </div>
                     </form>
                 </div>
 
                 <!-- Saved Articles Tab -->
                 <div class="tab-pane fade" id="saved" role="tabpanel">
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled" id="saved-articles-list">
                         {% for article in saved_articles %}
                             <li class="d-flex align-items-center mb-2">
                                 <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
@@ -132,7 +130,7 @@
 
                 <!-- Upvoted Articles Tab -->
                 <div class="tab-pane fade" id="upvoted" role="tabpanel">
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled" id="upvoted-articles-list">
                         {% for article in upvoted_articles %}
                             <li class="d-flex align-items-center mb-2">
                                 <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
@@ -148,7 +146,7 @@
 
                 <!-- Comments Tab -->
                 <div class="tab-pane fade" id="comments" role="tabpanel">
-                    <ul class="list-unstyled">
+                    <ul class="list-unstyled" id="comment-history-list">
                         {% for comment in comments %}
                             <li class="mb-3">
                                 <div class="d-flex align-items-center">
@@ -184,8 +182,4 @@
         </div> <!-- End Right Column -->
     </div> <!-- End Row -->
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/profile.js' %}"></script>
 {% endblock %}

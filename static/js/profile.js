@@ -14,6 +14,28 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// Show toast notification
+function showToast(message, variant = "success") {
+    const toast = document.createElement("div");
+    toast.className = `toast align-items-center text-white bg-${variant} border-0 position-fixed bottom-0 end-0 m-4 show`;
+    toast.style.zIndex = "9999";
+    toast.setAttribute("role", "alert");
+    toast.setAttribute("aria-live", "assertive");
+    toast.setAttribute("aria-atomic", "true");
+
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => toast.remove(), 5000);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     // --- AJAX: Username, Email, Password Forms ---
     function handleFormSubmit(formId, feedbackId) {
@@ -44,9 +66,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(response => response.json())
                 .then(data => {
                     const feedback = document.getElementById(feedbackId);
-                    feedback.innerHTML = data.success 
-                        ? `<div class="alert alert-success">${data.message}</div>`
-                        : `<div class="alert alert-danger">${data.error}</div>`;
+                    if (data.success) {
+                        showToast(data.message);  // Toast on success
+                        feedback.innerHTML = "";  // Clear inline feedback
+                    } else {
+                        feedback.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    }
                 })
                 .catch(error => {
                     console.error("Error:", error);
@@ -82,9 +107,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 const feedback = document.getElementById("preferences-feedback");
-                feedback.innerHTML = data.success 
-                    ? `<div class="alert alert-success">${data.message}</div>`
-                    : `<div class="alert alert-danger">${data.error}</div>`;
+                if (data.success) {
+                    feedback.innerHTML = "";
+                    showToast(data.message);
+                } else {
+                    feedback.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                }
             })
             .catch(error => {
                 console.error("Error:", error);
@@ -93,12 +121,15 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // --- Remove & Clear Buttons ---
-    function setupRemoveHandler(selector, endpoint) {
+    // Attach event handlers to remove individual items dynamically
+    function setupRemoveHandler(selector, endpoint, toastMessage) {
         document.querySelectorAll(selector).forEach(button => {
             button.addEventListener("click", function () {
+                if (!confirm("Are you sure you want to remove this item?")) return;
+
                 const itemId = this.getAttribute("data-id");
                 const paramKey = endpoint.includes("comment") ? "comment_id" : "id";
+
                 fetch(endpoint, {
                     method: "POST",
                     body: new URLSearchParams({ [paramKey]: itemId }),
@@ -109,21 +140,40 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.success) this.closest("li").remove();
+                    if (data.success) {
+                        this.closest("li").remove();
+                        showToast(toastMessage);
+                    }
                 })
                 .catch(err => console.error("Error:", err));
             });
         });
     }
 
-    setupRemoveHandler(".remove-saved", "/users/remove-saved-article/");
-    setupRemoveHandler(".remove-upvote", "/users/remove-upvoted-article/");
-    setupRemoveHandler(".remove-comment", "/users/remove-comment/");
+    // --- AJAX: Remove Saved/Upvoted Articles and Comments ---
+    document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener("shown.bs.tab", function (event) {
+            const tabId = event.target.getAttribute("data-bs-target");
 
-    function setupClearAllButton(buttonId, endpoint, listId, emptyMessage) {
+            // Delay slightly to ensure content renders
+            setTimeout(() => {
+                if (tabId === "#saved") {
+                    setupRemoveHandler(".remove-saved", "/users/remove-saved-article/", "Saved article removed.");
+                } else if (tabId === "#upvoted") {
+                    setupRemoveHandler(".remove-upvote", "/users/remove-upvoted-article/", "Upvoted article removed.");
+                } else if (tabId === "#comments") {
+                    setupRemoveHandler(".remove-comment", "/users/remove-comment/", "Comment removed.");
+                }
+            }, 100);
+        });
+    });
+
+    function setupClearAllButton(buttonId, endpoint, listId, emptyMessage, toastMessage) {
         const button = document.getElementById(buttonId);
         if (button) {
             button.addEventListener("click", function () {
+                if (!confirm("Are you sure you want to remove all items?")) return;
+
                 fetch(endpoint, {
                     method: "POST",
                     headers: {
@@ -135,6 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 .then(data => {
                     if (data.success) {
                         document.getElementById(listId).innerHTML = `<p class="text-muted">${emptyMessage}</p>`;
+                        showToast(toastMessage);
                     }
                 })
                 .catch(err => console.error("Error:", err));
@@ -142,13 +193,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    setupClearAllButton("clear-saved", "/users/clear-saved-articles/", "saved-articles-list", "No saved articles.");
-    setupClearAllButton("clear-upvoted", "/users/clear-upvoted-articles/", "upvoted-articles-list", "No upvoted articles.");
+    setupClearAllButton("clear-saved", "/users/clear-saved-articles/", "saved-articles-list", "No saved articles.", "All saved articles removed.");
+    setupClearAllButton("clear-upvoted", "/users/clear-upvoted-articles/", "upvoted-articles-list", "No upvoted articles.", "All upvoted articles removed.");
 
     // --- Clear All Comments ---
     const clearCommentsButton = document.getElementById("clear-comments-btn");
     if (clearCommentsButton) {
         clearCommentsButton.addEventListener("click", function () {
+            if (!confirm("Are you sure you want to remove all your comments?")) return;
+
             fetch("/users/clear-comments/", {
                 method: "POST",
                 headers: {
@@ -161,6 +214,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) {
                     const msg = document.getElementById("empty-comments-message").dataset.message;
                     document.getElementById("comment-history-list").innerHTML = `<p class="text-muted">${msg}</p>`;
+                    showToast("All comments removed.");
                 }
             })
             .catch(err => console.error("Error:", err));

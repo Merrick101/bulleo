@@ -1,14 +1,11 @@
 {% load i18n %}
 {% load static %}
 
-{% comment %}
-  Expects:
-    - `chunks`: a list-of-lists of objects
-    - `carousel_id`: unique string
-{% endcomment %}
 <div class="bulleo-carousel-wrapper position-relative">
   <div id="{{ carousel_id }}" class="carousel slide"
-       data-bs-ride="carousel">
+     data-bs-ride="carousel"
+     data-bs-interval="5000"
+     data-bs-pause="hover">
     <div class="carousel-inner">
       {% for chunk in chunks %}
         <div class="carousel-item{% if forloop.first %} active{% endif %}">
@@ -20,19 +17,19 @@
         </div>
       {% endfor %}
     </div>
-  </div>
 
-  <!-- prev/next -->
-  <button class="custom-arrow custom-arrow-left" type="button"
-          data-bs-target="#{{ carousel_id }}"
-          data-bs-slide="prev">
-    <i class="fas fa-chevron-left fa-2x"></i>
-    <span class="visually-hidden">{% trans "Previous" %}</span>
-  </button>
-  <button class="custom-arrow custom-arrow-right" type="button"
-          data-bs-target="#{{ carousel_id }}"
-          data-bs-slide="next">
-    <i class="fas fa-chevron-right fa-2x"></i>
-    <span class="visually-hidden">{% trans "Next" %}</span>
-  </button>
+    {% if chunks|length > 1 %}
+      <!-- Chevron buttons -->
+      <button class="custom-arrow custom-arrow-left" type="button"
+              data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
+        <i class="fas fa-chevron-left fa-2x"></i>
+        <span class="visually-hidden">{% trans "Previous" %}</span>
+      </button>
+      <button class="custom-arrow custom-arrow-right" type="button"
+              data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
+        <i class="fas fa-chevron-right fa-2x"></i>
+        <span class="visually-hidden">{% trans "Next" %}</span>
+      </button>
+    {% endif %}
+  </div>
 </div>

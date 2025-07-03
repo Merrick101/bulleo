@@ -59,8 +59,14 @@ def homepage(request):
             cat_latest_chunks = list(chunked_queryset(cat_latest, 3))
 
             picked_articles_by_category[cat] = {
-                'trending': cat_trending_chunks,
-                'latest': cat_latest_chunks,
+                'trending': {
+                    'chunks': cat_trending_chunks,
+                    'carousel_id': f'catTrendingCarousel-{cat.slug}',
+                },
+                'latest': {
+                    'chunks': cat_latest_chunks,
+                    'carousel_id': f'catLatestCarousel-{cat.slug}',
+                },
             }
 
     context = {

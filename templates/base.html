@@ -31,10 +31,10 @@
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="{% static 'images/favicon/favicon-32x32.png' %}" />
 </head>
-<body>
+
+<body class="d-flex flex-column min-vh-100">
 
   {% include "partials/navbar.html" %}
-
   <div class="border-top border-bottom"></div>
 
   {% block sub_navbar %}
@@ -43,10 +43,12 @@
 
   {% include "partials/messages.html" %}
 
-  <!-- Remove margin-top here -->
-  <div class="container">
-    {% block content %}{% endblock %}
-  </div>
+  <!-- Main page content -->
+  <main class="flex-grow-1">
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
 
   {% include "partials/footer.html" %}
   {% include "partials/scripts.html" %}
@@ -55,6 +57,7 @@
   <a href="#" id="backToTop" class="btn btn-dark btn-sm position-fixed bottom-0 end-0 m-3 d-none" title="Back to top">
     <i class="fas fa-arrow-up"></i>
   </a>
-  
+
 </body>
+
 </html>
