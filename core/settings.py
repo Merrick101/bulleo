@@ -344,6 +344,10 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'apps.news.tasks.fetch_news_articles',
         'schedule': 43200.0,  # every 12 hours
     },
+    'delete-old-articles-daily': {
+        'task': 'apps.news.tasks.delete_expired_articles',
+        'schedule': crontab(hour=0, minute=0),  # every day at midnight
+    },
     'redis-heartbeat-every-5-days': {
         'task': 'apps.news.tasks.redis_heartbeat',
         'schedule': 5 * 86400.0,  # every 5 days

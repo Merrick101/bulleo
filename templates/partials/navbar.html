@@ -21,7 +21,7 @@
       {% if user.is_authenticated %}
         {% include "partials/navbar_authenticated.html" %}
       {% else %}
-        <a href="{% url 'account_login' %}" class="btn btn-outline-light btn-sm me-2">
+        <a href="{% url 'account_login' %}" class="btn btn-secondary btn-sm me-2">
           {% trans "Log In" %}
         </a>
         <a href="{% url 'account_signup' %}" class="btn btn-primary btn-sm">
@@ -42,7 +42,7 @@
           <li><a class="dropdown-item text-light" href="{% url 'users:profile' %}">{% trans "Profile" %}</a></li>
           <li><a class="dropdown-item text-light" href="{% url 'account_logout' %}">{% trans "Logout" %}</a></li>
         {% else %}
-          <li><a class="btn btn-outline-light btn-sm w-100 mb-2" href="{% url 'account_login' %}">{% trans "Log In" %}</a></li>
+          <li><a class="btn btn-secondary btn-sm w-100 mb-2" href="{% url 'account_login' %}">{% trans "Log In" %}</a></li>
           <li><a class="btn btn-primary btn-sm w-100" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a></li>
         {% endif %}
       </ul>

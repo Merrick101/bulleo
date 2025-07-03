@@ -14,12 +14,15 @@
                     <hr>
                     <p><strong>{% trans "Email:" %}</strong> {{ profile.user.email }}</p>
                     <p><strong>{% trans "Joined:" %}</strong> {{ profile.user.date_joined|date:"F Y" }}</p>
-                    <p><strong>{% trans "Preferences:" %}</strong>
-                        {% for category in preferred_category_names %}
+                    <p>
+                        <strong>{% trans "Preferences:" %}</strong>
+                        <span id="user-preferences-display">
+                            {% for category in preferred_category_names %}
                             <span class="badge bg-secondary">{{ category }}</span>
-                        {% empty %}
+                            {% empty %}
                             <span class="text-muted">{% trans "None selected." %}</span>
-                        {% endfor %}
+                            {% endfor %}
+                        </span>
                     </p>
                 </div>
             </div>

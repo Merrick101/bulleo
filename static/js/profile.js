@@ -94,6 +94,12 @@ document.addEventListener("DOMContentLoaded", function () {
     if (preferencesForm) {
         preferencesForm.addEventListener("submit", function (event) {
             event.preventDefault();
+
+            // Show confirmation prompt
+            if (!confirm("Are you sure you want to save your preferences?")) {
+                return;
+            }
+
             const formData = new URLSearchParams(new FormData(preferencesForm));
 
             fetch(preferencesForm.action, {
@@ -110,6 +116,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) {
                     feedback.innerHTML = "";
                     showToast(data.message);
+                        // Update profile preferences display dynamically
+                        const displayEl = document.getElementById("user-preferences-display");
+                        if (displayEl) {
+                            const checkedBoxes = preferencesForm.querySelectorAll('input[type="checkbox"]:checked');
+
+                            if (checkedBoxes.length === 0) {
+                                displayEl.innerHTML = '<span class="text-muted">None selected.</span>';
+                            } else {
+                                const newBadges = Array.from(checkedBoxes).map(input => {
+                                    const label = input.nextSibling.textContent.trim();
+                                    return `<span class="badge bg-secondary me-1">${label}</span>`;
+                                }).join(" ");
+                                displayEl.innerHTML = newBadges;
+                            }
+                        }
                 } else {
                     feedback.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
                 }

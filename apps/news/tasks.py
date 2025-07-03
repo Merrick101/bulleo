@@ -72,6 +72,22 @@ def cache_articles(articles, source, max_articles=100):
 
 
 @shared_task
+def delete_expired_articles():
+    """
+    Delete articles older than 28 days from the database.
+    This does not affect articles manually created or pinned.
+    """
+    threshold_date = timezone.now() - timedelta(days=28)
+    old_articles = Article.objects.filter(
+        imported=True, published_at__lt=threshold_date
+    )
+    count = old_articles.count()
+    old_articles.delete()
+    logger.info(f"Deleted {count} expired articles older than 28 days.")
+    return f"{count} expired articles deleted."
+
+
+@shared_task
 def fetch_news_articles():
     """Fetch top headlines from News API and
     store them in the database and Redis cache."""

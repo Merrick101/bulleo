@@ -87,13 +87,6 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 4px;
 }
 
-.bulleo-home-section {
-  margin-bottom: 60px;
-  padding-bottom: 20px;
-  /* A subtle border to visually divide sections */
-  border-bottom: 1px solid #e0e0e0;
-}
-
 .bulleo-home-section-title {
   font-size: 1.75rem;
   margin-bottom: 1rem;
@@ -177,10 +170,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .bulleo-article-footer .like-btn i, .save-btn i {
   margin-right: 0.1rem;
-}
-
-#bulleo-home-picked .bulleo-home-subsection-title {
-  margin-top: 2.5rem;
 }
 
 /* Category Selection Styling */
