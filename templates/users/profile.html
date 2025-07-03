@@ -117,55 +117,70 @@
 
                 <!-- Saved Articles Tab -->
                 <div class="tab-pane fade" id="saved" role="tabpanel">
-                    <ul class="list-unstyled" id="saved-articles-list">
-                        {% for article in saved_articles %}
-                            <li class="d-flex align-items-center mb-2">
-                                <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
-                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                                <button class="btn btn-sm btn-danger ms-auto remove-saved" data-id="{{ article.id }}">{% trans "Remove" %}</button>
-                            </li>
-                        {% empty %}
-                            <p class="text-muted">{% trans "You haven’t saved any articles yet." %}</p>
-                        {% endfor %}
+                {% if saved_articles %}
+                    <ul class="list-group list-group-flush mb-3" id="saved-articles-list">
+                    {% for article in saved_articles %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center flex-grow-1">
+                            <img src="{{ article.image_url }}" alt="Thumbnail" class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                            <a href="{{ article.get_absolute_url }}" class="text-decoration-none">{{ article.title }}</a>
+                        </div>
+                        <div class="ms-3">
+                            <button class="btn btn-sm btn-danger remove-saved" data-id="{{ article.id }}">{% trans "Remove" %}</button>
+                        </div>
+                        </li>
+                    {% endfor %}
                     </ul>
-                    <button class="btn btn-danger" id="clear-saved">{% trans "Remove All" %}</button>
+                    <button class="btn btn-outline-danger" id="clear-saved">{% trans "Remove All" %}</button>
+                {% else %}
+                    <p class="text-muted">{% trans "You haven’t saved any articles yet." %}</p>
+                {% endif %}
                 </div>
 
                 <!-- Upvoted Articles Tab -->
                 <div class="tab-pane fade" id="upvoted" role="tabpanel">
-                    <ul class="list-unstyled" id="upvoted-articles-list">
-                        {% for article in upvoted_articles %}
-                            <li class="d-flex align-items-center mb-2">
-                                <img src="{{ article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
-                                <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
-                                <button class="btn btn-sm btn-danger ms-auto remove-upvote" data-id="{{ article.id }}">{% trans "Remove" %}</button>
-                            </li>
-                        {% empty %}
-                            <p class="text-muted">{% trans "You haven’t upvoted any articles yet." %}</p>
-                        {% endfor %}
+                {% if upvoted_articles %}
+                    <ul class="list-group list-group-flush mb-3" id="upvoted-articles-list">
+                    {% for article in upvoted_articles %}
+                        <li class="list-group-item d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ article.image_url }}" alt="Thumbnail" class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                            <a href="{{ article.get_absolute_url }}" class="text-decoration-none">{{ article.title }}</a>
+                        </div>
+                        <button class="btn btn-sm btn-danger remove-upvote" data-id="{{ article.id }}">{% trans "Remove" %}</button>
+                        </li>
+                    {% endfor %}
                     </ul>
-                    <button class="btn btn-danger" id="clear-upvoted">{% trans "Remove All" %}</button>
+                    <button class="btn btn-outline-danger" id="clear-upvoted">{% trans "Remove All" %}</button>
+                {% else %}
+                    <p class="text-muted">{% trans "You haven’t upvoted any articles yet." %}</p>
+                {% endif %}
                 </div>
 
                 <!-- Comments Tab -->
                 <div class="tab-pane fade" id="comments" role="tabpanel">
-                    <ul class="list-unstyled" id="comment-history-list">
-                        {% for comment in comments %}
-                            <li class="mb-3">
-                                <div class="d-flex align-items-center">
-                                    <img src="{{ comment.article.image_url }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
-                                    <a href="{{ comment.article.get_absolute_url }}">{{ comment.article.title }}</a>
-                                </div>
-                                <p class="ms-5 mt-2">{{ comment.content }}</p>
-                                <div class="ms-5">
-                                    <button class="btn btn-sm btn-danger remove-comment" data-id="{{ comment.id }}">{% trans "Remove" %}</button>
-                                </div>
-                            </li>
-                        {% empty %}
-                            <p class="text-muted">{% trans "You haven’t posted any comments yet." %}</p>
-                        {% endfor %}
+                {% if comments %}
+                    <ul class="list-unstyled mb-3" id="comment-history-list">
+                    {% for comment in comments %}
+                        <li class="bg-white p-3 rounded shadow-sm mb-3 border">
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="{{ comment.article.image_url }}" alt="Thumbnail" class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                            <a href="{{ comment.article.get_absolute_url }}" class="text-decoration-none fw-semibold">{{ comment.article.title }}</a>
+                        </div>
+                        <div class="ms-5">
+                            <p class="mb-2">{{ comment.content }}</p>
+                            <span class="my-comment-date mt-2">{{ comment.created_at|date:"F d, Y H:i" }}</span>
+                            <div class="text-end">
+                            <button class="btn btn-sm btn-danger remove-comment" data-id="{{ comment.id }}">{% trans "Remove" %}</button>
+                            </div>
+                        </div>
+                        </li>
+                    {% endfor %}
                     </ul>
-                    <button class="btn btn-danger" id="clear-comments-btn">{% trans "Remove All Comments" %}</button>
+                    <button class="btn btn-outline-danger" id="clear-comments-btn">{% trans "Remove All Comments" %}</button>
+                {% else %}
+                    <p class="text-muted" id="empty-comments-message" data-message="{% trans 'You haven’t posted any comments yet.' %}">{% trans "You haven’t posted any comments yet." %}</p>
+                {% endif %}
                 </div>
 
                 <!-- Delete Account Tab -->

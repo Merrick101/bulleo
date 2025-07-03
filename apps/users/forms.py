@@ -72,15 +72,38 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ["content", "parent_comment_id"]
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        self.article = kwargs.pop("article", None)
+        super().__init__(*args, **kwargs)
+
     def clean_content(self):
         content = self.cleaned_data.get("content", "").strip()
         if not content:
             raise forms.ValidationError("Comment cannot be empty.")
         return content
 
-    def clean_parent_comment_id(self):
-        parent_comment_id = self.cleaned_data.get("parent_comment_id")
-        return parent_comment_id
+    def clean(self):
+        cleaned_data = super().clean()
+        content = cleaned_data.get("content")
+        parent_id = cleaned_data.get("parent_comment_id")
+
+        if self.user and self.article and content:
+            existing = Comment.objects.filter(
+                user=self.user,
+                article=self.article,
+                content=content,
+                parent_id=parent_id,
+            )
+            if self.instance.pk:
+                existing = existing.exclude(pk=self.instance.pk)
+
+            if existing.exists():
+                raise forms.ValidationError(
+                    "You’ve already posted this exact comment."
+                )
+
+        return cleaned_data
 
 
 class ContactForm(forms.Form):

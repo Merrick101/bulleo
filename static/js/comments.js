@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("comments.js loaded successfully!");
-
     // ------------------------------------------------------
     // 1) Sorting
     // ------------------------------------------------------
@@ -12,16 +11,43 @@ document.addEventListener("DOMContentLoaded", function () {
             window.location.href = "?sort=" + this.value;
         });
     }
-
     // ------------------------------------------------------
     // 2) Global Setup
     // ------------------------------------------------------
     const articleDetail = document.querySelector(".article-detail");
     const article_id = articleDetail ? articleDetail.getAttribute("data-article-id") : null;
     const commentsList = document.getElementById("comments-list");
-
+     // ------------------------------------------------------
+    // 3) Toggle Replies
     // ------------------------------------------------------
-    // 3) Event Delegation
+    function toggleReplies(button) {
+        console.log("Toggle clicked");
+
+        const commentDiv = button.closest(".comment");
+        if (!commentDiv) {
+            console.warn("No comment container found");
+            return;
+        }
+
+        const repliesContainer = commentDiv.querySelector(".replies");
+        if (!repliesContainer) {
+            console.warn("No .replies container found inside comment div");
+            return;
+        }
+
+        console.log("Target replies container:", repliesContainer);
+
+        // Force toggle logic
+        if (repliesContainer.style.display === "" || repliesContainer.style.display === "block") {
+            repliesContainer.style.display = "none";
+            button.textContent = "Show More Replies";
+        } else {
+            repliesContainer.style.display = "block";
+            button.textContent = "Hide Replies";
+        }
+    }
+    // ------------------------------------------------------
+    // 4) Event Delegation
     // ------------------------------------------------------
     if (commentsList) {
         commentsList.addEventListener("click", function (event) {
@@ -45,9 +71,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-
     // ------------------------------------------------------
-    // 4) Voting
+    // 5) Voting
     // ------------------------------------------------------
     function voteComment(commentId, action) {
         fetch(`/news/comment/${commentId}/vote/${action}/`, {
@@ -70,9 +95,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(err => console.error("Error with voting:", err));
     }
-
     // ------------------------------------------------------
-    // 5) Reply
+    // 6) Reply
     // ------------------------------------------------------
     function showReplyForm(parentId) {
         const parentComment = document.querySelector(`#comment-${parentId}`);
@@ -143,9 +167,8 @@ document.addEventListener("DOMContentLoaded", function () {
             submitButton.disabled = false;
         });
     }      
-
     // ------------------------------------------------------
-    // 6) Ensure Parent Has a Toggle Button
+    // 7) Ensure Parent Has a Toggle Button
     // ------------------------------------------------------
     function ensureToggleForParent(parentCommentDiv) {
         let repliesContainer = parentCommentDiv.querySelector(".replies");
@@ -176,9 +199,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
-
     // ------------------------------------------------------
-    // 7) Report
+    // 8) Report
     // ------------------------------------------------------
     function reportComment(commentId, button) {
         fetch(`/news/comment/${commentId}/report/`, {
@@ -199,9 +221,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(err => console.error("Error reporting comment:", err));
     }
-
     // ------------------------------------------------------
-    // 8) Edit
+    // 9) Edit
     // ------------------------------------------------------
     function showEditForm(commentId) {
         const commentDiv = document.querySelector(`#comment-${commentId}`);
@@ -264,9 +285,8 @@ document.addEventListener("DOMContentLoaded", function () {
             submitButton.disabled = false;
         });
     }
-
     // ------------------------------------------------------
-    // 9) Delete
+    // 10) Delete
     // ------------------------------------------------------
     function deleteComment(commentId) {
         fetch(`/news/comment/${commentId}/delete/`, {
@@ -312,9 +332,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(err => console.error("Error deleting comment:", err));
     }
-
     // ------------------------------------------------------
-    // 10) Main Comment Form Submission
+    // 11) Main Comment Form Submission
     // ------------------------------------------------------
     const commentForm = document.getElementById("comment-form");
     if (commentForm) {
@@ -330,26 +349,35 @@ document.addEventListener("DOMContentLoaded", function () {
                     "X-CSRFToken": getCSRFToken()
                 }
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
+            .then(res => res.json().then(data => ({ data, ok: res.ok })))
+            .then(({ data, ok }) => {
+                if (ok && data.success) {
                     renderNewComment(data);
                     commentForm.reset();
                     if (data.comment_count !== undefined) {
                         document.getElementById("comment-count").textContent = data.comment_count;
                     }
+                    showToast("Comment posted successfully!", "success");
                 } else {
-                    alert("There was an error posting your comment.");
+                    const msg = data?.message || "There was an error posting your comment.";
+                    showToast(msg, "danger");
                 }
             })
-            .catch(err => console.error("Error submitting comment:", err));
+            .catch(err => {
+                console.error("Error submitting comment:", err);
+                showToast("Something went wrong. Please try again.", "danger");
+            });
         });
     }
-
     // ------------------------------------------------------
-    // 11) Render New Comment
+    // 12) Render New Comment
     // ------------------------------------------------------
     function renderNewComment(data) {
+        if (document.getElementById(`comment-${data.comment_id}`)) {
+            console.warn("Duplicate comment skipped (already exists).");
+            return;
+        }
+
         const noCommentsMsg = document.getElementById("no-comments-msg");
         if (noCommentsMsg) noCommentsMsg.remove();
 
@@ -472,23 +500,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Re-apply indentation logic
     updateIndentation();
-    }
 
-    // ------------------------------------------------------
-    // 12) Toggle Replies
-    // ------------------------------------------------------
-    function toggleReplies(button) {
-        const repliesContainer = button.parentElement.nextElementSibling;
-        if (!repliesContainer) return;
-    
-        if (repliesContainer.style.display === "none") {
-            repliesContainer.style.display = "block";
-            button.textContent = "Hide Replies";
-        } else {
-            repliesContainer.style.display = "none";
-            button.textContent = "Show More Replies";
+    // Ensure toggle for parent if this is a reply
+    if (data.parent_comment_id) {
+        const parentDiv = document.querySelector(`#comment-${data.parent_comment_id}`);
+        if (parentDiv) {
+            ensureToggleForParent(parentDiv);  // <-- ensure toggle button
         }
-    } 
+        }
+    }
     // ------------------------------------------------------
     // 13) Indentation
     // ------------------------------------------------------
@@ -506,5 +526,18 @@ document.addEventListener("DOMContentLoaded", function () {
     function getCSRFToken() {
         const cookie = document.cookie.split("; ").find(row => row.startsWith("csrftoken="));
         return cookie ? cookie.split("=")[1] : "";
+    }
+    // ------------------------------------------------------
+    // 15) Toast Notifications
+    // ------------------------------------------------------
+    function showToast(message, type = 'danger') {
+        const toastEl = document.getElementById('commentToast');
+        const toastBody = document.getElementById('commentToastBody');
+
+        toastEl.className = `toast text-bg-${type} border-0`;  // e.g. text-bg-danger or text-bg-success
+        toastBody.textContent = message;
+
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
     }
 });

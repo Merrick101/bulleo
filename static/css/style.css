@@ -273,6 +273,10 @@ h1, h2, h3, h4, h5, h6 {
   display: block;
 }
 
+.replies.hidden {
+    display: none !important;
+}
+
 /* Top-level comments have the default styling */
 .comment {
   background-color: #ffffff; /* White background for normal comments */

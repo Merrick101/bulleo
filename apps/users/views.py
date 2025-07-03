@@ -52,9 +52,12 @@ def profile_view(request):
 
     # Fetch user comments with related articles
     # (to display article titles in the profile)
-    comments = Comment.objects.filter(
-        user=request.user
-    ).select_related("article")
+    comments = (
+        Comment.objects.filter(user=request.user)
+        .select_related("article")
+        .order_by("-created_at")
+        .distinct()
+    )
 
     context = {
         "form": form,

@@ -7,7 +7,7 @@ Located at: apps/news/views.py
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, F
+from django.db.models import Q, Count, F, Max
 from django.contrib.auth.decorators import login_required
 from .models import Article, Category
 from apps.users.forms import CommentForm
@@ -210,7 +210,19 @@ def article_detail(request, article_id):
         request.session[session_key] = True
 
     sort_order = request.GET.get("sort", "newest")
-    comments = article.comments.filter(parent__isnull=True)
+
+    unique_comment_ids = (
+        article.comments.filter(parent__isnull=True)
+        .values("user_id", "content")
+        .annotate(latest_id=Max("id"))
+        .values_list("latest_id", flat=True)
+    )
+
+    comments = (
+        Comment.objects.filter(id__in=unique_comment_ids)
+        .select_related("user")
+        .prefetch_related("replies")
+    )
 
     if sort_order == "newest":
         comments = comments.order_by("-created_at")
@@ -266,7 +278,11 @@ def vote_comment(request, comment_id, action):
 @login_required
 def post_comment(request, article_id):
     if request.method == "POST":
-        form = CommentForm(request.POST)
+        form = CommentForm(
+            request.POST, user=request.user, article=get_object_or_404(
+                Article, id=article_id
+            )
+        )
         if form.is_valid():
             comment = form.save(commit=False)
             comment.article_id = article_id
@@ -313,9 +329,13 @@ def post_comment(request, article_id):
                 'comment_count': comment_count
             })
         else:
-            return JsonResponse(
-                {"success": False, "errors": form.errors}, status=400
-            )
+            return JsonResponse({
+                "success": False,
+                "errors": form.errors,
+                "message": form.errors.get(
+                    "__all__", ["Invalid submission."]
+                )[0]
+            }, status=400)
     return JsonResponse(
         {"success": False, "error": "Invalid request."}, status=400
     )

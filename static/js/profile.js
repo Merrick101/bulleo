@@ -37,6 +37,7 @@ function showToast(message, variant = "success") {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+    console.log("profile.js loaded successfully!");
     // --- AJAX: Username, Email, Password Forms ---
     function handleFormSubmit(formId, feedbackId) {
         const form = document.getElementById(formId);
@@ -116,30 +117,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) {
                     feedback.innerHTML = "";
                     showToast(data.message);
-                        // Update profile preferences display dynamically
-                        const displayEl = document.getElementById("user-preferences-display");
-                        if (displayEl) {
-                            const checkedBoxes = preferencesForm.querySelectorAll('input[type="checkbox"]:checked');
+                    // Update profile preferences display dynamically
+                    const displayEl = document.getElementById("user-preferences-display");
+                    if (displayEl) {
+                        const checkedBoxes = preferencesForm.querySelectorAll('input[type="checkbox"]:checked');
 
-                            if (checkedBoxes.length === 0) {
-                                displayEl.innerHTML = '<span class="text-muted">None selected.</span>';
-                            } else {
-                                const newBadges = Array.from(checkedBoxes).map(input => {
-                                    const label = input.nextSibling.textContent.trim();
-                                    return `<span class="badge bg-secondary me-1">${label}</span>`;
-                                }).join(" ");
-                                displayEl.innerHTML = newBadges;
-                            }
+                        if (checkedBoxes.length === 0) {
+                            displayEl.innerHTML = '<span class="text-muted">None selected.</span>';
+                        } else {
+                            const newBadges = Array.from(checkedBoxes).map(input => {
+                                const labelEl = input.closest(".form-check")?.querySelector("label");
+                                const label = labelEl ? labelEl.textContent.trim() : "Unknown";
+                                return `<span class="badge bg-secondary me-1">${label}</span>`;
+                            }).join(" ");
+                            displayEl.innerHTML = newBadges;
                         }
+                    }
                 } else {
                     feedback.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
                 }
             })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById("preferences-feedback").innerHTML = `<div class="alert alert-danger">An error occurred. Please try again.</div>`;
+                    .catch(error => {
+                        console.error("Error:", error);
+                        document.getElementById("preferences-feedback").innerHTML = `<div class="alert alert-danger">An error occurred. Please try again.</div>`;
+                    });
             });
-        });
     }
 
     // Attach event handlers to remove individual items dynamically
