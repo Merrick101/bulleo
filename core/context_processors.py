@@ -16,9 +16,11 @@ def auth_forms(request):
     }
 
 
-def notifications_processor(request):
-    if request.user.is_authenticated:
-        notifications = request.user.notifications.filter(read=False)
-    else:
-        notifications = []
-    return {'notifications': notifications}
+def notifications_unread_count(request):
+    count = 0
+    try:
+        if request.user.is_authenticated:
+            count = request.user.notifications.filter(read=False).count()
+    except Exception:
+        pass
+    return {"notifications_unread_count": count}

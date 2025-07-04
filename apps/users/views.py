@@ -11,13 +11,14 @@ from django.contrib.auth import (
     update_session_auth_hash
     )
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.core.mail import send_mail
 from allauth.account.utils import send_email_confirmation
 from django.conf import settings
 from django.http import JsonResponse
 import json
-from .models import Profile, Comment, ContactMessage
+from .models import Profile, Comment, ContactMessage, Notification
 from apps.news.models import Category
 from apps.news.models import Article
 from .forms import ProfileForm, ContactForm
@@ -218,6 +219,34 @@ def update_password(request):
 
 
 @login_required
+def toggle_notifications(request):
+    """
+    Handles enabling/disabling notifications for the user.
+    """
+    if request.method == "POST" and request.headers.get(
+        "X-Requested-With"
+    ) == "XMLHttpRequest":
+        try:
+            data = json.loads(request.body)
+            # Default to True if not provided
+            enabled = data.get("enabled", True)
+            profile = request.user.profile
+            profile.notifications_enabled = enabled
+            profile.save()
+
+            return JsonResponse(
+                {"success": True, "notifications_enabled":
+                    profile.notifications_enabled}
+            )
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})
+
+    return JsonResponse(
+        {"success": False, "error": "Invalid request."}, status=400
+    )
+
+
+@login_required
 def update_notifications(request):
     """
     Updates the user's notification preferences.
@@ -242,6 +271,58 @@ def update_notifications(request):
     return JsonResponse(
         {'success': False, 'error': 'Invalid request.'}, status=400
     )
+
+
+@login_required
+def notification_list(request):
+    notifications = request.user.notifications.order_by('-created_at')
+    return render(
+        request, "users/notifications.html", {
+            "notifications": notifications
+            }
+    )
+
+
+@login_required
+@require_POST
+def mark_notification_read(request):
+    notification_id = request.POST.get("id")
+    try:
+        notification = Notification.objects.get(
+            id=notification_id, user=request.user
+        )
+        notification.read = True
+        notification.save()
+        return JsonResponse({"success": True})
+    except Notification.DoesNotExist:
+        return JsonResponse(
+            {"success": False, "error": "Notification not found"}, status=404
+        )
+
+
+@login_required
+def mark_all_notifications_read(request):
+    """
+    Marks all unread notifications as read for the logged-in user.
+    """
+    if request.method == "POST" and request.headers.get(
+        "X-Requested-With"
+    ) == "XMLHttpRequest":
+        request.user.notifications.filter(read=False).update(read=True)
+        return JsonResponse(
+            {'success': True, 'message': "All notifications marked as read."}
+        )
+
+    return JsonResponse(
+        {'success': False, 'error': "Invalid request."}, status=400
+    )
+
+
+@login_required
+def clear_notifications(request):
+    if request.method == "POST":
+        Notification.objects.filter(user=request.user).delete()
+    return redirect("users:notification_list")
 
 
 @login_required
@@ -457,52 +538,6 @@ def preferences_update(request):
     # Still reject GET
     return JsonResponse(
         {"success": False, "error": "Invalid request."}, status=400
-    )
-
-
-@login_required
-def toggle_notifications(request):
-    """
-    Handles enabling/disabling notifications for the user.
-    """
-    if request.method == "POST" and request.headers.get(
-        "X-Requested-With"
-    ) == "XMLHttpRequest":
-        try:
-            data = json.loads(request.body)
-            # Default to True if not provided
-            enabled = data.get("enabled", True)
-            profile = request.user.profile
-            profile.notifications_enabled = enabled
-            profile.save()
-
-            return JsonResponse(
-                {"success": True, "notifications_enabled":
-                    profile.notifications_enabled}
-            )
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})
-
-    return JsonResponse(
-        {"success": False, "error": "Invalid request."}, status=400
-    )
-
-
-@login_required
-def mark_all_notifications_read(request):
-    """
-    Marks all unread notifications as read for the logged-in user.
-    """
-    if request.method == "POST" and request.headers.get(
-        "X-Requested-With"
-    ) == "XMLHttpRequest":
-        request.user.notifications.filter(read=False).update(read=True)
-        return JsonResponse(
-            {'success': True, 'message': "All notifications marked as read."}
-        )
-
-    return JsonResponse(
-        {'success': False, 'error': "Invalid request."}, status=400
     )
 
 

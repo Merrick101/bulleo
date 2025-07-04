@@ -9,7 +9,7 @@ from . import views
 app_name = "users"
 
 urlpatterns = [
-    # Allauth handles login/signup/logout
+    # Profile management
     path('profile/', views.profile_view,
          name="profile"),
     path('profile/update_username/', views.update_username,
@@ -18,8 +18,6 @@ urlpatterns = [
          name='update_email'),
     path('profile/update_password/', views.update_password,
          name='update_password'),
-    path('profile/update_notifications/', views.update_notifications,
-         name='update_notifications'),
 
     # Article and comment-related actions
     path("remove-saved-article/", views.remove_saved_article,
@@ -39,15 +37,25 @@ urlpatterns = [
     path("delete-account/", views.delete_account,
          name="delete_account"),
 
-    # User preferences and notifications
+    # Onboarding and preferences
     path('onboarding/', views.onboarding,
          name="onboarding"),
     path('preferences_update/', views.preferences_update,
          name='preferences_update'),
+
+    # Notifications management
     path('toggle_notifications/', views.toggle_notifications,
          name='toggle_notifications'),
+    path('profile/update_notifications/', views.update_notifications,
+         name='update_notifications'),
     path('notifications/mark_all_read/', views.mark_all_notifications_read,
          name='mark_all_notifications_read'),
+    path("notifications/mark_read/", views.mark_notification_read,
+         name="mark_notification_read"),
+    path("notifications/", views.notification_list,
+         name="notification_list"),
+    path("notifications/clear/", views.clear_notifications,
+         name="clear_notifications"),
 
     # Logout view
     path('logout/', views.logout_view,

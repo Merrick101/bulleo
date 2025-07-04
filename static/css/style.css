@@ -44,6 +44,10 @@ h1, h2, h3, h4, h5, h6 {
   color: #232323 !important;
 }
 
+.dropdown-menu {
+  text-align: left;
+}
+
 #bulleo-home-trending,
 #bulleo-home-latest,
 #bulleo-home-picked {
@@ -360,5 +364,8 @@ h1, h2, h3, h4, h5, h6 {
   .sort-btn-group .btn {
     font-size: 0.8rem;
     height: 36px;
+  }
+  .dropdown-menu.wide-dropdown {
+    min-width: 220px;
   }
 }

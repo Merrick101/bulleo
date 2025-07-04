@@ -41,15 +41,16 @@ def notify_new_article(sender, instance, created, **kwargs):
         for profile in Profile.objects.filter(
             preferred_categories=instance.category
         ):
-            message = (
-                f"New article in {instance.category.name}: "
-                f"'{instance.title}'"
-            )
-            Notification.objects.create(
-                user=profile.user,
-                message=message,
-                link=instance.get_absolute_url()
-            )
+            if profile.notifications_enabled:
+                message = (
+                    f"New article in {instance.category.name}: "
+                    f"'{instance.title}'"
+                )
+                Notification.objects.create(
+                    user=profile.user,
+                    message=message,
+                    link=instance.get_absolute_url()
+                )
 
 
 @receiver(post_save, sender=Comment)
@@ -58,13 +59,17 @@ def notify_comment_reply(sender, instance, created, **kwargs):
     Notify the parent commenter when their comment receives a reply.
     """
     if created and instance.parent and instance.parent.user:
-        original_snippet = instance.parent.content[:50]
-        message = (
-            f"{instance.user.username} replied to your comment: "
-            f"'{original_snippet}...'"
-        )
-        Notification.objects.create(
-            user=instance.parent.user,
-            message=message,
-            link=instance.article.get_absolute_url()
-        )
+        parent_user = instance.parent.user
+        if hasattr(
+            parent_user, 'profile'
+        ) and parent_user.profile.notifications_enabled:
+            original_snippet = instance.parent.content[:50]
+            message = (
+                f"{instance.user.username} replied to your comment: "
+                f"'{original_snippet}...'"
+            )
+            Notification.objects.create(
+                user=parent_user,
+                message=message,
+                link=instance.article.get_absolute_url()
+            )

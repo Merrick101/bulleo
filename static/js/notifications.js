@@ -31,6 +31,39 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  const navbarMarkAll = document.getElementById("navbar-mark-all-read");
+  if (navbarMarkAll) {
+    navbarMarkAll.addEventListener("click", function () {
+      fetch("/users/notifications/mark_all_read/", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": getCookie("csrftoken"),
+          "Content-Type": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({})
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showToast("All notifications marked as read");
+
+          // Clear buttons and bold styles from dropdown preview
+          document.querySelectorAll(".mark-read-btn").forEach(btn => {
+            btn.closest("li").classList.remove("fw-bold");
+            btn.remove();
+          });
+
+          // Update navbar badge
+          const countSpan = document.getElementById("notification-count");
+          if (countSpan) countSpan.remove();
+        } else {
+          showToast("Failed to mark all as read");
+        }
+      });
+    });
+  }
+
   // Event listener for marking all notifications as read (with automatic page reload)
   const markAllReadBtn = document.getElementById('markAllReadBtn');
   if (markAllReadBtn) {
@@ -50,9 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.success) {
           showToast("All notifications marked as read");
           // Reload the page after a short delay to reflect changes
-          setTimeout(function() {
-            location.reload();
-          }, 1000);
+          setTimeout(() => location.reload(), 750);
         } else {
           console.error("Error marking all notifications as read:", data.error);
           showToast("Error marking all notifications as read");
@@ -64,6 +95,41 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+    // Event listener for individual "Mark as Read" buttons
+    const markReadButtons = document.querySelectorAll(".mark-read-btn");
+    markReadButtons.forEach(button => {
+      button.addEventListener("click", function () {
+        const notificationId = this.getAttribute("data-id");
+        const url = "/users/notifications/mark_read/";
+
+        fetch(url, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          body: `id=${notificationId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showToast("Notification marked as read");
+            // Optionally hide or refresh the notification element
+            button.closest("li").classList.remove("fw-bold");
+            button.remove();
+          } else {
+            console.error("Error marking notification as read:", data.error);
+            showToast("Error marking notification as read");
+          }
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          showToast("Error marking notification as read");
+        });
+      });
+    });
 });
 
 // Helper: Get a cookie by name

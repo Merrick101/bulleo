@@ -1,0 +1,13 @@
+{% if notifications %}
+  <ul class="list-unstyled mb-2">
+    {% for note in notifications %}
+      <li class="d-flex justify-content-between align-items-start mb-1">
+        <a href="{{ note.link }}" class="text-light text-decoration-none small">
+          {{ note.message|truncatechars:40 }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="text-muted small mb-0">No new notifications.</p>
+{% endif %}

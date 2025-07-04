@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-5">
+  <h2>Your Notifications</h2>
+
+  {% if notifications %}
+    <!-- Action Buttons -->
+    <form id="markAllForm" class="mb-3 d-inline-block me-2">
+      <button type="submit" class="btn btn-outline-primary btn-sm">
+        Mark All as Read
+      </button>
+    </form>
+
+    <form id="clearAllForm" method="POST" action="{% url 'users:clear_notifications' %}" class="mb-3 d-inline-block">
+      {% csrf_token %}
+      <button type="submit"
+              class="btn btn-outline-danger btn-sm"
+              onclick="return confirm('Are you sure you want to clear all notifications?')">
+        Clear All Notifications
+      </button>
+    </form>
+
+    <!-- Notifications List -->
+    <ul class="list-group mt-4">
+      {% for note in notifications %}
+        <li class="list-group-item d-flex justify-content-between align-items-start {% if not note.read %}fw-bold{% endif %}">
+          <div>
+            <a href="{{ note.link }}">{{ note.message }}</a><br>
+            <small class="text-muted">{{ note.created_at|date:"M d, Y H:i" }}</small>
+          </div>
+          {% if not note.read %}
+            <button class="btn btn-sm btn-outline-success ms-3 mark-read-btn"
+                    data-id="{{ note.id }}">
+              Mark as Read
+            </button>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+
+  {% else %}
+    <!-- Empty State -->
+    <p class="text-muted mt-4">You have no notifications.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

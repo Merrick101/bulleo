@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load notification_tags %}
 
 <nav class="navbar navbar-dark bg-dark shadow-sm sticky-top py-2">
   <div class="container-fluid">
@@ -36,11 +37,52 @@
               data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-bars"></i>
       </button>
-      <ul class="dropdown-menu dropdown-menu-end bg-dark border-0 shadow p-3" aria-labelledby="mobileMenuDropdown">
-        <li class="mb-2">{% include "partials/search_form.html" %}</li>
+      <ul class="dropdown-menu dropdown-menu-end bg-dark border-0 shadow text-start wide-dropdown w-100"
+          aria-labelledby="mobileMenuDropdown">
+        <li class="m-3">{% include "partials/search_form.html" %}</li>
+        <li class="dropdown-divider bg-secondary my-1"></li>
         {% if user.is_authenticated %}
-          <li><a class="dropdown-item text-light" href="{% url 'users:profile' %}">{% trans "Profile" %}</a></li>
-          <li><a class="dropdown-item text-light" href="{% url 'account_logout' %}">{% trans "Logout" %}</a></li>
+          <li><a class="dropdown-item text-light mb-2 mt-2" href="{% url 'users:profile' %}">
+            <i class="fas fa-user-circle me-2"></i> {% trans "Profile" %}
+          </a></li>
+          <li class="dropdown-divider bg-secondary my-1"></li>
+          <!-- Notifications Toggle -->
+          <li class="d-flex align-items-center ms-3 text-light mb-2 mt-2">
+            <span><i class="fas fa-bell me-2"></i> {% trans "Notifications" %}</span>
+            <div class="form-check form-switch ms-3 mt-1">
+              <input class="form-check-input"
+                    type="checkbox"
+                    id="notificationsToggleMobile"
+                    {% if user.profile.notifications_enabled %}checked{% endif %}>
+            </div>
+          </li>
+
+          <!-- View All Notifications Button -->
+          <li class="mb-2 mt-2">
+            <a href="{% url 'users:notification_list' %}">
+              <button class="btn btn-sm btn-outline-light ms-3">
+                {% trans "View All Notifications" %}
+              </button>
+            </a>
+          </li>
+
+          <!-- Unread Preview + Mark All -->
+          {% if notifications_unread_count > 0 %}
+            <li class="text-light small mb-2">
+              {% recent_notifications user %}
+            </li>
+            <li class="mb-2">
+              <button class="btn btn-sm btn-outline-light w-100" id="navbar-mark-all-read-mobile">
+                {% trans "Mark All as Read" %}
+              </button>
+            </li>
+          {% endif %}
+
+          <li class="dropdown-divider bg-secondary my-1"></li>
+          <!-- Logout -->
+          <li><a class="dropdown-item text-light mt-2" href="{% url 'account_logout' %}">
+            <i class="fas fa-sign-out-alt me-2"></i> {% trans "Logout" %}
+          </a></li>
         {% else %}
           <li><a class="btn btn-secondary btn-sm w-100 mb-2" href="{% url 'account_login' %}">{% trans "Log In" %}</a></li>
           <li><a class="btn btn-primary btn-sm w-100" href="{% url 'account_signup' %}">{% trans "Sign Up" %}</a></li>
