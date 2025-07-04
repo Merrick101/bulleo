@@ -51,7 +51,7 @@
                             <label for="username_field" class="form-label">{% trans "Username" %}</label>
                             <input type="text" class="form-control" id="username_field" name="username" value="{{ profile.user.username }}" data-original-value="{{ profile.user.username }}">
                         </div>
-                        <button type="submit" class="btn btn-primary">{% trans "Save Username" %}</button>
+                        <button type="submit" class="btn btn-primary mb-3">{% trans "Save Username" %}</button>
                         <div id="username-feedback"></div>
                     </form>
 
@@ -64,7 +64,7 @@
                             <label for="email_field" class="form-label">{% trans "Email" %}</label>
                             <input type="email" class="form-control" id="email_field" name="email" value="{{ profile.user.email }}" data-original-value="{{ profile.user.email }}">
                         </div>
-                        <button type="submit" class="btn btn-primary">{% trans "Save Email" %}</button>
+                        <button type="submit" class="btn btn-primary mb-3">{% trans "Save Email" %}</button>
                         <div id="email-feedback"></div>
                     </form>
 
@@ -87,7 +87,7 @@
                             <input type="password" class="form-control" id="confirm_new_password_field" name="confirm_new_password" autocomplete="new-password">
                         </div>
                         <p class="text-muted">{% trans "Leave password fields blank if you do not wish to change your password." %}</p>
-                        <button type="submit" class="btn btn-primary">{% trans "Save Password" %}</button>
+                        <button type="submit" class="btn btn-primary mb-3">{% trans "Save Password" %}</button>
                         <div id="password-feedback"></div>
                     </form>
                 </div>
