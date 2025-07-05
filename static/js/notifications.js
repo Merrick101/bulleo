@@ -49,11 +49,20 @@ document.addEventListener('DOMContentLoaded', function() {
           showToast("All notifications marked as read");
 
           // Clear buttons and bold styles from dropdown preview
-          document.querySelectorAll(".mark-read-btn").forEach(btn => {
-            btn.closest("li").classList.remove("fw-bold");
-            btn.remove();
-          });
-
+          const previewContainer = document.querySelector("#notification-preview");
+          if (previewContainer) {
+            fetch("/users/notifications/preview/", {
+              headers: {
+                "X-Requested-With": "XMLHttpRequest"
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                previewContainer.innerHTML = data.html;
+              }
+            });
+          }
           // Update navbar badge
           const countSpan = document.getElementById("notification-count");
           if (countSpan) countSpan.remove();

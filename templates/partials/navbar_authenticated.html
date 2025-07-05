@@ -54,17 +54,17 @@
     {% if notifications_unread_count > 0 %}
       <!-- Notification Preview -->
       <li class="dropdown-divider bg-secondary my-1"></li>
-      <li class="px-3 pt-2 pb-0">
+      <li class="px-3 pt-2 pb-0" id="notification-preview">
         <div class="small text-light">
           {% recent_notifications user %}
         </div>
       </li>
-      <!-- Mark All as Read Btn -->
-      <li class="px-3 pt-2 pb-1">
-        <button class="btn btn-sm btn-outline-light" id="navbar-mark-all-read">
-          {% trans "Mark All as Read" %}
-        </button>
-      </li>
+        <!-- Mark All as Read Btn -->
+        <li class="px-3 pt-2 pb-1">
+          <button class="btn btn-sm btn-outline-light" id="navbar-mark-all-read">
+            {% trans "Mark All as Read" %}
+          </button>
+        </li>
     {% endif %}
 
     <!-- Logout -->

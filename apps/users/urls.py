@@ -44,6 +44,8 @@ urlpatterns = [
          name='preferences_update'),
 
     # Notifications management
+    path("notifications/preview/", views.fetch_unread_notifications,
+         name="fetch_notifications_preview"),
     path('toggle_notifications/', views.toggle_notifications,
          name='toggle_notifications'),
     path('profile/update_notifications/', views.update_notifications,

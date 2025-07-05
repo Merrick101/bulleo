@@ -14,9 +14,10 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.core.mail import send_mail
-from allauth.account.utils import send_email_confirmation
 from django.conf import settings
 from django.http import JsonResponse
+from django.template.loader import render_to_string
+from allauth.account.utils import send_email_confirmation
 import json
 from .models import Profile, Comment, ContactMessage, Notification
 from apps.news.models import Category
@@ -216,6 +217,23 @@ def update_password(request):
         return JsonResponse(
             {'success': False, 'error': str(e)}
         )
+
+
+@login_required
+def fetch_unread_notifications(request):
+    """
+    Returns the rendered HTML for recent unread notifications (AJAX).
+    """
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        notifications = request.user.notifications.filter(
+            read=False
+        ).order_by('-created_at')[:3]
+        html = render_to_string(
+            "partials/notifications_preview.html",
+            {"notifications": notifications}
+        )
+        return JsonResponse({"success": True, "html": html})
+    return JsonResponse({"success": False}, status=400)
 
 
 @login_required

@@ -235,9 +235,23 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    const msg = document.getElementById("empty-comments-message").dataset.message;
-                    document.getElementById("comment-history-list").innerHTML = `<p class="text-muted">${msg}</p>`;
+                    // Handle both comment list or fallback message
+                    const commentList = document.getElementById("comment-history-list");
+                    const msgData = document.getElementById("empty-comments-message");
+                    const fallbackMessage = msgData ? msgData.dataset.message : "No comments posted.";
+
+                    if (commentList) {
+                        commentList.outerHTML = `<p class="text-muted" id="empty-comments-message" data-message="${fallbackMessage}">${fallbackMessage}</p>`;
+                    } else if (!msgData) {
+                        // If neither exists, inject the message
+                        const commentsTab = document.getElementById("comments");
+                        if (commentsTab) {
+                            commentsTab.innerHTML = `<p class="text-muted" id="empty-comments-message" data-message="${fallbackMessage}">${fallbackMessage}</p>`;
+                        }
+                    }
+
                     showToast("All comments removed.");
+                    clearCommentsButton.remove();
                 }
             })
             .catch(err => console.error("Error:", err));
