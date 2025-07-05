@@ -8,6 +8,7 @@ from pathlib import Path
 from celery.schedules import crontab
 import os
 import dj_database_url
+import sys
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
@@ -354,6 +355,11 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 5 * 86400.0,  # every 5 days
     },
 }
+
+# Celery pytest configuration
+if "pytest" in sys.modules:
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = True
 
 INTERNAL_IPS = [
     '127.0.0.1',
