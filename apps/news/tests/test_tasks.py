@@ -3,6 +3,7 @@ import json
 from unittest import mock
 from datetime import timedelta
 from django.utils import timezone
+from django_celery_beat.models import IntervalSchedule, PeriodicTask
 from apps.news.models import Article, NewsSource
 from apps.news.tasks import (
     fetch_news_articles,
@@ -43,7 +44,7 @@ def test_delete_expired_articles_creates_and_deletes():
 @mock.patch("apps.news.tasks.redis_client")
 @mock.patch("apps.news.tasks.requests.get")
 def test_fetch_news_articles_mocks_api_and_redis(
-  mock_requests_get, mock_redis
+    mock_requests_get, mock_redis
 ):
     # Fake API response
     mock_response = mock.Mock()
@@ -95,3 +96,20 @@ def test_cache_articles_adds_only_new_items():
     # Only the new article should be pushed to Redis
     pushed = json.loads(mock_redis.lpush.call_args[0][1])
     assert pushed["url"] == "https://example.com/new"
+
+
+@pytest.mark.django_db
+def test_dummy_schedule_creation_for_news_tasks():
+    interval = IntervalSchedule.objects.create(
+        every=5, period=IntervalSchedule.MINUTES
+    )
+
+    task = PeriodicTask.objects.create(
+        interval=interval,
+        name="Dummy Test: Delete Expired Articles",
+        task="apps.news.tasks.delete_expired_articles",
+        description="This is a test-only periodic task"
+    )
+
+    assert task.task == "apps.news.tasks.delete_expired_articles"
+    assert "Dummy Test" in task.name

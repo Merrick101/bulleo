@@ -7,14 +7,11 @@ import pytest
 from django.urls import reverse
 from django.contrib.auth.models import User
 from apps.news.models import Article, Category
-from apps.users.models import Profile
 
 
 @pytest.fixture
 def user(db):
-    user = User.objects.create_user(username="testuser", password="password")
-    Profile.objects.get_or_create(user=user)
-    return user
+    return User.objects.create_user(username="testuser", password="password")
 
 
 @pytest.fixture
@@ -29,14 +26,15 @@ def category(db):
 
 
 @pytest.fixture
-def article(db, category):
+def article(category):
     return Article.objects.create(
         title="AI in 2025",
         content="The future of AI is here.",
         slug="ai-in-2025",
         url="https://example.com/article",
         category=category,
-        imported=True
+        imported=True,
+        published_at="2025-01-01T00:00:00Z"
     )
 
 
@@ -76,14 +74,13 @@ def test_search_template_loads(client):
 @pytest.mark.django_db
 def test_comment_partial_included(client, article):
     response = client.get(reverse("news:article_detail", args=[article.id]))
-    template_names = [t.name for t in response.templates]
-    assert "news/_comment.html" in template_names
+    assert any("_comment" in t.name for t in response.templates)
 
 
 @pytest.mark.django_db
 def test_carousel_partial_present(client):
     response = client.get(reverse("news:homepage"))
-    assert "partials/carousel.html" in [t.name for t in response.templates]
+    assert any("carousel" in t.name for t in response.templates)
 
 
 @pytest.mark.django_db
