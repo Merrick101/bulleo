@@ -34,7 +34,7 @@ def source(db):
 
 
 def test_article_creation_via_admin(admin_client, category, source):
-    url = reverse("admin:apps_news_article_add")
+    url = reverse("admin:news_article_add")
     data = {
         "title": "Admin Created Article",
         "slug": "admin-created-article",

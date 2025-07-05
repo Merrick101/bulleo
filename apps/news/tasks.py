@@ -16,8 +16,7 @@ from celery import shared_task
 from django.conf import settings
 from django.utils.text import slugify
 from django.utils import timezone
-from apps.news.models import Article, NewsSource
-from apps.users.models import Category
+from apps.news.models import Article, NewsSource, Category
 
 # Define a module-level logger
 logger = logging.getLogger(__name__)
