@@ -9,19 +9,10 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q, Count, F, Max
 from django.contrib.auth.decorators import login_required
+from .utils import chunked_queryset
 from .models import Article, Category
 from apps.users.forms import CommentForm
 from apps.users.models import Comment
-
-
-def chunked_queryset(queryset, chunk_size=3):
-    """
-    Splits a QuerySet or list into lists of size `chunk_size`.
-    Returns a generator of sub-lists.
-    """
-    items = list(queryset)
-    for i in range(0, len(items), chunk_size):
-        yield items[i:i+chunk_size]
 
 
 def homepage(request):
