@@ -365,7 +365,50 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.8rem;
     height: 36px;
   }
+  
   .dropdown-menu.wide-dropdown {
     min-width: 220px;
+  }
+  
+  .carousel-row {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.75rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .carousel-row > .col {
+    flex: 0 0 85%;
+    max-width: 85%;
+    scroll-snap-align: start;
+    margin-right: 1rem;
+  }
+
+  .custom-arrow {
+    display: block !important;
+    top: 35%;
+    font-size: 1.25rem;
+    z-index: 10;
+  }
+
+  .custom-arrow-left, .custom-arrow-right {
+    font-size: 0.7rem;  
+  }
+
+  .custom-arrow-left {
+    left: -1.8rem;
+  }
+
+  .custom-arrow-right {
+    right: 1.4rem;
+  }
+  
+  #backToTop {
+    right: 13% !important;
+    transform: translateX(50%);
+    bottom: 2rem !important;
   }
 }

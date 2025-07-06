@@ -9,7 +9,7 @@
     <div class="carousel-inner">
       {% for chunk in chunks %}
         <div class="carousel-item{% if forloop.first %} active{% endif %}">
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+          <div class="carousel-row row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 flex-nowrap overflow-auto">
             {% for obj in chunk %}
               {% include "partials/article_card.html" with article=obj %}
             {% endfor %}
