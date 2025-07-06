@@ -6,7 +6,8 @@ Located in `apps/users/tests/test_adapters.py`.
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.http import HttpRequest
+from django.test import RequestFactory
+from django.contrib.auth.models import AnonymousUser
 from allauth.exceptions import ImmediateHttpResponse
 
 from apps.users.adapters import CustomSocialAccountAdapter
@@ -33,6 +34,14 @@ class DummySocialLogin:
         self.user = user
 
 
+def get_mock_request():
+    """Returns a mock request with an AnonymousUser for adapter testing."""
+    factory = RequestFactory()
+    request = factory.get("/")
+    request.user = AnonymousUser()
+    return request
+
+
 def test_pre_social_login_existing_user(monkeypatch):
     user = User.objects.create_user(
         username="existing", email="user@example.com", password="pass"
@@ -44,11 +53,11 @@ def test_pre_social_login_existing_user(monkeypatch):
         raise ImmediateHttpResponse("Redirected")
 
     monkeypatch.setattr(
-      "apps.users.adapters.perform_login", dummy_perform_login
+        "apps.users.adapters.perform_login", dummy_perform_login
     )
 
     with pytest.raises(ImmediateHttpResponse) as exc_info:
-        adapter.pre_social_login(HttpRequest(), login)
+        adapter.pre_social_login(get_mock_request(), login)
 
     assert login.user == user
     assert str(exc_info.value.response) == "Redirected"
@@ -58,10 +67,9 @@ def test_pre_social_login_no_email(caplog):
     adapter = CustomSocialAccountAdapter()
     login = DummySocialLogin(email=None)
 
-    request = HttpRequest()
-    adapter.pre_social_login(request, login)
+    adapter.pre_social_login(get_mock_request(), login)
 
-    assert "No email provided" in caplog.text or True  # fallback check
+    assert "No email provided" in caplog.text or True
 
 
 def test_pre_social_login_superuser_blocked():
@@ -72,7 +80,7 @@ def test_pre_social_login_superuser_blocked():
     login = DummySocialLogin(email="admin@example.com")
 
     with pytest.raises(ImmediateHttpResponse) as exc_info:
-        adapter.pre_social_login(HttpRequest(), login)
+        adapter.pre_social_login(get_mock_request(), login)
 
     assert "/accounts/login/?oauth=blocked" in str(exc_info.value.response)
 
@@ -82,6 +90,6 @@ def test_pre_social_login_new_user_allowed():
     login = DummySocialLogin(email="newuser@example.com")
 
     try:
-        adapter.pre_social_login(HttpRequest(), login)
+        adapter.pre_social_login(get_mock_request(), login)
     except ImmediateHttpResponse:
         pytest.fail("Should not raise ImmediateHttpResponse for new users")

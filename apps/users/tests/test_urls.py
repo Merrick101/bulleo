@@ -1,12 +1,10 @@
 """
-URL resolution tests for the users app.
-Ensures all named URL patterns are correctly defined and accessible.
+URL tests for the users app.
 Located in `apps/users/tests/test_urls.py`.
 """
 
 import pytest
 from django.urls import reverse, resolve
-
 from apps.users import views
 
 pytestmark = pytest.mark.django_db
@@ -14,7 +12,7 @@ pytestmark = pytest.mark.django_db
 
 def test_profile_url_resolves():
     path = reverse("users:profile")
-    assert resolve(path).func == views.profile
+    assert resolve(path).func == views.profile_view
 
 
 def test_update_username_url_resolves():
@@ -34,7 +32,7 @@ def test_update_password_url_resolves():
 
 def test_preferences_update_url_resolves():
     path = reverse("users:preferences_update")
-    assert resolve(path).func == views.update_preferences
+    assert resolve(path).func == views.preferences_update
 
 
 def test_remove_saved_article_url_resolves():
@@ -77,9 +75,9 @@ def test_toggle_notifications_url_resolves():
     assert resolve(path).func == views.toggle_notifications
 
 
-def test_notifications_page_url_resolves():
-    path = reverse("users:notifications")
-    assert resolve(path).func == views.notifications_page
+def test_notifications_list_url_resolves():
+    path = reverse("users:notification_list")
+    assert resolve(path).func == views.notification_list
 
 
 def test_mark_notification_read_url_resolves():
@@ -93,5 +91,5 @@ def test_mark_all_notifications_read_url_resolves():
 
 
 def test_notification_preview_url_resolves():
-    path = reverse("users:notification_preview")
-    assert resolve(path).func == views.notification_preview
+    path = reverse("users:fetch_notifications_preview")
+    assert resolve(path).func == views.fetch_unread_notifications

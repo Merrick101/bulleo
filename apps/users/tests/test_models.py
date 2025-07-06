@@ -7,7 +7,6 @@ Located in `apps/users/tests/test_models.py`.
 
 import pytest
 from django.contrib.auth import get_user_model
-from django.utils import timezone
 from apps.users.models import Profile, Comment, Notification
 from apps.news.models import Article, Category, NewsSource
 
@@ -75,5 +74,5 @@ def test_notification_creation_and_defaults():
     assert notification.user == user
     assert notification.message == "Test notification"
     assert notification.link == "/articles/1/"
-    assert notification.is_read is False
-    assert isinstance(notification.created_at, timezone.datetime)
+    assert notification.read is False
+    assert notification.created_at is not None

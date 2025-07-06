@@ -15,7 +15,7 @@ from apps.users.forms import (
     ContactForm
 )
 from apps.news.models import Category, Article
-from apps.users.models import Comment, Profile
+from apps.users.models import Comment, Profile  # NOQA
 
 User = get_user_model()
 
@@ -49,15 +49,29 @@ def test_profile_form_fields_exist():
     assert "preferred_categories" in form.fields
 
 
+@pytest.mark.django_db
 def test_news_preferences_form_valid():
+    # Create user first, which should automatically create a Profile
+    user = User.objects.create_user(username="prefuser", password="pass123")
+
+    # Create a category to be selected
     category = Category.objects.create(name="Tech", slug="tech")
-    profile = Profile.objects.create(
-        user=User.objects.create_user(username="prefuser")
-    )
+
+    # Fetch the associated profile (auto-created)
+    profile = user.profile
+
+    # Instantiate form with POST data and the profile instance
     form = NewsPreferencesForm(
-        instance=profile, data={"preferred_categories": [category.id]}
+        instance=profile,
+        data={"preferred_categories": [category.id]}
     )
-    assert form.is_valid()
+
+    # Validate form
+    assert form.is_valid(), form.errors
+
+    # Save and assert the category was set
+    form.save()
+    assert category in profile.preferred_categories.all()
 
 
 def test_delete_account_form_requires_password():

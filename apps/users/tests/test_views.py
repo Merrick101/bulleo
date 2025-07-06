@@ -8,8 +8,7 @@ import pytest
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.test import Client
-from apps.news.models import Category
-from apps.news.models import Article
+from apps.news.models import Category, Article
 
 pytestmark = pytest.mark.django_db
 
@@ -31,7 +30,7 @@ def logged_in_client(user_with_password):
 
 def test_profile_view_requires_login(client):
     response = client.get(reverse("users:profile"))
-    assert response.status_code == 302  # redirect to login
+    assert response.status_code == 302
 
 
 def test_profile_view_logged_in(logged_in_client):
@@ -66,7 +65,6 @@ def test_update_password(logged_in_client, user_with_password):
     response = logged_in_client.post(
         reverse("users:update_password"),
         {
-            "username": user_with_password.username,
             "current_password": "testpass123",
             "new_password": "newsecurepass456",
             "confirm_new_password": "newsecurepass456",
@@ -161,7 +159,7 @@ def test_clear_upvoted_articles(logged_in_client, user_with_password):
 def test_delete_account(logged_in_client, user_with_password):
     response = logged_in_client.post(
         reverse("users:delete_account"),
-        {"username": user_with_password.username, "password": "testpass123"},
+        {"password": "testpass123"},
         HTTP_X_REQUESTED_WITH="XMLHttpRequest"
     )
     assert response.status_code == 200
