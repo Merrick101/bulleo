@@ -5,55 +5,119 @@ Located in `apps/users/tests/test_forms.py`.
 """
 
 import pytest
+from django.contrib.auth import get_user_model
 from apps.users.forms import (
+    CustomUserCreationForm,
+    ProfileForm,
+    NewsPreferencesForm,
+    DeleteAccountForm,
     CommentForm,
-    UpdateEmailForm,
-    UpdatePasswordForm,
+    ContactForm
 )
+from apps.news.models import Category, Article
+from apps.users.models import Comment, Profile
+
+User = get_user_model()
 
 pytestmark = pytest.mark.django_db
 
 
-def test_valid_comment_form():
-    form = CommentForm(data={"content": "This is a test comment."})
+def test_custom_user_creation_form_valid():
+    form = CustomUserCreationForm(data={
+        "username": "testuser",
+        "email": "test@example.com",
+        "password1": "strongpassword123",
+        "password2": "strongpassword123"
+    })
     assert form.is_valid()
 
 
-def test_empty_comment_form_invalid():
-    form = CommentForm(data={"content": ""})
-    assert not form.is_valid()
-    assert "content" in form.errors
-
-
-def test_update_email_form_valid():
-    form = UpdateEmailForm(data={"email": "newemail@example.com"})
-    assert form.is_valid()
-
-
-def test_update_email_form_invalid():
-    form = UpdateEmailForm(data={"email": "invalid-email"})
+def test_custom_user_creation_form_email_required():
+    form = CustomUserCreationForm(data={
+        "username": "testuser",
+        "email": "",
+        "password1": "strongpassword123",
+        "password2": "strongpassword123"
+    })
     assert not form.is_valid()
     assert "email" in form.errors
 
 
-def test_update_password_form_matching_passwords_valid():
-    form = UpdatePasswordForm(
-        data={
-            "current_password": "oldpass123",
-            "new_password": "newpass456",
-            "confirm_new_password": "newpass456"
-        }
+def test_profile_form_fields_exist():
+    form = ProfileForm()
+    assert "bio" in form.fields
+    assert "preferred_categories" in form.fields
+
+
+def test_news_preferences_form_valid():
+    category = Category.objects.create(name="Tech", slug="tech")
+    profile = Profile.objects.create(
+        user=User.objects.create_user(username="prefuser")
+    )
+    form = NewsPreferencesForm(
+        instance=profile, data={"preferred_categories": [category.id]}
     )
     assert form.is_valid()
 
 
-def test_update_password_form_mismatch_invalid():
-    form = UpdatePasswordForm(
-        data={
-            "current_password": "oldpass123",
-            "new_password": "newpass456",
-            "confirm_new_password": "different456"
-        }
+def test_delete_account_form_requires_password():
+    form = DeleteAccountForm(data={"password": ""})
+    assert not form.is_valid()
+    assert "password" in form.errors
+
+
+def test_valid_comment_form():
+    user = User.objects.create_user(username="alice", password="pass")
+    article = Article.objects.create(
+        title="Test Article",
+        content="Content",
+        summary="Summary",
+        url="https://example.com",
+        slug="test-article"
+    )
+    form = CommentForm(
+        user=user,
+        article=article,
+        data={"content": "A great article!"}
+    )
+    assert form.is_valid()
+
+
+def test_duplicate_comment_blocked():
+    user = User.objects.create_user(username="bob", password="pass")
+    article = Article.objects.create(
+        title="Another Article",
+        content="Body",
+        summary="Summary",
+        url="https://example.com/2",
+        slug="article-2"
+    )
+    Comment.objects.create(user=user, article=article, content="Nice read!")
+
+    form = CommentForm(
+        user=user,
+        article=article,
+        data={"content": "Nice read!"}
     )
     assert not form.is_valid()
-    assert "confirm_new_password" in form.errors
+
+
+def test_contact_form_valid():
+    form = ContactForm(data={
+        "name": "Alice",
+        "email": "alice@example.com",
+        "subject": "Feedback",
+        "message": "Great site!"
+    })
+    assert form.is_valid()
+
+
+def test_contact_form_missing_message_invalid():
+    form = ContactForm(data={
+        "name": "Bob",
+        "email": "bob@example.com",
+        "subject": "Hi",
+        "message": ""
+    })
+    assert not form.is_valid()
+    assert "message" in form.errors
