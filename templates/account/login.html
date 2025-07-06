@@ -42,13 +42,13 @@
         </div>
         <p class="text-center">{% trans "or" %}</p>
 
-        <form method="post" action="{% url 'account_login' %}" id="login-form">
+        <form method="post" action="{% url 'account_login' %}" id="login-form" autocomplete="on">
           {% csrf_token %}
 
           <!-- Login Field -->
           <div class="form-group mb-3">
             <label for="{{ form.login.id_for_label }}">{% trans "Email or Username" %}</label>
-            {% render_field form.login class="form-control" %}
+            {% render_field form.login class="form-control" autocomplete="username" %}
             {% for error in form.login.errors %}
               <div class="text-danger small">{{ error }}</div>
             {% endfor %}
@@ -57,7 +57,7 @@
           <!-- Password Field -->
           <div class="form-group mb-3 position-relative">
             <label for="{{ form.password.id_for_label }}">{% trans "Password" %}</label>
-            {% render_field form.password class="form-control" %}
+            {% render_field form.password class="form-control" autocomplete="current-password" %}
             <span class="toggle-password" data-target="#{{ form.password.auto_id }}">
               <i class="fas fa-eye"></i>
             </span>

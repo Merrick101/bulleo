@@ -40,13 +40,13 @@
         </div>
         <p class="text-center">{% trans "or" %}</p>
 
-        <form method="post" action="{% url 'account_signup' %}" id="signup-form">
+        <form method="post" action="{% url 'account_signup' %}" id="signup-form" autocomplete="on">
           {% csrf_token %}
 
           <!-- Email Field -->
           <div class="form-group mb-3">
             <label for="{{ form.email.id_for_label }}">{% trans "Email" %}</label>
-            {% render_field form.email class="form-control" %}
+            {% render_field form.email class="form-control" autocomplete="email" %}
             {% for error in form.email.errors %}
               <div class="text-danger small">{{ error }}</div>
             {% endfor %}
@@ -55,7 +55,7 @@
           <!-- Username Field -->
           <div class="form-group mb-3">
             <label for="{{ form.username.id_for_label }}">{% trans "Username" %}</label>
-            {% render_field form.username class="form-control" %}
+            {% render_field form.username class="form-control" autocomplete="username" %}
             {% for error in form.username.errors %}
               <div class="text-danger small">{{ error }}</div>
             {% endfor %}
@@ -64,7 +64,7 @@
           <!-- Password1 Field -->
           <div class="form-group mb-3 position-relative">
             <label for="{{ form.password1.id_for_label }}">{% trans "Password" %}</label>
-            {% render_field form.password1 class="form-control" %}
+            {% render_field form.password1 class="form-control" autocomplete="new-password" %}
             <span class="toggle-password" data-target="#{{ form.password1.auto_id }}">
               <i class="fas fa-eye"></i>
             </span>
@@ -76,7 +76,7 @@
           <!-- Password2 Field -->
           <div class="form-group mb-3 position-relative">
             <label for="{{ form.password2.id_for_label }}">{% trans "Confirm Password" %}</label>
-            {% render_field form.password2 class="form-control" %}
+            {% render_field form.password2 class="form-control" autocomplete="new-password" %}
             <span class="toggle-password" data-target="#{{ form.password2.auto_id }}">
               <i class="fas fa-eye"></i>
             </span>
