@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.test import Client
 from apps.news.models import Article, Category, NewsSource
-from apps.users.models import Comment, Profile
+from apps.users.models import Comment
 
 
 @pytest.fixture
@@ -19,7 +19,6 @@ def client(db):
 @pytest.fixture
 def user(db):
     user = User.objects.create_user(username="testuser", password="password")
-    Profile.objects.create(user=user)  # Ensure profile exists
     return user
 
 

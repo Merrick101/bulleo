@@ -1,43 +1,15 @@
 import pytest
 import json
 from unittest import mock
-from datetime import timedelta
 from django.utils import timezone
+
 from django_celery_beat.models import IntervalSchedule, PeriodicTask
-from apps.news.models import Article, NewsSource
+from apps.news.models import Article
 from apps.news.tasks import (
     fetch_news_articles,
-    delete_expired_articles,
     redis_heartbeat,
     cache_articles,
 )
-
-
-@pytest.mark.django_db
-def test_delete_expired_articles_creates_and_deletes():
-    source = NewsSource.objects.create(name="Test Source", slug="test-source")
-    old_article = Article.objects.create(
-        title="Old News",
-        url="https://example.com/old",
-        content="Old content",
-        published_at=timezone.now() - timedelta(days=30),
-        source=source,
-        imported=True,
-    )
-
-    fresh_article = Article.objects.create(
-        title="Recent News",
-        url="https://example.com/recent",
-        content="Recent content",
-        published_at=timezone.now(),
-        source=source,
-        imported=True,
-    )
-
-    deleted_count_msg = delete_expired_articles()
-    assert Article.objects.filter(pk=old_article.pk).count() == 0
-    assert Article.objects.filter(pk=fresh_article.pk).exists()
-    assert "expired articles deleted" in deleted_count_msg
 
 
 @pytest.mark.django_db

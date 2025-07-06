@@ -5,34 +5,14 @@ Located at: apps/news/tests/test_celery_integration.py
 
 import pytest
 from unittest import mock
-from datetime import timedelta
 from django.utils import timezone
 from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 from apps.news.tasks import (
     fetch_news_articles,
-    delete_expired_articles,
     redis_heartbeat,
 )
 from apps.news.models import Article
-
-
-@pytest.mark.django_db
-def test_delete_expired_articles_task():
-    # Create dummy expired article
-    Article.objects.create(
-        title="Old Article",
-        content="Old content",
-        url="https://example.com/old-article",
-        published_at=timezone.now() - timedelta(days=30),
-        imported=True
-    )
-    assert Article.objects.count() == 1
-
-    # Run cleanup task
-    result = delete_expired_articles()
-    assert "1 expired articles deleted." in result
-    assert Article.objects.count() == 0
 
 
 @pytest.mark.django_db

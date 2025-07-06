@@ -7,6 +7,7 @@ import pytest
 from django.urls import reverse
 from django.contrib.auth.models import User
 from apps.news.models import Article, Category
+from apps.users.models import Comment
 
 
 @pytest.fixture
@@ -72,13 +73,30 @@ def test_search_template_loads(client):
 
 
 @pytest.mark.django_db
-def test_comment_partial_included(client, article):
+def test_comment_partial_included(client, article, user):
+    # Create a comment so the partial will be included
+    Comment.objects.create(user=user, article=article, content="Test comment")
+
     response = client.get(reverse("news:article_detail", args=[article.id]))
+
+    # Check via fuzzy match instead of exact path
     assert any("_comment" in t.name for t in response.templates)
 
 
 @pytest.mark.django_db
-def test_carousel_partial_present(client):
+def test_carousel_partial_present(client, category):
+    from apps.news.models import Article
+    # Create enough articles to form a chunk
+    for i in range(3):
+        Article.objects.create(
+            title=f"Article {i}",
+            content="Sample",
+            category=category,
+            published_at="2025-01-01T00:00:00Z",
+            imported=True,
+            url=f"https://example.com/article-{i}"
+        )
+
     response = client.get(reverse("news:homepage"))
     assert any("carousel" in t.name for t in response.templates)
 
