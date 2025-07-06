@@ -1,41 +1,3 @@
-// CSRF helper
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let cookie of cookies) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// Show toast notification
-function showToast(message, variant = "success") {
-    const toast = document.createElement("div");
-    toast.className = `toast align-items-center text-white bg-${variant} border-0 position-fixed bottom-0 end-0 m-4 show`;
-    toast.style.zIndex = "9999";
-    toast.setAttribute("role", "alert");
-    toast.setAttribute("aria-live", "assertive");
-    toast.setAttribute("aria-atomic", "true");
-
-    toast.innerHTML = `
-        <div class="d-flex">
-            <div class="toast-body">${message}</div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-    `;
-
-    document.body.appendChild(toast);
-
-    // Auto-remove after 5 seconds
-    setTimeout(() => toast.remove(), 5000);
-}
-
 document.addEventListener("DOMContentLoaded", function () {
     console.log("profile.js loaded successfully!");
     // --- AJAX: Username, Email, Password Forms ---
@@ -60,8 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     method: "POST",
                     body: formData,
                     headers: {
-                        "X-Requested-With": "XMLHttpRequest",
-                        "X-CSRFToken": getCookie("csrftoken")
+                        "X-CSRFToken": getCSRFToken(),
+                        "X-Requested-With": "XMLHttpRequest"
                     }
                 })
                 .then(response => response.json())
@@ -107,8 +69,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: "POST",
                 body: formData,
                 headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                    "X-CSRFToken": getCookie("csrftoken")
+                    "X-CSRFToken": getCSRFToken(),
+                    "X-Requested-With": "XMLHttpRequest"
                 }
             })
             .then(response => response.json())
@@ -157,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     method: "POST",
                     body: new URLSearchParams({ [paramKey]: itemId }),
                     headers: {
-                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-CSRFToken": getCSRFToken(),
                         "X-Requested-With": "XMLHttpRequest"
                     }
                 })
@@ -200,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 fetch(endpoint, {
                     method: "POST",
                     headers: {
-                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-CSRFToken": getCSRFToken(),
                         "X-Requested-With": "XMLHttpRequest"
                     }
                 })
@@ -228,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch("/users/clear-comments/", {
                 method: "POST",
                 headers: {
-                    "X-CSRFToken": getCookie("csrftoken"),
+                    "X-CSRFToken": getCSRFToken(),
                     "X-Requested-With": "XMLHttpRequest"
                 }
             })
@@ -268,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 fetch("/users/delete-account/", {
                     method: "POST",
                     body: formData,
-                    headers: { "X-CSRFToken": getCookie("csrftoken") }
+                    headers: { "X-CSRFToken": getCSRFToken() }
                 })
                 .then(res => res.json())
                 .then(data => {

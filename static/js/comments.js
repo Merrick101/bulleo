@@ -519,25 +519,4 @@ document.addEventListener("DOMContentLoaded", function () {
             comment.style.marginLeft = (level * 20) + "px";
         });
     }
-
-    // ------------------------------------------------------
-    // 14) CSRF Token Helper
-    // ------------------------------------------------------
-    function getCSRFToken() {
-        const cookie = document.cookie.split("; ").find(row => row.startsWith("csrftoken="));
-        return cookie ? cookie.split("=")[1] : "";
-    }
-    // ------------------------------------------------------
-    // 15) Toast Notifications
-    // ------------------------------------------------------
-    function showToast(message, type = 'danger') {
-        const toastEl = document.getElementById('commentToast');
-        const toastBody = document.getElementById('commentToastBody');
-
-        toastEl.className = `toast text-bg-${type} border-0`;  // e.g. text-bg-danger or text-bg-success
-        toastBody.textContent = message;
-
-        const toast = new bootstrap.Toast(toastEl);
-        toast.show();
-    }
 });
