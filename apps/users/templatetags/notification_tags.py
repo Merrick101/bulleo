@@ -1,3 +1,8 @@
+"""
+Custom template tags for rendering recent user notifications.
+Located in apps/users/templatetags/notification_tags.py
+"""
+
 from django import template
 
 register = template.Library()
