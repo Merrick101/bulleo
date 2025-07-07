@@ -108,6 +108,7 @@ While the final UI differs from the original sketches, the core functionality an
 
 ## Technologies Used
 - Django, PostgreSQL, Celery, Redis
+- Upstash: Fully managed Redis database for background tasks and caching
 - Bootstrap 5, Font Awesome, Cloudinary
 - GNewsAPI (external data source)
 - Heroku (deployment)
@@ -137,7 +138,7 @@ NEWS_API_KEY=your_news_api_key
 ## News API & Automation
 
 ### Automated Article Import
-The News Sync section in the Django Admin allows site administrators to manage the automatic import of articles from NewsAPI.
+The News Sync section in the Django Admin allows site administrators to manage the automatic import of articles from GNewsAPI.
 
 -  Fetch Intervals – Define how often the fetch task should run (e.g., every 12 hours).
 -  News Fetch Tasks – Controls the scheduled job that pulls news into the database.
@@ -147,7 +148,7 @@ The system uses Celery + Redis in the background.
 By default, articles are fetched every 12 hours and stored in both the database and Redis cache.
 
 ### How It Works
-The **News Sync** section in the Django Admin Panel enables administrators to manage and monitor the automatic fetching of top headlines from NewsAPI. This process ensures that the site remains up-to-date with fresh, categorized articles without manual input.
+The **News Sync** section in the Django Admin Panel enables administrators to manage and monitor the automatic fetching of top headlines from GNewsAPI. This process ensures that the site remains up-to-date with fresh, categorized articles without manual input.
 
 -  The system uses **Celery**, **Redis**, and **django-celery-beat** to schedule and manage background tasks.
     
@@ -378,7 +379,8 @@ auth.Group admin view raises 500 (hidden in Jazzmin config)
 ## Credits
 - Developer: Merrick Minogue
 - PostgreSQL Database Provider: Code Institute
-- API Provider: NewsAPI.org
+- API Provider: GNewsAPI.io
+- Redis Database Provider: Upstash
 - Icons: Font Awesome
 - Admin UI: Jazzmin
 - Hosting: Heroku
