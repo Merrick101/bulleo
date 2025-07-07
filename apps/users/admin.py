@@ -4,6 +4,7 @@ Located at: apps/users/admin.py
 """
 
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from django.utils.html import format_html
 from .models import Profile, Comment, Notification, ContactMessage
 
@@ -144,3 +145,10 @@ class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'subject', 'submitted_at', 'replied')
     list_filter = ('replied', 'submitted_at')
     search_fields = ('name', 'email', 'subject', 'message')
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    ordering = ('name',)
