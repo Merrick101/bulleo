@@ -213,6 +213,7 @@ JAZZMIN_SETTINGS = {
     ],
     "hide_models": [
         "account.EmailAddress",
+        "auth.Group",
         "users.Profile",
         "django_celery_beat.ClockedSchedule",
         "django_celery_beat.crontabschedule",
