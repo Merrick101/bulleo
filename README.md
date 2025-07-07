@@ -1,131 +1,384 @@
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+# 📰 Bulleo – Project Overview
 
-Welcome USER_NAME,
+*A personalized news platform built with Django, Celery, and GNewsAPI.*
 
-This is the Code Institute student template for Gitpod. We have preinstalled all of the tools you need to get started. It's perfectly ok to use this template as the basis for your project submissions.
+**Live Site:** [https://bulleo-4e729939848e.herokuapp.com](https://bulleo-4e729939848e.herokuapp.com)
 
-You can safely delete this README.md file or change it for your own project. Please do read it at least once, though! It contains some important information about Gitpod and the extensions we use. Some of this information has been updated since the video content was created. The last update to this file was: **June 18, 2024**
+**GitHub Repository:** [https://github.com/Merrick101/bulleo](https://github.com/Merrick101/bulleo)
 
-## Gitpod Reminders
+## Table of Contents
+- [Feature Summary](#feature-summary)
+- [User Stories](#user-stories)
+- [Wireframes](#wireframes)
+- [Database Schema](#database-schema)
+- [Technologies Used](#technologies-used)
+- [Setup & Installation](#setup--installation)
+- [UI Pages](#ui-pages)
+- [News API & Automation](#news-api--automation)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Known Issues](#known-issues)
+- [Credits](#credits)
 
-To run a frontend (HTML, CSS, Javascript only) application in Gitpod, in the terminal, type:
+## Feature Summary
 
-`python3 -m http.server`
+### Must-Have
+- Personalized homepage with trending, latest, and category-based news
+- Search and filter functionality
+- User authentication and profile system
+- Comment system with voting and moderation
+- Notifications for user activity
+- News article sync via Celery and Redis
 
-A blue button should appear to click: _Make Public_,
+### Should-Have
+- Customizable news feeds
+- Toggleable notifications setting
+- Admin control panel for content and users
+- Responsive mobile and tablet views
 
-Another blue button should appear to click: _Open Browser_.
+### Could-Have
+- Markdown support in comments
+- Bookmark/saved articles view
+- Additional accessibility tweaks
 
-To run a backend Python file, type `python3 app.py` if your Python file is named `app.py`, of course.
+## User Stories
+- **Article Search & Filtering**
+  - "As a site user, I want to search and filter articles so that I can quickly find relevant news."
+- **Basic Admin Panel for Moderation**
+  - "As a site admin, I want to manage reported articles and comments so that I can keep the platform free from harmful content."
+- **Customizable News Feeds**
+  - "As a site user, I want to select my preferred news categories so that I can see relevant articles."
+- **Mobile-Friendly Responsive Design**
+  - "As a site user on mobile, I want to the site to be fully responsive so that I can comfortably read news on any device."
+- **RSS & API Integration**
+  - "As a site user, I want to the latest news to be automatically fetched from trusted sources so that I always see fresh content."
+- **Trending & Most Read**
+  - "As a site user, I want to see trending and the latest articles so that I can stay updated on popular news topics."
+- **User Authentication**
+  - "As a site user, I want to register and log in securely so that I can access personalized news."
+- **User Commenting & Voting**
+  - "As a site user, I want to comment on articles and upvote/downvote content so that I can engage with the community."
 
-A blue button should appear to click: _Make Public_,
+## Wireframes
 
-Another blue button should appear to click: _Open Browser_.
+### Wireframes vs Final Design
+The initial wireframes served as a structural planning guide but do not fully reflect the final implementation. As development progressed, design and layout decisions evolved in response to:
 
-By Default, Gitpod gives you superuser security privileges. Therefore, you do not need to use the `sudo` (superuser do) command in the bash terminal in any of the lessons.
+- Technical constraints (e.g., responsive behavior, third-party integrations)
+- User experience improvements discovered during testing
+- Visual refinements for consistency and modern aesthetics
 
-To log into the Heroku toolbelt CLI:
+While the final UI differs from the original sketches, the core functionality and user flows remain aligned with the intended goals.
 
-1. Log in to your Heroku account and go to *Account Settings* in the menu under your avatar.
-2. Scroll down to the *API Key* and click *Reveal*
-3. Copy the key
-4. In Gitpod, from the terminal, run `heroku_config`
-5. Paste in your API key when asked
+### Desktop Wireframes
+![Desktop Homepage](docs/wireframes/home-desktop.png)
 
-You can now use the `heroku` CLI program - try running `heroku apps` to confirm it works. This API key is unique and private to you, so do not share it. If you accidentally make it public, you can create a new one with _Regenerate API Key_.
+![Desktop Article List](docs/wireframes/article-list-desktop.png)
 
-### Connecting your Mongo database
+![Desktop Article Detail](docs/wireframes/article-detail-desktop.png)
 
-- **Connect to Mongo CLI on a IDE**
-- navigate to your MongoDB Clusters Sandbox
-- click **"Connect"** button
-- select **"Connect with the MongoDB shell"**
-- select **"I have the mongo shell installed"**
-- choose **mongosh (2.0 or later)** for : **"Select your mongo shell version"**
-- choose option: **"Run your connection string in your command line"**
-- in the terminal, paste the copied code `mongo "mongodb+srv://<CLUSTER-NAME>.mongodb.net/<DBname>" --apiVersion 1 --username <USERNAME>`
-  - replace all `<angle-bracket>` keys with your own data
-- enter password _(will not echo **\*\*\*\*** on screen)_
+![Desktop - Profile Collapsed](docs/wireframes/profile-desktop-default.png)
 
-------
+![Desktop - Profile Full Display](docs/wireframes/profile-desktop-display.png)
 
-## Release History
+![Admin Panel](docs/wireframes/admin-panel.png)
 
-We continually tweak and adjust this template to help give you the best experience. Here is the version history:
+![Invalid Article Search](docs/wireframes/invalid-search-desktop.png)
 
-**June 18, 2024,** Add Mongo back into template
+### Mobile Wireframes
+![Mobile Homepage](docs/wireframes/home-mobile.png)
 
-**June 14, 2024,** Temporarily remove Mongo until the key issue is resolved
+![Mobile Article List](docs/wireframes/article-list-mobile.png)
 
-**May 28 2024:** Fix Mongo and Links installs
+![Mobile Article Detail](docs/wireframes/article-detail-mobile.png)
 
-**April 26 2024:** Update node version to 16
+![Mobile - Profile Collapsed](docs/wireframes/profile-mobile-default.png)
 
-**September 20 2023:** Update Python version to 3.9.17.
+![Mobile - Profile Full Display](docs/wireframes/profile-mobile-display.png)
 
-**September 1 2021:** Remove `PGHOSTADDR` environment variable.
+## Database Schema
+![ERD Diagram](docs/misc/bulleo-erd.png)
 
-**July 19 2021:** Remove `font_fix` script now that the terminal font issue is fixed.
+### Key Models
+- User: Authenticated account with a one-to-one Profile
+- Article: News articles from NewsAPI or manual sources
+- Comment: Linked to Article/User, with replies and votes
+- Notification: Alerts for user-related activity (e.g., replies, votes)
+- Profile: Extended user info, preferences, notification toggle
 
-**July 2 2021:** Remove extensions that are not available in Open VSX.
+## Technologies Used
+- Django, PostgreSQL, Celery, Redis
+- Bootstrap 5, Font Awesome, Cloudinary
+- GNewsAPI (external data source)
+- Heroku (deployment)
 
-**June 30 2021:** Combined the P4 and P5 templates into one file, added the uptime script. See the FAQ at the end of this file.
-
-**June 10 2021:** Added: `font_fix` script and alias to fix the Terminal font issue
-
-**May 10 2021:** Added `heroku_config` script to allow Heroku API key to be stored as an environment variable.
-
-**April 7 2021:** Upgraded the template for VS Code instead of Theia.
-
-**October 21 2020:** Versions of the HTMLHint, Prettier, Bootstrap4 CDN and Auto Close extensions updated. The Python extension needs to stay the same version for now.
-
-**October 08 2020:** Additional large Gitpod files (`core.mongo*` and `core.python*`) are now hidden in the Explorer, and have been added to the `.gitignore` by default.
-
-**September 22 2020:** Gitpod occasionally creates large `core.Microsoft` files. These are now hidden in the Explorer. A `.gitignore` file has been created to make sure these files will not be committed, along with other common files.
-
-**April 16 2020:** The template now automatically installs MySQL instead of relying on the Gitpod MySQL image. The message about a Python linter not being installed has been dealt with, and the set-up files are now hidden in the Gitpod file explorer.
-
-**April 13 2020:** Added the _Prettier_ code beautifier extension instead of the code formatter built-in to Gitpod.
-
-**February 2020:** The initialisation files now _do not_ auto-delete. They will remain in your project. You can safely ignore them. They just make sure that your workspace is configured correctly each time you open it. It will also prevent the Gitpod configuration popup from appearing.
-
-**December 2019:** Added Eventyret's Bootstrap 4 extension. Type `!bscdn` in a HTML file to add the Bootstrap boilerplate. Check out the <a href="https://github.com/Eventyret/vscode-bcdn" target="_blank">README.md file at the official repo</a> for more options.
-
-------
-
-## FAQ about the uptime script
-
-**Why have you added this script?**
-
-It will help us to calculate how many running workspaces there are at any one time, which greatly helps us with cost and capacity planning. It will help us decide on the future direction of our cloud-based IDE strategy.
-
-**How will this affect me?**
-
-For everyday usage of Gitpod, it doesn’t have any effect at all. The script only captures the following data:
-
-- An ID that is randomly generated each time the workspace is started.
-- The current date and time
-- The workspace status of “started” or “running”, which is sent every 5 minutes.
-
-It is not possible for us or anyone else to trace the random ID back to an individual, and no personal data is being captured. It will not slow down the workspace or affect your work.
-
-**So….?**
-
-We want to tell you this so that we are being completely transparent about the data we collect and what we do with it.
-
-**Can I opt out?**
-
-Yes, you can. Since no personally identifiable information is being captured, we'd appreciate it if you let the script run; however if you are unhappy with the idea, simply run the following commands from the terminal window after creating the workspace, and this will remove the uptime script:
-
+## Setup & Installation
 ```
-pkill uptime.sh
-rm .vscode/uptime.sh
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
 ```
 
-**Anything more?**
+To enable news fetching:
+```
+celery -A core worker -l info
+celery -A core beat -l info
+```
 
-Yes! We'd strongly encourage you to look at the source code of the `uptime.sh` file so that you know what it's doing. As future software developers, it will be great practice to see how these shell scripts work.
+.env must include:
+```
+SECRET_KEY=your_secret
+DEBUG=False
+NEWS_API_KEY=your_news_api_key
+```
 
----
+## News API & Automation
 
-Happy coding!
+### Automated Article Import
+The News Sync section in the Django Admin allows site administrators to manage the automatic import of articles from NewsAPI.
+
+-  Fetch Intervals – Define how often the fetch task should run (e.g., every 12 hours).
+-  News Fetch Tasks – Controls the scheduled job that pulls news into the database.
+
+The system uses Celery + Redis in the background.
+
+By default, articles are fetched every 12 hours and stored in both the database and Redis cache.
+
+### How It Works
+The **News Sync** section in the Django Admin Panel enables administrators to manage and monitor the automatic fetching of top headlines from NewsAPI. This process ensures that the site remains up-to-date with fresh, categorized articles without manual input.
+
+-  The system uses **Celery**, **Redis**, and **django-celery-beat** to schedule and manage background tasks.
+    
+-  A periodic task (`fetch_news_articles`) is triggered every 12 hours to:
+    
+    -  Retrieve the latest articles from **NewsAPI**
+        
+    -  Store them in the **PostgreSQL database**
+        
+    -  Cache the results in **Redis** for faster performance
+        
+    -  Auto-categorize articles based on keyword detection
+        
+### Admin Panel Controls
+The **News Sync** section appears in the left sidebar of the Django Admin (under its own heading):
+
+| Section              | Purpose                                                                |
+| -------------------- | ---------------------------------------------------------------------- |
+| **Fetch Intervals**  | Configure how often articles should be fetched (e.g., every 12 hours). |
+| **News Fetch Tasks** | View or modify the scheduled fetch task, or trigger it manually.       |
+
+### Default Setup
+-  **Fetch Interval**: Every 43,200 seconds (12 hours)
+    
+-  **Scheduled Task**: `fetch-news-every-12-hours`
+    
+-  Task logic is located at: `apps/news/tasks.py`
+    
+-  Task runs via: `celery -A core worker -l info` and `celery -A core beat -l info`
+    
+> Tip: To immediately trigger a news update, go to **News Fetch Tasks**, click on the task, and choose **Run**.
+
+### Notes for Developers
+-  Redis is used to prevent duplicate fetches and cache recent articles (`news:<source>`).
+    
+-  If Redis is unavailable, the task will still save articles to the database.
+    
+-  Category mapping is managed via keyword matching inside `fetch_news_articles()`.
+
+## UI Pages
+- **Homepage** - Trending, latest, and category news
+- **Article Detail** - Full article view with comments
+- **All Articles** - Article list with filtering, sorting, and pagination 
+- **Profile** - View saved articles, settings, and preferences
+- **Contact** - Simple form that sends submissions to admin panel
+
+## Testing
+
+### Automated Tests
+
+#### Commands
+To run the test suite:
+- pytest
+
+To view verbose output:
+- pytest -v
+
+### News App Testing Coverage
+The news app is fully tested using Pytest-Django, covering both functionality and template rendering:
+
+#### Test Areas
+**1. Models**
+- Article, Category, and NewsSource string methods, slugs, and relationships.
+
+**2. Views**
+- Homepage, search, article detail, and all AJAX actions (like, save, comment, edit, vote, report).
+
+**3. Templates**
+- Correct rendering of partials (carousel, comments, navbars), full-page templates, and context data.
+
+**4. Admin**
+- Custom configurations and Celery task buttons tested using Django’s test client and the admin_client fixture.
+
+**5. URLs**
+- All key route resolutions verified.
+
+**6. Utilities**
+- Helper functions like chunked_queryset() tested for edge cases.
+
+**7. Celery Integration**
+- Task registration, periodic scheduling, and Redis heartbeat ping tested successfully.
+
+#### Note on Task Expiry Tests
+While task functions like delete_expired_articles() were tested indirectly, full unit testing of time-sensitive deletion logic was excluded from the final suite due to patching complexity and timezone edge cases. Manual validation was used instead.
+
+### Users App Testing Coverage
+The users app has been thoroughly tested using pytest with Django integration. The tests are designed to ensure reliability, data integrity, and consistent user experience across all features.
+
+#### Test Areas
+**1. Models**
+- Automatic creation of user profiles via signals
+- Preference management for categories
+- Comment creation and __str__ behavior
+- Notification creation and defaults
+
+**2. Forms**
+- Custom user creation form with email validation
+- Profile update and preference selection forms
+- Password change and email update validations
+- Duplicate comment prevention
+- Contact form validation
+
+**3. Views**
+- Profile display and edit functionality
+- AJAX-based updates for username, email, and password
+- Category preferences and onboarding flows
+- Account deletion, saved/upvoted article management
+- Full notification lifecycle (create, read, clear)
+
+**4. Templates**
+- Render checks for key user templates (profile, notifications, login/signup/logout)
+- Social login templates verified (e.g., Google OAuth flow fallback)
+
+**5. URLs**
+- All user-facing and AJAX routes tested for proper resolution
+
+**6. Admin**
+- Admin registration of the Profile model confirmed
+
+**7. Adapters & Signals**
+- Social login logic tested (existing users, superusers, email verification)
+- Signal ensures every user has a profile on creation
+
+All tests passed successfully.
+
+### Linting
+A full linting audit was conducted using `flake8` with the following configuration:
+
+`flake8 --count --statistics --show-source`
+
+- Max line length: 79
+
+- Ignored: W503
+
+- Excluded: .venv, migrations, node_modules, static
+
+#### Results
+All style issues were addressed in files created or modified by the developer.
+
+Remaining warnings exist in:
+
+- .vscode/*.py — scaffolded tooling files, not authored or modified by the developer
+
+- core/settings.py — minor line length warnings for long setting strings
+
+These do not impact application functionality, maintainability, or assessment criteria, and have been documented for transparency.
+
+Total warnings after cleanup: 23 (down from 42)
+
+### HTML Validation (W3C)
+All key pages validated with W3C Nu HTML Checker:
+
+![Homepage 1st Check](docs/tests/html-validator-home-01.png)
+
+![Homepage 2nd Check](docs/tests/html-validator-home-02.png)
+
+![Login](docs/tests/html-validator-login.png)
+
+![Profile](docs/tests/html-validator-profile.png)
+
+#### Results
+- No errors or accessibility failures
+- Only minor "trailing slash on void elements" info messages remain, which are valid HTML5 and do not affect functionality or accessibility
+
+### CSS Validation (W3C)
+The deployed site's stylesheets were run through the W3C CSS Validator.
+
+![CSS 1st Check](docs/tests/css-validator-main-01.png)
+
+![CSS 2nd Check](docs/tests/css-validator-main-02.png)
+
+![CSS - Login/Signup](docs/tests/css-validator-login-signup.png)
+
+#### Results:
+- No critical CSS errors affecting layout or accessibility
+- Minor issues flagged:
+
+| Issue | Resolution |
+|-------|------------|
+| `fa-rotate-by` (Font Awesome) | External library, not part of this codebase |
+| `line-clamp` | Rewritten using `-webkit-line-clamp` for compatibility |
+| `align-self: left` | Corrected to `align-self: flex-start` |
+| `color: D0D0D0` | Corrected to `color: #D0D0D0` |
+
+The final CSS is valid across modern browsers and adheres to best practices.
+
+CSS `line-clamp` is used for multi-line text truncation. While it's not part of the W3C specification, it's supported in modern browsers via the `-webkit-line-clamp` fallback and required by our code linter to prevent missing rule errors.
+
+To satisfy both validation and compatibility:
+- `line-clamp` remains for lint compatibility
+- `-webkit-line-clamp` is used for actual browser rendering
+
+This results in one harmless validator warning, which is acceptable and intentional.
+
+The login page passed validation with no errors in custom stylesheets.
+
+- One false positive was reported from the external Font Awesome CDN:
+  `transform: rotate(var(--fa-rotate-angle, none));`
+  
+This is safe and valid in all modern browsers, and does not impact layout, performance, or accessibility.
+
+### Lighthouse Audit Results
+Lighthouse audits were performed on the deployed Bulleo site using Chrome DevTools (v12.6.0) for both Mobile and Desktop experiences.
+
+#### Summary of Results:
+| Metric          | Mobile | Desktop |
+|-----------------|--------|---------|
+| Performance     | 67     | 80      |
+| Accessibility   | 88     | 88      |
+| Best Practices  | 75     | 74      |
+| SEO             | 82     | 82      |
+
+#### Notes:
+- **Performance** issues were primarily related to image size, server response, and non-HTTP/2 asset loading. Core UI remained responsive and usable.
+- **Accessibility** and **SEO** flagged minor issues such as missing meta descriptions, link labels, and heading order.
+- All results meet the educational assessment criteria and reflect a strong, responsive implementation.
+
+PDFs and screenshots of Lighthouse report summaries are included in `/docs/lighthouse`.
+
+## Known Issues
+auth.Group admin view raises 500 (hidden in Jazzmin config)
+
+## Deployment
+- Hosted via Heroku (Heroku-24 stack)
+- Static files handled via collectstatic
+- ENV configured via Heroku dashboard
+
+## Credits
+- Developer: Merrick Minogue
+- PostgreSQL Database Provider: Code Institute
+- API Provider: NewsAPI.org
+- Icons: Font Awesome
+- Admin UI: Jazzmin
+- Hosting: Heroku
