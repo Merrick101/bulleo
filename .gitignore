@@ -32,6 +32,9 @@ bulleo_backup.dump
 git-filter-repo.py
 heroku_logs.txt
 
+# Celery Beat schedule file (auto-generated)
+celerybeat-schedule*
+
 # Testing / Coverage
 .coverage
 htmlcov/
