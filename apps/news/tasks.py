@@ -21,12 +21,9 @@ from apps.news.models import Article, NewsSource, Category
 # Define a module-level logger
 logger = logging.getLogger(__name__)
 
-# Initialize Redis client using a configurable host (default to localhost)
-REDIS_HOST = getattr(settings, 'REDIS_HOST', 'localhost')
-REDIS_PORT = getattr(settings, 'REDIS_PORT', 6379)
-redis_client = redis.StrictRedis(
-    host=REDIS_HOST, port=REDIS_PORT, db=0, decode_responses=True
-)
+# Initialize Redis client using full REDIS_URL (e.g., from Upstash)
+REDIS_URL = getattr(settings, 'REDIS_URL')
+redis_client = redis.StrictRedis.from_url(REDIS_URL, decode_responses=True)
 
 # Set Redis expiry time for news articles (28 days)
 REDIS_ARTICLE_EXPIRY = timedelta(days=28).total_seconds()
@@ -86,54 +83,90 @@ def delete_expired_articles():
     return f"{count} expired articles deleted."
 
 
+def get_category_from_topic(topic):
+    """
+    Map GNews topic to a Category instance.
+    """
+    topic_map = {
+        "world": "World News",
+        "nation": "Politics",
+        "business": "Business",
+        "technology": "Technology",
+        "sports": "Sports",
+        "entertainment": "Entertainment",
+    }
+    cat_name = topic_map.get(topic.lower()) if topic else None
+    if cat_name:
+        try:
+            return Category.objects.get(name=cat_name)
+        except Category.DoesNotExist:
+            logger.warning(f"Category '{cat_name}' from topic not found.")
+    return None
+
+
+def get_category_from_keywords(title, summary, content):
+    """
+    Match article content against keyword map to determine category.
+    """
+    combined_text = re.sub(
+        r"[^\w\s]", "", f"{title} {summary} {content}".lower()
+    )
+    keyword_map = {
+        "Politics":
+            ["election", "government", "minister", "policy", "parliament"],
+        "Business":
+            ["market", "economy", "trade", "inflation", "stock"],
+        "Technology":
+            ["AI", "tech", "software", "hardware", "startup"],
+        "Sports":
+            ["match", "goal", "team", "tournament", "league"],
+        "World News":
+            ["UN", "international", "global", "conflict", "diplomacy"],
+        "Entertainment":
+            ["movie", "music", "celebrity", "TV", "film"],
+    }
+    for cat_name, keywords in keyword_map.items():
+        if any(keyword.lower() in combined_text for keyword in keywords):
+            try:
+                return Category.objects.get(name=cat_name)
+            except Category.DoesNotExist:
+                logger.warning(
+                    f"Keyword-matched category '{cat_name}' not found."
+                )
+                return None
+    return None
+
+
 @shared_task
 def fetch_news_articles():
-    """Fetch top headlines from News API and
-    store them in the database and Redis cache."""
-    key = get_redis_key("newsapi")
-    if redis_client.exists(key):
-        logger.info("News articles already cached, skipping fetch.")
-        return "News articles already cached, skipping fetch."
+    """
+    Fetch top headlines from GNews API, categorize, store, and cache.
+    """
 
-    api_key = settings.NEWS_API_KEY
-    url = "https://newsapi.org/v2/top-headlines"
+    if getattr(settings, "SKIP_FETCH_IF_CACHED", True):
+        key = get_redis_key("gnews")
+        if redis_client.exists(key):
+            logger.info("News articles already cached, skipping fetch.")
+            return "News articles already cached, skipping fetch."
+
+    api_key = settings.GNEWS_API_KEY
+    url = "https://gnews.io/api/v4/top-headlines"
     params = {
         "country": "gb",
-        "apiKey": api_key,
+        "token": api_key,
         "pageSize": 20,
     }
     try:
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
     except requests.RequestException as e:
-        logger.error(f"Error fetching articles from News API: {e}")
-        return f"Error fetching articles from News API: {e}"
+        logger.error(f"Error fetching articles from GNews API: {e}")
+        return f"Error fetching articles from GNews API: {e}"
 
     data = response.json()
     articles_data = data.get("articles", [])
     created_count = 0
     cached_articles = []
-
-    CATEGORY_KEYWORDS = {
-        "Politics": [
-            "election", "government", "minister", "policy", "parliament"
-        ],
-        "Business": [
-            "market", "economy", "trade", "inflation", "stock"
-        ],
-        "Technology": [
-            "AI", "tech", "software", "hardware", "startup"
-        ],
-        "Sports": [
-            "match", "goal", "team", "tournament", "league"
-        ],
-        "World News": [
-            "UN", "international", "global", "conflict", "diplomacy"
-        ],
-        "Entertainment": [
-            "movie", "music", "celebrity", "TV", "film"
-        ],
-    }
 
     for article_data in articles_data:
         title = article_data.get("title")
@@ -155,27 +188,20 @@ def fetch_news_articles():
         news_source = get_or_create_news_source(source_name)
         content = article_data.get("content", "")
         summary = article_data.get("description", "")
-        image_url = article_data.get("urlToImage")
-        category = None
-        combined_text = re.sub(
-            r"[^\w\s]", "", f"{title} {summary} {content}".lower()
-        )
+        image_url = article_data.get("image")
+        topic = article_data.get("topic", "")  # GNews may include this
 
-        for cat_name, keywords in CATEGORY_KEYWORDS.items():
-            if any(keyword.lower() in combined_text for keyword in keywords):
-                try:
-                    category = Category.objects.get(name=cat_name)
-                except Category.DoesNotExist:
-                    category = None
-                break
+        # Hybrid matching logic
+        category = get_category_from_topic(topic)
+        if not category:
+            category = get_category_from_keywords(title, summary, content)
 
         if not category:
-            logger.debug(f"No category matched for: {title}")
             try:
                 category = Category.objects.get(name="General")
             except Category.DoesNotExist:
-                category = None
                 logger.warning("Fallback category 'General' does not exist.")
+                category = None
 
         _, article_created = Article.objects.get_or_create(
             url=url_article,
@@ -202,9 +228,9 @@ def fetch_news_articles():
             "source": source_name,
         })
 
-    cache_articles(cached_articles, source="newsapi")
+    cache_articles(cached_articles, source="gnews")
     message = (
-        f"News articles fetched and stored successfully."
+        f"GNews articles fetched and stored successfully. "
         f"{created_count} new articles created."
     )
     logger.info(message)

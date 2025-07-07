@@ -20,6 +20,12 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 2rem;
 }
 
+#toast-container {
+  z-index: 1055;
+  bottom: 7rem;
+  right: 1rem;
+}
+
 /* Navbar Styling */
 
 .navbar-logo {
@@ -101,18 +107,26 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5rem;
 }
 
-.bulleo-article-card .card-body {
-  flex: 1 1 auto;
-  display: flex !important;
-  flex-direction: column;
-  width: 100%;
-}
-
 .bulleo-article-card {
   display: flex;
   flex-direction: column;
   background-color: #F5F5DC; /* Beige */
   border: 1px solid #333;
+}
+
+.bulleo-article-card .card-img-top {
+  width: 100% !important;
+  height: 200px !important;
+  object-fit: cover !important;
+  border-top-left-radius: 0.25rem !important;
+  border-top-right-radius: 0.25rem !important;
+}
+
+.bulleo-article-card .card-body {
+  flex: 1 1 auto;
+  display: flex !important;
+  flex-direction: column;
+  width: 100%;
 }
 
 .bulleo-article-title {
@@ -191,7 +205,6 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center !important;
   text-align: center !important;
   height: 100px;
-  margin-left: 5rem;
 }
 
 .category-card:hover {

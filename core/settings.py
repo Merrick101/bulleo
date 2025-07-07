@@ -268,8 +268,8 @@ CSRF_TRUSTED_ORIGINS = [
     "https://bulleo-4e729939848e.herokuapp.com",
 ]
 
-CSRF_COOKIE_HTTPONLY = False  # CSRF cookie accessible to JavaScript
-CSRF_COOKIE_SECURE = False      # Set to True in production
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -333,7 +333,10 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # API Keys
-NEWS_API_KEY = config("NEWS_API_KEY")
+GNEWS_API_KEY = config("GNEWS_API_KEY")
+
+# Redis Configuration
+REDIS_URL = config("REDIS_URL")
 
 # Celery Configuration
 CELERY_BROKER_URL = config("CELERY_BROKER_URL")
@@ -355,6 +358,10 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': 5 * 86400.0,  # every 5 days
     },
 }
+
+# Set to True to skip fetching news articles if they are already cached
+# Set to false to allow fetching even if cached
+SKIP_FETCH_IF_CACHED = True
 
 # Celery pytest configuration
 if "pytest" in sys.modules:
