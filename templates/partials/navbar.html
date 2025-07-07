@@ -14,7 +14,7 @@
 
     <!-- Center: Search (visible from md and up) -->
     <div class="search-bar d-none d-md-flex flex-grow-1 justify-content-center mx-3">
-      {% include "partials/search_form.html" %}
+      {% include "partials/search_form.html" with form_id="offcanvasSearchFormDesktop" %}
     </div>
 
     <!-- Right: Auth or Profile (hidden on small screens) -->
@@ -39,7 +39,7 @@
       </button>
       <ul class="dropdown-menu dropdown-menu-end bg-dark border-0 shadow text-start wide-dropdown w-100"
           aria-labelledby="mobileMenuDropdown">
-        <li class="m-3">{% include "partials/search_form.html" %}</li>
+        <li class="m-3">{% include "partials/search_form.html" with form_id="offcanvasSearchFormMobile" %}</li>
         <li class="dropdown-divider bg-secondary my-1"></li>
         {% if user.is_authenticated %}
           <li><a class="dropdown-item text-light mb-2 mt-2" href="{% url 'users:profile' %}">

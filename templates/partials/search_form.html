@@ -4,7 +4,7 @@
       action="{% url 'news:search_results' %}"
       class="d-flex w-100 align-items-center gap-2"
       role="search"
-      id="offcanvasSearchForm">
+      id="{{ form_id|default:'offcanvasSearchForm' }}">
 
   <input type="search"
          name="q"
