@@ -228,6 +228,10 @@ JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": True,
     "footer_fixed": True,
     "body_small_text": False,
+    "changeform_format_overrides": {
+        "auth.user": "collapsible",
+        "auth.group": "collapsible",
+    },
 }
 
 SITE_ID = config("SITE_ID", default=2, cast=int)
