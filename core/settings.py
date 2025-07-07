@@ -124,12 +124,12 @@ JAZZMIN_SETTINGS = {
     "site_header": "Bulleo Administration",
     "site_brand": "Bulleo",
     "welcome_sign": "Welcome to Bulleo Admin Panel",
-    "copyright": "Bulleo © 2025",
+    "copyright": "Bulleo",
 
     "order_with_respect_to": [
         "users.Comment",
         "users.Notification",
-        "users.Group",
+        "users.Profile",
     ],
 
     "custom_links": {
