@@ -5,6 +5,7 @@ Located at: apps/users/admin.py
 
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.contrib.admin.sites import AlreadyRegistered  # NOQA
 from django.utils.html import format_html
 from .models import Profile, Comment, Notification, ContactMessage
 
@@ -147,8 +148,14 @@ class ContactMessageAdmin(admin.ModelAdmin):
     search_fields = ('name', 'email', 'subject', 'message')
 
 
+try:
+    admin.site.unregister(Group)
+except admin.sites.NotRegistered:
+    pass
+
+
 @admin.register(Group)
-class GroupAdmin(admin.ModelAdmin):
+class CustomGroupAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
     ordering = ('name',)
