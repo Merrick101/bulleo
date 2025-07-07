@@ -154,8 +154,9 @@ except admin.sites.NotRegistered:
     pass
 
 
-@admin.register(Group)
 class CustomGroupAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
     ordering = ('name',)
+
+admin.site.register(Group, CustomGroupAdmin)  # NOQA
