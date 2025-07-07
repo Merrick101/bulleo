@@ -44,7 +44,7 @@ def test_post_comment_url_resolves():
 
 def test_vote_comment_url_resolves():
     path = reverse(
-      "news:vote_comment", kwargs={"comment_id": 1, "action": "upvote"}
+        "news:vote_comment", kwargs={"comment_id": 1, "action": "upvote"}
     )
     assert resolve(path).func == views.vote_comment
 
@@ -61,8 +61,9 @@ def test_delete_comment_url_resolves():
 
 def test_reply_to_comment_url_resolves():
     path = reverse(
-      "news:reply_to_comment",
-      kwargs={"article_id": 1, "parent_comment_id": 2}
+        "news:reply_to_comment", kwargs={
+            "article_id": 1, "parent_comment_id": 2
+        }
     )
     assert resolve(path).func == views.reply_to_comment
 

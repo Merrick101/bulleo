@@ -34,7 +34,7 @@ def test_notification_str_representation():
         username="alice", email="alice@test.com", password="pass123"
     )
     notif = Notification.objects.create(
-      user=user, message="Something happened"
+        user=user, message="Something happened"
     )
 
     expected_str = f"Notification for {user.username}: Something happened"

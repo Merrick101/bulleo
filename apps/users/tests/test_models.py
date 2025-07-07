@@ -16,7 +16,7 @@ User = get_user_model()
 @pytest.mark.django_db
 def test_profile_created_on_user_creation():
     user = User.objects.create_user(
-      username="alice", email="alice@example.com", password="pass1234"
+        username="alice", email="alice@example.com", password="pass1234"
     )
     assert hasattr(user, "profile")
     assert isinstance(user.profile, Profile)
@@ -26,7 +26,7 @@ def test_profile_created_on_user_creation():
 @pytest.mark.django_db
 def test_profile_preferred_categories():
     user = User.objects.create_user(
-      username="bob", email="bob@example.com", password="pass1234"
+        username="bob", email="bob@example.com", password="pass1234"
     )
     cat1 = Category.objects.create(name="Tech", slug="tech")
     cat2 = Category.objects.create(name="World", slug="world")
@@ -41,7 +41,7 @@ def test_profile_preferred_categories():
 @pytest.mark.django_db
 def test_comment_creation_and_str_method():
     user = User.objects.create_user(
-      username="carol", email="carol@example.com", password="pass1234"
+        username="carol", email="carol@example.com", password="pass1234"
     )
     source = NewsSource.objects.create(name="Test Source", slug="test-source")
     category = Category.objects.create(name="Politics", slug="politics")
@@ -55,7 +55,7 @@ def test_comment_creation_and_str_method():
     )
 
     comment = Comment.objects.create(
-      user=user, article=article, content="Interesting take!"
+        user=user, article=article, content="Interesting take!"
     )
     assert str(comment) == f"Comment by {user.username} on {article.title}"
 
@@ -63,7 +63,7 @@ def test_comment_creation_and_str_method():
 @pytest.mark.django_db
 def test_notification_creation_and_defaults():
     user = User.objects.create_user(
-      username="dave", email="dave@example.com", password="pass1234"
+        username="dave", email="dave@example.com", password="pass1234"
     )
     notification = Notification.objects.create(
         user=user,

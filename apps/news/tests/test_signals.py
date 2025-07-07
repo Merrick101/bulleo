@@ -6,7 +6,7 @@ from apps.news.models import Article, Category, NewsSource
 @pytest.mark.django_db
 def test_article_slug_is_auto_generated():
     source = NewsSource.objects.create(
-      name="Signal Source", slug="signal-source"
+        name="Signal Source", slug="signal-source"
     )
     article = Article.objects.create(
         title="Signal Testing Article",

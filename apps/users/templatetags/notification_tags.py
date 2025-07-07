@@ -7,7 +7,7 @@ register = template.Library()
 def recent_notifications(user, limit=3):
     if user.is_authenticated:
         notifications = user.notifications.filter(
-          read=False
+            read=False
         ).order_by('-created_at')[:limit]
         return {"notifications": notifications}
     return {"notifications": []}

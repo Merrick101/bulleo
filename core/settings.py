@@ -11,7 +11,7 @@ import dj_database_url
 import sys
 import cloudinary
 import cloudinary.uploader
-import cloudinary.api
+import cloudinary.api  # noqa: F401
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,11 +19,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'bulleo-4e729939848e.herokuapp.com'
-]
+DJANGO_ENV = config("DJANGO_ENV", default="development")
+
+if DJANGO_ENV == "production":
+    ALLOWED_HOSTS = config(
+        "ALLOWED_HOSTS", default=""
+    ).split(",")
+else:
+    ALLOWED_HOSTS = config(
+        "ALLOWED_HOSTS", default="localhost,127.0.0.1"
+    ).split(",")
 
 INSTALLED_APPS = [
     'jazzmin',
@@ -257,8 +262,9 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SECURE = False  # Set to True in production
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_NAME = "bulleo_session"
 
@@ -268,15 +274,10 @@ CSRF_TRUSTED_ORIGINS = [
     "https://bulleo-4e729939848e.herokuapp.com",
 ]
 
-CSRF_COOKIE_SECURE = not DEBUG
-SESSION_COOKIE_SECURE = not DEBUG
-
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
-
-AUTH_USER_MODEL = "auth.User"
 
 # Use Allauth's default URLs
 LOGIN_URL = "/accounts/login/"
@@ -297,6 +298,7 @@ CONTACT_RECIPIENT_EMAIL = "bulleo.news@gmail.com"
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "https://bulleo-4e729939848e.herokuapp.com",
 ]
 
 LANGUAGE_CODE = 'en-us'

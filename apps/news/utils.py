@@ -7,8 +7,8 @@ from typing import Generator, List, Any
 
 
 def chunked_queryset(
-  queryset: Any, chunk_size: int = 3
-  ) -> Generator[List[Any], None, None]:
+        queryset: Any, chunk_size: int = 3) -> Generator[
+            List[Any], None, None]:
     """
     Splits a QuerySet or iterable into chunks of the specified size.
 

@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import (
     logout, get_user_model,
     update_session_auth_hash
-    )
+)
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -296,9 +296,7 @@ def notification_list(request):
     notifications = request.user.notifications.order_by('-created_at')
     return render(
         request, "users/notifications.html", {
-            "notifications": notifications
-            }
-    )
+            "notifications": notifications})
 
 
 @login_required

@@ -43,7 +43,7 @@ class TestNewsModels:
 
         assert str(article).startswith("Match Results")
         assert reverse(
-          "news:article_detail", args=[article.id]
+            "news:article_detail", args=[article.id]
         ) == article.get_absolute_url()
 
     def test_article_likes_and_saves(self):

@@ -30,7 +30,7 @@ def category(db):
 @pytest.fixture
 def source(db):
     return NewsSource.objects.create(
-      name="Example Source", slug="example-source"
+        name="Example Source", slug="example-source"
     )
 
 
@@ -76,7 +76,7 @@ def test_article_detail_view(client, article):
 
 def test_toggle_like(logged_in_client, article):
     response = logged_in_client.post(
-      reverse("news:toggle_like", args=[article.id])
+        reverse("news:toggle_like", args=[article.id])
     )
     assert response.status_code == 200
     assert response.json()["success"] is True
@@ -84,7 +84,7 @@ def test_toggle_like(logged_in_client, article):
 
 def test_toggle_save(logged_in_client, article):
     response = logged_in_client.post(
-      reverse("news:toggle_save", args=[article.id])
+        reverse("news:toggle_save", args=[article.id])
     )
     assert response.status_code == 200
     assert response.json()["success"] is True
